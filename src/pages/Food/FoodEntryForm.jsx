@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { Spinner } from '../../components/ui/Spinner'
+import { FoodAnalyzingOverlay } from '../../components/ui/FoodAnalyzingOverlay'
 
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack']
 
@@ -125,16 +126,19 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
 
         {imagePreview && (
           <div className="flex flex-col gap-2">
-            <img
-              src={imagePreview}
-              alt="preview"
-              className="w-full max-h-48 object-cover rounded-xl"
-            />
+            <div className="relative rounded-xl overflow-hidden">
+              <img
+                src={imagePreview}
+                alt="preview"
+                className="w-full max-h-48 object-cover rounded-xl"
+              />
+              {analyzing && <FoodAnalyzingOverlay imagePreview={imagePreview} />}
+            </div>
             <button
               type="button"
               onClick={handleAnalyze}
               disabled={analyzing}
-              className="w-full py-3 bg-purple-600 text-white rounded-xl font-semibold hover:bg-purple-700 transition-colors disabled:opacity-40 text-sm"
+              className="w-full py-3 bg-gradient-to-r from-purple-600 to-violet-600 text-white rounded-xl font-semibold shadow-lg shadow-purple-500/30 hover:scale-[1.02] hover:shadow-purple-500/50 transition-all disabled:opacity-40 disabled:scale-100 text-sm"
             >
               {analyzing ? (
                 <span className="flex items-center justify-center gap-2">
@@ -148,12 +152,17 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
         )}
 
         {aiUsed && (
-          <p className="text-xs text-purple-600 font-medium">✓ {t('food.ai_filled')}</p>
+          <div className="flex items-center gap-2 animate-success-pop">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 rounded-full text-xs font-semibold">
+              <span className="text-base">✓</span>
+              {t('food.ai_filled')}
+            </span>
+          </div>
         )}
       </div>
 
       {/* Description */}
-      <div className="flex flex-col gap-1">
+      <div className={`flex flex-col gap-1 ${aiUsed ? 'animate-fade-in-up' : ''}`}>
         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('food.description')}</label>
         <input
           type="text"
@@ -166,7 +175,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
       </div>
 
       {/* Calories */}
-      <div className="flex flex-col gap-1">
+      <div className={`flex flex-col gap-1 ${aiUsed ? 'animate-fade-in-up' : ''}`}>
         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('food.calories')}</label>
         <input
           type="number"

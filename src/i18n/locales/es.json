@@ -294,7 +294,11 @@
     "delete_confirm": "¿Eliminar esta entrada?",
     "no_entries": "Sin entradas",
     "no_profile": "Selecciona un perfil para registrar comidas.",
-    "over_goal": "Has superado tu meta calórica"
+    "over_goal": "Has superado tu meta calórica",
+    "step_reading": "Leyendo imagen...",
+    "step_identifying": "Identificando alimentos...",
+    "step_calculating": "Calculando nutrición...",
+    "step_preparing": "Preparando resultados..."
   },
   "whatsapp": {
     "title": "Alertas WhatsApp",

@@ -294,7 +294,11 @@
     "delete_confirm": "Delete this entry?",
     "no_entries": "No entries",
     "no_profile": "Select a profile to log food.",
-    "over_goal": "You've exceeded your calorie goal"
+    "over_goal": "You've exceeded your calorie goal",
+    "step_reading": "Reading image...",
+    "step_identifying": "Identifying foods...",
+    "step_calculating": "Calculating nutrition...",
+    "step_preparing": "Preparing results..."
   },
   "whatsapp": {
     "title": "WhatsApp Alerts",
