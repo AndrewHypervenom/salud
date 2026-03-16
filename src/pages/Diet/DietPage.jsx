@@ -4,7 +4,7 @@ import { Card } from '../../components/ui/Card'
 function ListSection({ title, items, icon, itemColor }) {
   return (
     <Card>
-      <h2 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+      <h2 className="font-bold text-gray-900 dark:text-gray-50 mb-3 flex items-center gap-2">
         <span className="text-xl">{icon}</span> {title}
       </h2>
       <ul className="flex flex-col gap-2">
@@ -37,19 +37,19 @@ export default function DietPage() {
         title={t('diet.section_eat')}
         items={eatItems}
         icon="✅"
-        itemColor="text-green-700"
+        itemColor="text-green-700 dark:text-green-400"
       />
       <ListSection
         title={t('diet.section_avoid')}
         items={avoidItems}
         icon="🚫"
-        itemColor="text-red-700"
+        itemColor="text-red-700 dark:text-red-400"
       />
       <ListSection
         title={t('diet.section_tips')}
         items={tipItems}
         icon="💡"
-        itemColor="text-blue-700"
+        itemColor="text-blue-700 dark:text-blue-400"
       />
     </div>
   )

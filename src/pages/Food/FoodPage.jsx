@@ -75,7 +75,7 @@ export default function FoodPage() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">{t('food.title')}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">{t('food.title')}</h1>
       </div>
 
       {/* Calorie progress */}
@@ -90,7 +90,7 @@ export default function FoodPage() {
           </div>
           <span className="text-4xl">🔥</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-3">
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
           <div
             className={`h-3 rounded-full transition-all duration-500 ${overGoal ? 'bg-red-500' : 'bg-primary-500'}`}
             style={{ width: `${caloriePercent}%` }}
@@ -108,7 +108,7 @@ export default function FoodPage() {
         MEAL_TYPES.map(meal => (
           <div key={meal}>
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-base font-semibold text-gray-700 flex items-center gap-2">
+              <h2 className="text-base font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
                 <span>{MEAL_ICONS[meal]}</span> {t(`food.${meal}`)}
               </h2>
               <button
@@ -144,7 +144,7 @@ export default function FoodPage() {
                       />
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-800 text-sm leading-tight">{log.description}</p>
+                      <p className="font-medium text-gray-800 dark:text-gray-100 text-sm leading-tight">{log.description}</p>
                       {log.calories_estimated && (
                         <p className="text-xs text-primary-600 font-semibold mt-0.5">{log.calories_estimated} kcal</p>
                       )}

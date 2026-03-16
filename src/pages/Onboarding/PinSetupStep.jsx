@@ -89,7 +89,7 @@ export default function PinSetupStep({ onComplete, disabled }) {
     return (
       <div className="flex flex-col gap-6">
         <div className="text-center">
-          <p className="text-xl font-bold text-gray-900">{t('pin.recovery_setup_title')}</p>
+          <p className="text-xl font-bold text-gray-900 dark:text-gray-50">{t('pin.recovery_setup_title')}</p>
           <p className="text-gray-500 text-sm mt-1">{t('pin.recovery_setup_hint')}</p>
         </div>
         <div className="flex flex-col gap-4">
@@ -101,7 +101,7 @@ export default function PinSetupStep({ onComplete, disabled }) {
             placeholder={t('pin.recovery_placeholder')}
             autoComplete="off"
             disabled={disabled}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl text-center text-lg focus:outline-none focus:border-primary-500 disabled:opacity-40"
+            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-center text-lg focus:outline-none focus:border-primary-500 disabled:opacity-40"
           />
           {recoveryError && (
             <p className="text-red-500 text-sm text-center">{recoveryError}</p>
@@ -122,7 +122,7 @@ export default function PinSetupStep({ onComplete, disabled }) {
   return (
     <div className="flex flex-col items-center gap-6">
       <div className="text-center">
-        <p className="text-xl font-bold text-gray-900">
+        <p className="text-xl font-bold text-gray-900 dark:text-gray-50">
           {step === 'pin' ? t('pin.setup_title') : t('pin.confirm_title')}
         </p>
         {pinError && <p className="text-red-500 text-sm mt-1">{pinError}</p>}
@@ -137,7 +137,7 @@ export default function PinSetupStep({ onComplete, disabled }) {
             className={`w-5 h-5 rounded-full border-2 transition-all duration-100 ${
               i < currentPin.length
                 ? 'bg-primary-500 border-primary-500'
-                : 'border-gray-300'
+                : 'border-gray-300 dark:border-gray-500'
             }`}
           />
         ))}
@@ -154,7 +154,7 @@ export default function PinSetupStep({ onComplete, disabled }) {
                 onClick={handleDelete}
                 disabled={disabled}
                 aria-label={t('pin.delete')}
-                className="w-full h-20 rounded-2xl bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-2xl font-bold text-gray-700 active:scale-95 transition-transform disabled:opacity-40"
+                className="w-full h-20 rounded-2xl bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center justify-center text-2xl font-bold text-gray-700 dark:text-gray-200 active:scale-95 transition-transform disabled:opacity-40"
               >
                 ⌫
               </button>
@@ -166,7 +166,7 @@ export default function PinSetupStep({ onComplete, disabled }) {
               onClick={() => handleDigit(btn)}
               disabled={disabled}
               aria-label={btn}
-              className="w-full h-20 rounded-2xl bg-white shadow-sm border border-gray-200 hover:bg-primary-50 flex items-center justify-center text-3xl font-bold text-gray-800 active:scale-95 transition-transform disabled:opacity-40"
+              className="w-full h-20 rounded-2xl bg-white dark:bg-gray-700 shadow-sm border border-gray-200 dark:border-gray-600 hover:bg-primary-50 dark:hover:bg-gray-600 flex items-center justify-center text-3xl font-bold text-gray-800 dark:text-gray-100 active:scale-95 transition-transform disabled:opacity-40"
             >
               {btn}
             </button>

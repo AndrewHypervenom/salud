@@ -66,7 +66,7 @@ export default function CaloriesPage() {
           <span className="text-sm text-gray-500">{t('calories.activity_factor')}</span>
           <span className="font-semibold">×{multiplier}</span>
         </div>
-        <div className="mt-3 pt-3 border-t text-xs text-gray-400 text-center">{t('calories.formula')}</div>
+        <div className="mt-3 pt-3 border-t dark:border-gray-700 text-xs text-gray-400 text-center">{t('calories.formula')}</div>
       </Card>
 
       {/* Macros */}

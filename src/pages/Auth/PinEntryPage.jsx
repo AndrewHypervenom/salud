@@ -113,7 +113,7 @@ export default function PinEntryPage() {
             <div
               key={i}
               className={`w-5 h-5 rounded-full border-2 transition-all duration-100 ${
-                i < pin.length ? 'bg-primary-500 border-primary-500' : 'border-gray-300'
+                i < pin.length ? 'bg-primary-500 border-primary-500' : 'border-gray-300 dark:border-gray-500'
               }`}
             />
           ))}

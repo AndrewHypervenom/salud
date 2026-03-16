@@ -38,7 +38,7 @@ export function WhatsAppAlerts({ profile, habitsText, foodText, summaryText }) {
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-sm font-semibold text-gray-600 flex items-center gap-1">
+      <p className="text-sm font-semibold text-gray-600 dark:text-gray-300 flex items-center gap-1">
         <span>📱</span> {t('whatsapp.title')}
       </p>
       <div className="flex flex-col gap-2">
@@ -49,10 +49,10 @@ export function WhatsAppAlerts({ profile, habitsText, foodText, summaryText }) {
             onClick={() => sendMessage(btn.key, btn.message)}
             className={`w-full py-3 px-4 rounded-xl text-sm font-medium transition-colors border ${
               status[btn.key] === 'sent'
-                ? 'bg-green-50 border-green-300 text-green-700'
+                ? 'bg-green-50 dark:bg-green-900/30 border-green-300 dark:border-green-700 text-green-700 dark:text-green-400'
                 : status[btn.key] === 'error'
-                ? 'bg-red-50 border-red-300 text-red-700'
-                : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50'
+                ? 'bg-red-50 dark:bg-red-950/30 border-red-300 dark:border-red-800 text-red-700 dark:text-red-400'
+                : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'
             }`}
           >
             {status[btn.key] === 'sending'

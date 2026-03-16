@@ -126,7 +126,7 @@ export default function OnboardingPage() {
 
           <div className="text-center">
             <div className="text-4xl mb-2">🎉</div>
-            <h2 className="text-2xl font-bold text-gray-900">{t('onboarding.phase_pin')}</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-50">{t('onboarding.phase_pin')}</h2>
           </div>
 
           {/* Error prominente — visible en móvil sin scroll */}
@@ -161,7 +161,7 @@ export default function OnboardingPage() {
           ← {t('common.back')}
         </button>
         <div>
-          <p className="font-bold text-gray-900">💚 {t('app_title')}</p>
+          <p className="font-bold text-gray-900 dark:text-gray-50">💚 {t('app_title')}</p>
           <p className="text-xs text-gray-400">{t('onboarding.title')}</p>
         </div>
       </div>

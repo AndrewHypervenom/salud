@@ -32,15 +32,15 @@ export function ProfileSelector({ onClose }) {
             onClick={() => handleSelect(profile)}
             className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl text-left transition-colors ${
               activeProfileId === profile.id
-                ? 'bg-primary-50 border-2 border-primary-500'
-                : 'hover:bg-gray-50 border-2 border-transparent'
+                ? 'bg-primary-50 dark:bg-primary-900/30 border-2 border-primary-500'
+                : 'hover:bg-gray-50 dark:hover:bg-gray-700 border-2 border-transparent'
             }`}
           >
             <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-lg flex-shrink-0">
               {profile.name[0].toUpperCase()}
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-gray-900">{profile.name}</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-50">{profile.name}</p>
               <p className="text-sm text-gray-500">{profile.age} {t('profile.years')}</p>
             </div>
             {locked && <span className="text-base" aria-label={t('pin.locked')}>🔒</span>}
@@ -50,7 +50,7 @@ export function ProfileSelector({ onClose }) {
 
       <button
         onClick={() => { navigate('/onboarding/new'); onClose?.() }}
-        className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-left hover:bg-gray-50 border-2 border-dashed border-gray-300 text-gray-500"
+        className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-left hover:bg-gray-50 dark:hover:bg-gray-700 border-2 border-dashed border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400"
       >
         <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-2xl flex-shrink-0">+</div>
         <span className="font-medium">{t('profile.add_new')}</span>

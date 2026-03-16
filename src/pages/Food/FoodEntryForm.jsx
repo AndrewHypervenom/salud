@@ -96,7 +96,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
             className={`py-2 px-1 rounded-xl text-xs font-semibold transition-colors ${
               mealType === type
                 ? 'bg-primary-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
             }`}
           >
             {t(`food.${type}`)}
@@ -106,7 +106,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
 
       {/* Photo */}
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium text-gray-700">{t('food.photo')}</label>
+        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('food.photo')}</label>
         <input
           ref={fileRef}
           type="file"
@@ -118,7 +118,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-sm text-gray-500 hover:border-primary-400 hover:text-primary-600 transition-colors"
+          className="w-full py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-sm text-gray-500 dark:text-gray-400 hover:border-primary-400 hover:text-primary-600 transition-colors"
         >
           📷 {t('food.photo')}
         </button>
@@ -154,20 +154,20 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
 
       {/* Description */}
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">{t('food.description')}</label>
+        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('food.description')}</label>
         <input
           type="text"
           value={description}
           onChange={e => setDescription(e.target.value)}
           placeholder={t('food.description_placeholder')}
           required
-          className="px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-primary-500"
+          className="px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-primary-500"
         />
       </div>
 
       {/* Calories */}
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">{t('food.calories')}</label>
+        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('food.calories')}</label>
         <input
           type="number"
           value={calories}
@@ -175,31 +175,31 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
           min="0"
           max="5000"
           placeholder="350"
-          className="px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-primary-500"
+          className="px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-primary-500"
         />
       </div>
 
       {/* Notes */}
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">{t('food.notes')}</label>
+        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('food.notes')}</label>
         <input
           type="text"
           value={notes}
           onChange={e => setNotes(e.target.value)}
           placeholder="..."
-          className="px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-primary-500"
+          className="px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-primary-500"
         />
       </div>
 
       {error && (
-        <p className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-3">{error}</p>
+        <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 rounded-xl px-4 py-3">{error}</p>
       )}
 
       <div className="flex gap-3">
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 py-3 border border-gray-300 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50"
+          className="flex-1 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
         >
           {t('common.cancel')}
         </button>

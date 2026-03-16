@@ -76,7 +76,7 @@ export default function HabitsPage() {
       {total > 0 && (
         <Card>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               {t('habits.progress', { done: completedCount, total })}
             </span>
             {completedCount === total && (
