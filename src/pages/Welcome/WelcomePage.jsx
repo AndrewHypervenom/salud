@@ -49,7 +49,7 @@ export default function WelcomePage() {
         {/* App header */}
         <div className="text-center">
           <div className="text-5xl mb-3">💚</div>
-          <h1 className="text-3xl font-bold text-gray-900">{t('app_title')}</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">{t('app_title')}</h1>
           <p className="text-gray-500 mt-1">{t('welcome.subtitle')}</p>
         </div>
 
@@ -67,7 +67,7 @@ export default function WelcomePage() {
                   onClick={() => handleSelectProfile(profile)}
                   className="flex items-center gap-4 w-full px-4 py-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hover:border-primary-300 hover:shadow-md transition-all text-left"
                 >
-                  <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-xl flex-shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold text-xl flex-shrink-0">
                     {profile.name[0].toUpperCase()}
                   </div>
                   <div className="flex-1">
@@ -86,9 +86,9 @@ export default function WelcomePage() {
         {/* Create new account */}
         <button
           onClick={() => navigate('/onboarding/new')}
-          className="flex items-center gap-4 w-full px-4 py-4 bg-white rounded-2xl border-2 border-dashed border-gray-300 hover:border-primary-400 text-gray-500 hover:text-primary-600 transition-all"
+          className="flex items-center gap-4 w-full px-4 py-4 bg-white dark:bg-gray-800 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-primary-400 text-gray-500 dark:text-gray-400 hover:text-primary-600 transition-all"
         >
-          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-2xl flex-shrink-0">
+          <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-2xl flex-shrink-0">
             +
           </div>
           <span className="font-medium text-lg">{t('welcome.create_account')}</span>
