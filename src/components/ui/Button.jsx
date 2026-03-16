@@ -2,9 +2,9 @@ import clsx from 'clsx'
 
 const variants = {
   primary: 'bg-primary-600 hover:bg-primary-700 text-white',
-  secondary: 'bg-white border border-gray-300 hover:bg-gray-50 text-gray-700',
+  secondary: 'bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-600',
   danger: 'bg-red-600 hover:bg-red-700 text-white',
-  ghost: 'hover:bg-gray-100 text-gray-700',
+  ghost: 'hover:bg-gray-100 text-gray-700 dark:hover:bg-gray-700 dark:text-gray-300',
 }
 
 export function Button({ children, variant = 'primary', className, disabled, ...props }) {

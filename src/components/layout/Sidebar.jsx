@@ -17,7 +17,7 @@ export function Sidebar() {
   const { t } = useTranslation()
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-white border-r border-gray-200 min-h-screen pt-4">
+    <aside className="hidden md:flex flex-col w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 min-h-screen pt-4">
       <nav className="flex flex-col gap-1 px-3">
         {navItems.map(item => (
           <NavLink
@@ -26,8 +26,8 @@ export function Sidebar() {
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-colors ${
                 isActive
-                  ? 'bg-primary-50 text-primary-700'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100'
               }`
             }
           >

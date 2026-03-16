@@ -68,7 +68,7 @@ export default function HabitsPage() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">{t('habits.title')}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">{t('habits.title')}</h1>
         <p className="text-gray-500">{t('habits.subtitle')}</p>
       </div>
 
@@ -83,7 +83,7 @@ export default function HabitsPage() {
               <span className="text-sm text-green-600 font-medium">{t('habits.all_done')}</span>
             )}
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-3">
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
             <div
               className="bg-primary-500 h-3 rounded-full transition-all duration-500"
               style={{ width: `${progress}%` }}
@@ -118,15 +118,15 @@ export default function HabitsPage() {
                 disabled={toggling === habit.id}
                 className={`flex items-center gap-4 p-4 rounded-2xl border-2 transition-all text-left w-full min-h-[64px] ${
                   done
-                    ? 'bg-green-50 border-green-300'
-                    : 'bg-white border-gray-200 hover:border-primary-300'
+                    ? 'bg-green-50 border-green-300 dark:bg-green-900/30 dark:border-green-700'
+                    : 'bg-white border-gray-200 hover:border-primary-300 dark:bg-gray-700 dark:border-gray-600'
                 }`}
               >
                 <span className="text-3xl flex-shrink-0">
                   {toggling === habit.id ? '⏳' : done ? '✅' : '⬜'}
                 </span>
                 <span className="text-xl flex-shrink-0">{habit.emoji}</span>
-                <span className={`text-base font-medium flex-1 ${done ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+                <span className={`text-base font-medium flex-1 ${done ? 'line-through text-gray-400' : 'text-gray-800 dark:text-gray-100'}`}>
                   {habit.name}
                 </span>
                 <button
@@ -144,21 +144,21 @@ export default function HabitsPage() {
 
       {/* Add habit form */}
       <Card>
-        <p className="text-sm font-semibold text-gray-700 mb-3">{t('habits.add_habit')}</p>
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">{t('habits.add_habit')}</p>
         <form onSubmit={handleAdd} className="flex gap-2">
           <input
             type="text"
             value={newEmoji}
             onChange={e => setNewEmoji(e.target.value)}
             placeholder="✅"
-            className="w-14 px-2 py-2 border border-gray-300 rounded-xl text-center text-xl focus:outline-none focus:border-primary-500"
+            className="w-14 px-2 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-xl text-center text-xl focus:outline-none focus:border-primary-500"
           />
           <input
             type="text"
             value={newName}
             onChange={e => setNewName(e.target.value)}
             placeholder={t('habits.habit_name')}
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-primary-500"
+            className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-primary-500"
           />
           <button
             type="submit"

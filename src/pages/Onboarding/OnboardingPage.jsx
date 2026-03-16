@@ -121,7 +121,7 @@ export default function OnboardingPage() {
 
   if (phase === 'pin') {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 py-12">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center px-4 py-12">
         <div className="w-full max-w-xs flex flex-col gap-6">
 
           <div className="text-center">
@@ -154,9 +154,9 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
 
-      <div className="bg-white border-b border-gray-200 px-4 py-4 flex items-center gap-3 flex-shrink-0">
+      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-4 flex items-center gap-3 flex-shrink-0">
         <button onClick={() => navigate('/')} className="text-gray-400 hover:text-gray-600 text-sm">
           ← {t('common.back')}
         </button>
@@ -172,7 +172,7 @@ export default function OnboardingPage() {
             <div className={`max-w-[82%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
               msg.role === 'user'
                 ? 'bg-primary-500 text-white rounded-br-sm'
-                : 'bg-white shadow-sm border border-gray-100 text-gray-800 rounded-bl-sm'
+                : 'bg-white dark:bg-gray-700 shadow-sm border border-gray-100 dark:border-gray-600 text-gray-800 dark:text-gray-100 rounded-bl-sm'
             }`}>
               {msg.content}
             </div>
@@ -181,7 +181,7 @@ export default function OnboardingPage() {
 
         {loading && (
           <div className="flex justify-start">
-            <div className="bg-white shadow-sm border border-gray-100 px-4 py-3 rounded-2xl rounded-bl-sm">
+            <div className="bg-white dark:bg-gray-700 shadow-sm border border-gray-100 dark:border-gray-600 px-4 py-3 rounded-2xl rounded-bl-sm">
               <Spinner size="sm" />
             </div>
           </div>
@@ -194,7 +194,7 @@ export default function OnboardingPage() {
         <div ref={bottomRef} />
       </div>
 
-      <div className="bg-white border-t border-gray-200 px-4 py-4 flex gap-3 flex-shrink-0">
+      <div className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-4 flex gap-3 flex-shrink-0">
         <input
           type="text"
           value={input}
@@ -202,7 +202,7 @@ export default function OnboardingPage() {
           onKeyDown={handleKeyDown}
           placeholder={t('onboarding.send')}
           disabled={loading || done}
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:border-primary-500 text-sm disabled:opacity-40"
+          className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl focus:outline-none focus:border-primary-500 text-sm disabled:opacity-40"
         />
         <button
           onClick={handleSend}

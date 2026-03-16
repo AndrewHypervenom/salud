@@ -13,7 +13,7 @@ export function BPHistory({ readings, onDelete }) {
     <div className="overflow-x-auto -mx-4 px-4">
       <table className="w-full text-sm min-w-[360px]">
         <thead>
-          <tr className="text-gray-500 border-b text-left">
+          <tr className="text-gray-500 dark:text-gray-400 border-b dark:border-gray-700 text-left">
             <th className="pb-2 pr-2">Fecha</th>
             <th className="pb-2 pr-2">mmHg</th>
             <th className="pb-2 pr-2">{t('bp.status')}</th>
@@ -27,12 +27,12 @@ export function BPHistory({ readings, onDelete }) {
             const statusKey = `bp.status_${bp.status}`
             const date = new Date(r.measured_at)
             return (
-              <tr key={r.id} className={`border-b last:border-0 ${bp.bgClass} border-l-4 ${bp.isCrisis ? 'border-l-red-800' : ''}`}>
+              <tr key={r.id} className={`border-b dark:border-gray-700 last:border-0 ${bp.bgClass} ${bp.bgDarkClass} border-l-4 ${bp.isCrisis ? 'border-l-red-800' : ''}`}>
                 <td className="py-3 pr-2 text-gray-600 whitespace-nowrap">
                   {date.toLocaleDateString()}<br />
                   <span className="text-xs text-gray-400">{date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                 </td>
-                <td className="py-3 pr-2 font-bold text-gray-900">
+                <td className="py-3 pr-2 font-bold text-gray-900 dark:text-gray-50">
                   {r.systolic}/{r.diastolic}
                 </td>
                 <td className="py-3 pr-2">

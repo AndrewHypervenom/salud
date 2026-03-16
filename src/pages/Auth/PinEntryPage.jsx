@@ -80,14 +80,14 @@ export default function PinEntryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
         <Spinner />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-xs flex flex-col items-center gap-8">
 
         {/* Back */}
@@ -103,7 +103,7 @@ export default function PinEntryPage() {
           <div className="w-20 h-20 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-3xl">
             {profile ? profile.name[0].toUpperCase() : '?'}
           </div>
-          <p className="text-2xl font-bold text-gray-900">{profile?.name}</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-gray-50">{profile?.name}</p>
           <p className="text-gray-500 text-sm">{t('pin.enter_title')}</p>
         </div>
 
@@ -138,7 +138,7 @@ export default function PinEntryPage() {
                   onClick={handleDelete}
                   disabled={isLocked}
                   aria-label={t('pin.delete')}
-                  className="w-full h-20 rounded-2xl bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-2xl font-bold text-gray-700 active:scale-95 transition-transform disabled:opacity-40"
+                  className="w-full h-20 rounded-2xl bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center justify-center text-2xl font-bold text-gray-700 dark:text-gray-200 active:scale-95 transition-transform disabled:opacity-40"
                 >
                   ⌫
                 </button>
@@ -150,7 +150,7 @@ export default function PinEntryPage() {
                 onClick={() => handleDigit(btn)}
                 disabled={isLocked}
                 aria-label={btn}
-                className="w-full h-20 rounded-2xl bg-white shadow-sm border border-gray-200 hover:bg-primary-50 flex items-center justify-center text-3xl font-bold text-gray-800 active:scale-95 transition-transform disabled:opacity-40"
+                className="w-full h-20 rounded-2xl bg-white dark:bg-gray-700 shadow-sm border border-gray-200 dark:border-gray-600 hover:bg-primary-50 dark:hover:bg-gray-600 flex items-center justify-center text-3xl font-bold text-gray-800 dark:text-gray-100 active:scale-95 transition-transform disabled:opacity-40"
               >
                 {btn}
               </button>

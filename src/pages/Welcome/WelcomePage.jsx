@@ -36,14 +36,14 @@ export default function WelcomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
         <Spinner />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm flex flex-col gap-6">
 
         {/* App header */}
@@ -65,13 +65,13 @@ export default function WelcomePage() {
                 <button
                   key={profile.id}
                   onClick={() => handleSelectProfile(profile)}
-                  className="flex items-center gap-4 w-full px-4 py-4 bg-white rounded-2xl shadow-sm border border-gray-100 hover:border-primary-300 hover:shadow-md transition-all text-left"
+                  className="flex items-center gap-4 w-full px-4 py-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 hover:border-primary-300 hover:shadow-md transition-all text-left"
                 >
                   <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-xl flex-shrink-0">
                     {profile.name[0].toUpperCase()}
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-gray-900 text-lg">{profile.name}</p>
+                    <p className="font-semibold text-gray-900 dark:text-gray-50 text-lg">{profile.name}</p>
                     <p className="text-sm text-gray-400">{profile.age} {t('profile.years')}</p>
                   </div>
                   {locked && (

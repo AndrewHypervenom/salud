@@ -4,6 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {
@@ -16,6 +17,7 @@ export default {
           500: '#22c55e',
           600: '#16a34a',
           700: '#15803d',
+          900: '#14532d',
         },
       },
     },

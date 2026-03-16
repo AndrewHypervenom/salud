@@ -173,8 +173,8 @@ export default function ProfileForm() {
           />
 
           {/* WhatsApp section */}
-          <div className="border-t border-gray-100 pt-4 flex flex-col gap-3">
-            <p className="text-sm font-semibold text-gray-700">📱 {t('profile.whatsapp_section')}</p>
+          <div className="border-t border-gray-100 dark:border-gray-700 pt-4 flex flex-col gap-3">
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">📱 {t('profile.whatsapp_section')}</p>
             <Input
               label={t('whatsapp.phone')}
               type="tel"
@@ -201,7 +201,7 @@ export default function ProfileForm() {
         <Card>
           <div className="flex flex-col gap-3">
             <div>
-              <p className="font-semibold text-gray-900">{t('pin.change_pin')}</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-50">{t('pin.change_pin')}</p>
               <p className="text-sm text-gray-500">{t('pin.change_pin_hint')}</p>
             </div>
             {showPinSetup ? (

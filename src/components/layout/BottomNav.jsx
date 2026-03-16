@@ -27,10 +27,10 @@ export function BottomNav() {
         <div className="fixed inset-0 z-40 flex flex-col justify-end md:hidden" onClick={() => setShowMore(false)}>
           <div className="absolute inset-0 bg-black/30" />
           <div
-            className="relative bg-white rounded-t-3xl p-6 pb-24"
+            className="relative bg-white dark:bg-gray-800 rounded-t-3xl p-6 pb-24"
             onClick={e => e.stopPropagation()}
           >
-            <h3 className="font-bold text-gray-700 mb-3 text-sm uppercase tracking-wider">{t('nav.more')}</h3>
+            <h3 className="font-bold text-gray-700 dark:text-gray-200 mb-3 text-sm uppercase tracking-wider">{t('nav.more')}</h3>
             {moreItems.map(item => (
               <NavLink
                 key={item.to}
@@ -38,7 +38,7 @@ export function BottomNav() {
                 onClick={() => setShowMore(false)}
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 rounded-xl mb-1 ${
-                    isActive ? 'bg-primary-50 text-primary-700' : 'text-gray-700 hover:bg-gray-50'
+                    isActive ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400' : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700'
                   }`
                 }
               >
@@ -50,14 +50,14 @@ export function BottomNav() {
         </div>
       )}
 
-      <nav className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-gray-200 flex md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-30 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex md:hidden">
         {mainItems.map(item => (
           <NavLink
             key={item.to}
             to={item.to}
             className={({ isActive }) =>
               `flex-1 flex flex-col items-center justify-center py-2 text-xs gap-0.5 transition-colors ${
-                isActive ? 'text-primary-600' : 'text-gray-500'
+                isActive ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500'
               }`
             }
           >

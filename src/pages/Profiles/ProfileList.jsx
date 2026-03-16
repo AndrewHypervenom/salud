@@ -59,7 +59,7 @@ export default function ProfileList() {
                   )}
                 </button>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-gray-900">{profile.name}</p>
+                  <p className="font-semibold text-gray-900 dark:text-gray-50">{profile.name}</p>
                   <p className="text-sm text-gray-500">
                     {profile.age} {t('profile.years')} · {profile.sex === 'female' ? t('profile.sex_female') : t('profile.sex_male')} · {profile.weight_kg}kg
                   </p>

@@ -9,10 +9,10 @@ function MacroBar({ label, kcal, grams, percent, color }) {
   return (
     <div>
       <div className="flex justify-between text-sm mb-1">
-        <span className="font-medium text-gray-700">{label}</span>
+        <span className="font-medium text-gray-700 dark:text-gray-300">{label}</span>
         <span className="text-gray-500">{kcal} kcal · {grams}g</span>
       </div>
-      <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+      <div className="h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
         <div className={`h-full rounded-full ${color}`} style={{ width: `${percent}%` }} />
       </div>
     </div>
@@ -71,7 +71,7 @@ export default function CaloriesPage() {
 
       {/* Macros */}
       <Card>
-        <h2 className="font-semibold text-gray-900 mb-4">Macronutrientes</h2>
+        <h2 className="font-semibold text-gray-900 dark:text-gray-50 mb-4">Macronutrientes</h2>
         <div className="flex flex-col gap-4">
           <MacroBar
             label={t('calories.protein')}

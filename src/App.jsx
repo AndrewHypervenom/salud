@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
+import { ThemeProvider } from './context/ThemeContext'
 import { AuthProvider } from './context/AuthContext'
 import { ProfileProvider } from './context/ProfileContext'
 import AppLayout from './components/layout/AppLayout'
@@ -19,6 +20,7 @@ import FoodPage from './pages/Food/FoodPage'
 
 export default function App() {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <ProfileProvider>
         <Routes>
@@ -44,5 +46,6 @@ export default function App() {
         </Routes>
       </ProfileProvider>
     </AuthProvider>
+    </ThemeProvider>
   )
 }

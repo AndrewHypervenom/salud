@@ -62,7 +62,7 @@ export default function BPPage() {
 
       {/* History */}
       <Card>
-        <h2 className="font-bold text-gray-900 mb-3">{t('bp.history')}</h2>
+        <h2 className="font-bold text-gray-900 dark:text-gray-50 mb-3">{t('bp.history')}</h2>
         {loading ? (
           <div className="flex justify-center py-6"><Spinner /></div>
         ) : (

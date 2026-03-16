@@ -12,10 +12,10 @@ export function LanguageToggle() {
   return (
     <button
       onClick={toggle}
-      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm font-medium text-gray-700 transition-colors"
+      className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200 text-sm font-medium text-gray-700 transition-colors"
       title="Toggle language"
     >
-      {currentLang === 'es' ? '🇲🇽 ES' : '🇺🇸 EN'}
+      {currentLang === 'es' ? '🇨🇴 ES' : '🇨🇦 EN'}
     </button>
   )
 }
