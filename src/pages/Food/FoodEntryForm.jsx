@@ -91,16 +91,18 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, dailyM
       if (correctionText.trim()) body.correction = correctionText.trim()
       const { data, error: fnErr } = await supabase.functions.invoke('analyze-food', { body })
       if (fnErr) throw new Error(fnErr.message)
-      if (data?.calories_estimated) {
-        const cal = String(data.calories_estimated)
-        setCalories(cal)
-        setAiCalories(cal)
-        setAiDescription(description.trim())
-        setAiMacros(data?.macros ?? null)
-        setShowResultCard(true)
-        setAiUsed(true)
-        setCorrection('')
-      }
+      if (data?.error) throw new Error(data.error)
+      if (!data) throw new Error('No se recibió respuesta del servidor')
+
+      const cal = data.calories_estimated ? String(data.calories_estimated) : ''
+      setCalories(cal)
+      setAiCalories(cal)
+      if (data.description) setDescription(data.description)
+      setAiDescription(data.description || description.trim())
+      setAiMacros(data.macros ?? null)
+      setShowResultCard(true)
+      setAiUsed(true)
+      setCorrection('')
     } catch (e) {
       setError(e.message)
     } finally {
