@@ -5,7 +5,7 @@ import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useHabits } from '../../hooks/useHabits'
 import { useFoodLogs } from '../../hooks/useFoodLogs'
-import { calcBMR, calcTDEE } from '../../lib/formulas'
+import { calcBMR, calcTDEE, getCalorieStatus, CALORIE_COLORS } from '../../lib/formulas'
 import { Card } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
 import { FoodEntryForm } from './FoodEntryForm'
@@ -37,6 +37,9 @@ export default function FoodPage() {
 
   const caloriePercent = tdee > 0 ? Math.min((todayCalories / tdee) * 100, 100) : 0
   const overGoal = todayCalories > tdee
+  const calorieStatus = getCalorieStatus(todayCalories, tdee)
+  const calColors = CALORIE_COLORS[calorieStatus]
+  const caloriesLeft = tdee - todayCalories
 
   const logsForMeal = (meal) => todayLogs.filter(l => l.meal_type === meal)
 
@@ -80,25 +83,33 @@ export default function FoodPage() {
 
       {/* Calorie progress */}
       <Card>
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-3">
           <div>
             <p className="text-sm text-gray-500">{t('food.today_calories')}</p>
-            <p className={`text-3xl font-bold ${overGoal ? 'text-red-600' : 'text-primary-600'}`}>
+            <p className={`text-3xl font-bold ${calColors.text}`}>
               {todayCalories}
               <span className="text-base font-normal text-gray-400"> / {tdee} kcal</span>
+              {calorieStatus === 'over' && <span className="ml-1 text-base">⚠️</span>}
+            </p>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {calorieStatus === 'over'
+                ? `Superaste por ${Math.abs(caloriesLeft)} kcal`
+                : caloriePercent >= 100
+                  ? '¡Meta cumplida! 🎯'
+                  : `Te quedan ${caloriesLeft} kcal`}
             </p>
           </div>
-          <span className="text-4xl">🔥</span>
+          <div className="text-right">
+            <span className="text-4xl">🔥</span>
+            <p className={`text-sm font-semibold ${calColors.text}`}>{Math.round(caloriePercent)}%</p>
+          </div>
         </div>
         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
           <div
-            className={`h-3 rounded-full transition-all duration-500 ${overGoal ? 'bg-red-500' : 'bg-primary-500'}`}
+            className={`h-3 rounded-full transition-all duration-500 ${calColors.bar}`}
             style={{ width: `${caloriePercent}%` }}
           />
         </div>
-        {overGoal && (
-          <p className="text-xs text-red-500 mt-1">{t('food.over_goal')}</p>
-        )}
       </Card>
 
       {/* Meal sections */}
@@ -110,6 +121,11 @@ export default function FoodPage() {
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-base font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
                 <span>{MEAL_ICONS[meal]}</span> {t(`food.${meal}`)}
+                {logsForMeal(meal).length > 0 && (
+                  <span className="text-xs font-normal text-gray-400">
+                    · {logsForMeal(meal).reduce((sum, l) => sum + (l.calories_estimated || 0), 0)} kcal
+                  </span>
+                )}
               </h2>
               <button
                 onClick={() => setOpenForm(meal)}

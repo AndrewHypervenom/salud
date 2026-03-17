@@ -6,7 +6,7 @@ import { useBloodPressure } from '../hooks/useBloodPressure'
 import { useDoctorQuestions } from '../hooks/useDoctorQuestions'
 import { useHabits } from '../hooks/useHabits'
 import { useFoodLogs } from '../hooks/useFoodLogs'
-import { calcBMR, calcTDEE } from '../lib/formulas'
+import { calcBMR, calcTDEE, getCalorieStatus, CALORIE_COLORS } from '../lib/formulas'
 import { classifyBP } from '../lib/bpStatus'
 import { Card } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
@@ -46,6 +46,11 @@ export default function Dashboard() {
   const completedHabits = habits.filter(h => habitLogs.some(l => l.habit_id === h.id)).length
   const habitProgress = habits.length > 0 ? (completedHabits / habits.length) * 100 : 0
 
+  const calorieStatus = getCalorieStatus(todayCalories, tdee)
+  const calColors = CALORIE_COLORS[calorieStatus]
+  const caloriePercent = tdee > 0 ? Math.min((todayCalories / tdee) * 100, 100) : 0
+  const caloriesLeft = tdee - todayCalories
+
   return (
     <div className="flex flex-col gap-4">
       <div>
@@ -66,7 +71,7 @@ export default function Dashboard() {
           {habits.length > 0 && (
             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mt-2">
               <div
-                className="bg-green-500 h-2 rounded-full transition-all"
+                className={`h-2 rounded-full transition-all ${habitProgress >= 100 ? 'bg-green-500' : habitProgress > 0 ? 'bg-amber-500' : 'bg-gray-300'}`}
                 style={{ width: `${habitProgress}%` }}
               />
             </div>
@@ -76,15 +81,31 @@ export default function Dashboard() {
 
       {/* Food calories widget */}
       <Link to="/food">
-        <Card className="flex items-center justify-between hover:shadow-lg transition-shadow">
-          <div>
-            <p className="text-sm text-gray-500 font-medium">{t('dashboard.calories_today')}</p>
-            <p className="text-2xl font-bold text-primary-600">
-              {todayCalories}
-              <span className="text-base font-normal text-gray-400"> / {tdee} kcal</span>
-            </p>
+        <Card className="hover:shadow-lg transition-shadow">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <p className="text-sm text-gray-500 font-medium">{t('dashboard.calories_today')}</p>
+              <p className={`text-2xl font-bold ${calColors.text}`}>
+                {todayCalories}
+                <span className="text-base font-normal text-gray-400"> / {tdee} kcal</span>
+                {calorieStatus === 'over' && <span className="ml-1 text-base">⚠️</span>}
+              </p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {calorieStatus === 'over'
+                  ? `Superaste por ${Math.abs(caloriesLeft)} kcal`
+                  : `Te quedan ${caloriesLeft} kcal`}
+              </p>
+            </div>
+            <span className="text-4xl">🍽️</span>
           </div>
-          <span className="text-4xl">🍽️</span>
+          {tdee > 0 && (
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div
+                className={`h-2 rounded-full transition-all duration-500 ${calColors.bar}`}
+                style={{ width: `${caloriePercent}%` }}
+              />
+            </div>
+          )}
         </Card>
       </Link>
 
@@ -94,7 +115,7 @@ export default function Dashboard() {
           <div>
             <p className="text-sm text-gray-500 font-medium">{t('dashboard.daily_calories')}</p>
             <p className="text-3xl font-bold text-primary-600">{tdee}</p>
-            <p className="text-sm text-gray-400">{t('calories.kcal')}</p>
+            <p className="text-sm text-gray-400">{t('calories.kcal')} · BMR {bmr} kcal</p>
           </div>
           <span className="text-4xl">🔥</span>
         </Card>

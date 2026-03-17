@@ -60,3 +60,23 @@ export function calcMacros(tdee) {
 export function getActivityMultiplier(activity) {
   return ACTIVITY_MULTIPLIERS[activity] || 1.2
 }
+
+/**
+ * Classify calorie intake vs goal into 3 states
+ * @param {number} todayCalories
+ * @param {number} tdee
+ * @returns {'ok'|'warn'|'over'}
+ */
+export function getCalorieStatus(todayCalories, tdee) {
+  if (tdee <= 0) return 'ok'
+  const pct = (todayCalories / tdee) * 100
+  if (pct > 100) return 'over'
+  if (pct >= 80) return 'warn'
+  return 'ok'
+}
+
+export const CALORIE_COLORS = {
+  ok:   { text: 'text-primary-600', bar: 'bg-primary-500' },
+  warn: { text: 'text-amber-600',   bar: 'bg-amber-500' },
+  over: { text: 'text-red-600',     bar: 'bg-red-500' },
+}
