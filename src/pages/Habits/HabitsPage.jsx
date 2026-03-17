@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
-import { useHabits } from '../../hooks/useHabits'
+import { useHabits, getHabitDisplayName } from '../../hooks/useHabits'
 import { Card } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
 import { WhatsAppAlerts } from '../../components/shared/WhatsAppAlerts'
@@ -53,7 +53,7 @@ export default function HabitsPage() {
   }
 
   const habitsMessage = profile
-    ? `Hábitos de ${profile.name} hoy: ${completedCount}/${total} completados.\n${habits.map(h => `${isCompleted(h.id) ? '✅' : '⬜'} ${h.emoji} ${h.name}`).join('\n')}`
+    ? `${t('habits.whatsapp_summary', { name: profile.name, done: completedCount, total })}\n${habits.map(h => `${isCompleted(h.id) ? '✅' : '⬜'} ${h.emoji} ${getHabitDisplayName(h.name, t)}`).join('\n')}`
     : ''
 
   if (!activeProfileId || !profile) {
@@ -127,7 +127,7 @@ export default function HabitsPage() {
                 </span>
                 <span className="text-xl flex-shrink-0">{habit.emoji}</span>
                 <span className={`text-base font-medium flex-1 ${done ? 'line-through text-gray-400' : 'text-gray-800 dark:text-gray-100'}`}>
-                  {habit.name}
+                  {getHabitDisplayName(habit.name, t)}
                 </span>
                 <button
                   onClick={(e) => { e.stopPropagation(); deleteHabit(habit.id) }}

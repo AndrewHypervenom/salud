@@ -352,6 +352,7 @@
     "default_walk": "Caminar 30 minutos",
     "default_sleep": "Dormir 7-8 horas",
     "default_log_meals": "Registrar comidas",
+    "whatsapp_summary": "Hábitos de {{name}} hoy: {{done}}/{{total}} completados.",
     "delete_confirm": "¿Eliminar este hábito?",
     "all_done": "¡Todos los hábitos completados! 🎉",
     "no_profile": "Selecciona un perfil para ver tus hábitos."

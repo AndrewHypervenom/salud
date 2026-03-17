@@ -12,6 +12,30 @@ const DEFAULT_HABIT_KEYS = [
   { nameKey: 'habits.default_log_meals',  emoji: '🍽️', sort_order: 4 },
 ]
 
+// Mapa de todas las variantes conocidas (cualquier idioma) → clave i18n.
+// Permite traducir visualmente sin modificar la BD.
+const HABIT_NAME_TO_KEY = {
+  // ES
+  'Tomar medicamento':      'habits.default_medication',
+  'Beber 8 vasos de agua':  'habits.default_water',
+  'Caminar 30 minutos':     'habits.default_walk',
+  'Dormir 7-8 horas':       'habits.default_sleep',
+  'Registrar comidas':      'habits.default_log_meals',
+  // EN
+  'Take medication':        'habits.default_medication',
+  'Drink 8 glasses of water': 'habits.default_water',
+  'Walk 30 minutes':        'habits.default_walk',
+  'Sleep 7-8 hours':        'habits.default_sleep',
+  'Log meals':              'habits.default_log_meals',
+}
+
+// Devuelve el nombre del hábito traducido al idioma activo si es un hábito por defecto;
+// de lo contrario devuelve el nombre original guardado en BD.
+export function getHabitDisplayName(name, t) {
+  const key = HABIT_NAME_TO_KEY[name]
+  return key ? t(key) : name
+}
+
 export function useHabits(profileId) {
   const [habits, setHabits] = useState([])
   const [todayLogs, setTodayLogs] = useState([])

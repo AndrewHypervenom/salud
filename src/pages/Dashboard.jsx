@@ -20,6 +20,7 @@ import { Spinner } from '../components/ui/Spinner'
 import { ProgressRing } from '../components/ui/ProgressRing'
 import { ElapsedTimer } from '../components/ui/CountdownTimer'
 import { HealthCoach } from '../components/shared/HealthCoach'
+import { getHabitDisplayName } from '../hooks/useHabits'
 
 // ─────────────────────────────────────────────────────────
 //  WIDGET COMPONENTS
@@ -344,7 +345,7 @@ function HabitsWidget({ habits, habitLogs }) {
                         : 'bg-gray-100 text-gray-400 dark:bg-gray-800'
                     }`}
                   >
-                    {h.emoji} {h.name}
+                    {h.emoji} {getHabitDisplayName(h.name, t)}
                   </span>
                 )
               })}
