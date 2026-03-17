@@ -7,7 +7,7 @@ import { MacroResultCard } from '../../components/ui/MacroResultCard'
 
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack']
 
-export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave, onCancel }) {
+export function FoodEntryForm({ initialMealType = 'breakfast', profileId, dailyMacros, onSave, onCancel }) {
   const { t } = useTranslation()
   const fileRef = useRef(null)
 
@@ -218,6 +218,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
             description={description}
             calories={calories ? parseInt(calories) : null}
             macros={aiMacros}
+            dailyMacros={dailyMacros}
             onEdit={() => setShowResultCard(false)}
           />
 

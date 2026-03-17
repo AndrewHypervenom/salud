@@ -35,6 +35,7 @@ export default function FoodPage() {
     ? calcTDEE(calcBMR(profile.weight_kg, profile.height_cm, profile.age, profile.sex), profile.activity)
     : 0
   const calTarget = profile ? calcCalorieTarget(tdee, profile.health_goal) : 0
+  const dailyMacros = profile ? { ...calcMacros(calTarget), fiber_g: 25 } : null
 
   const caloriePercent = calTarget > 0 ? Math.min((todayCalories / calTarget) * 100, 100) : 0
   const overGoal = todayCalories > calTarget
@@ -141,6 +142,7 @@ export default function FoodPage() {
                 <FoodEntryForm
                   initialMealType={meal}
                   profileId={activeProfileId}
+                  dailyMacros={dailyMacros}
                   onSave={handleSave}
                   onCancel={() => setOpenForm(null)}
                 />

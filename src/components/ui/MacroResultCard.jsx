@@ -7,44 +7,81 @@ const MACRO_CONFIG = [
   { key: 'fiber_g',   labelKey: 'food.fiber',   kcalPerG: 2 },
 ]
 
-// Semáforo nutricional por macro
-// Devuelve color hex según si el valor está en rango saludable, límite o exceso
-function getMacroColor(key, grams, pct) {
-  if (grams == null || pct == null) return '#9ca3af' // gris si no hay datos
+const STATUS_COLOR = {
+  ok:      '#22c55e',
+  warning: '#f59e0b',
+  excess:  '#ef4444',
+}
 
+// Semáforo basado en % del objetivo diario del usuario consumido en esta comida
+function getMacroStatus(key, mealGrams, dailyGrams) {
+  if (mealGrams == null || !dailyGrams) return null
+  const pct = (mealGrams / dailyGrams) * 100
+
+  if (key === 'fiber_g') {
+    // Fibra: más es mejor — ≥20% del diario por comida = bien
+    if (pct >= 20) return 'ok'
+    if (pct >= 10) return 'warning'
+    return 'excess' // reutilizamos "excess" como "insuficiente"
+  }
+
+  // Fat, protein, carbs: una comida debería usar ~25-40% del presupuesto diario
+  if (pct <= 45) return 'ok'
+  if (pct <= 65) return 'warning'
+  return 'excess'
+}
+
+// Fallback cuando no hay datos del usuario: % de calorías de la comida
+function getMacroStatusFromCalPct(key, calPct) {
+  if (calPct == null) return null
   switch (key) {
     case 'fat_g':
-      // Grasas: ideal 20-35% de calorías
-      if (pct <= 35) return '#22c55e'   // verde — OK
-      if (pct <= 45) return '#f59e0b'   // amarillo — límite
-      return '#ef4444'                  // rojo — exceso
-
+      return calPct <= 35 ? 'ok' : calPct <= 45 ? 'warning' : 'excess'
     case 'protein_g':
-      // Proteínas: ideal 15-35% de calorías
-      if (pct >= 15) return '#22c55e'   // verde — bien (más proteína = mejor saciedad)
-      if (pct >= 10) return '#f59e0b'   // amarillo — bajo
-      return '#ef4444'                  // rojo — muy bajo
-
+      return calPct >= 15 ? 'ok' : calPct >= 10 ? 'warning' : 'excess'
     case 'carbs_g':
-      // Carbohidratos: ideal 40-65% de calorías
-      if (pct >= 40 && pct <= 65) return '#22c55e'  // verde — OK
-      if (pct > 65 && pct <= 75) return '#f59e0b'   // amarillo — alto
-      if (pct > 75) return '#ef4444'                 // rojo — exceso
-      if (pct >= 30) return '#f59e0b'                // amarillo — bajo
-      return '#ef4444'                               // rojo — muy bajo
-
+      return calPct >= 40 && calPct <= 65 ? 'ok' : calPct > 75 ? 'excess' : 'warning'
     case 'fiber_g':
-      // Fibra: por comida, ideal ≥7g
-      if (grams >= 7) return '#22c55e'  // verde — excelente
-      if (grams >= 3) return '#f59e0b'  // amarillo — aceptable
-      return '#ef4444'                  // rojo — muy poca fibra
-
+      return null // sin datos diarios no podemos juzgar fibra por %
     default:
-      return '#9ca3af'
+      return null
   }
 }
 
-export function MacroResultCard({ imagePreview, description, calories, macros, onEdit }) {
+function getRecommendation(macros, dailyMacros) {
+  if (!macros) return null
+
+  const tips = []
+
+  // Evaluamos cada macro contra el presupuesto diario
+  for (const { key } of MACRO_CONFIG) {
+    const mealG = macros[key]
+    const dailyG = dailyMacros?.[key]
+    const status = getMacroStatus(key, mealG, dailyG)
+
+    if (key === 'fat_g' && status === 'excess') {
+      tips.push('Reduce el aceite o la salsa para bajar las grasas')
+    }
+    if (key === 'protein_g' && status === 'excess') {
+      tips.push('Proteínas muy altas — está bien si tu objetivo es ganar músculo')
+    }
+    if (key === 'carbs_g' && status === 'excess') {
+      tips.push('Carbohidratos altos — considera reducir pan, arroz o salsas dulces')
+    }
+    if (key === 'fiber_g' && status === 'excess') {
+      // En fibra "excess" significa insuficiente
+      tips.push('Poca fibra — añade más verduras, legumbres o cereales integrales')
+    }
+    if (key === 'fiber_g' && status === 'warning') {
+      tips.push('Fibra aceptable, pero podrías añadir más verduras')
+    }
+  }
+
+  if (tips.length === 0) return '✓ Plato bien equilibrado para tus objetivos'
+  return tips[0] // mostramos el tip más prioritario
+}
+
+export function MacroResultCard({ imagePreview, description, calories, macros, dailyMacros, onEdit }) {
   const { t } = useTranslation()
 
   const title = description?.split(' con ')?.[0]?.split(',')?.[0] || description || ''
@@ -53,10 +90,12 @@ export function MacroResultCard({ imagePreview, description, calories, macros, o
     ? MACRO_CONFIG.reduce((sum, m) => sum + (macros[m.key] || 0) * m.kcalPerG, 0)
     : 0
 
-  const pct = (key, kcalPerG) =>
+  const calPct = (key, kcalPerG) =>
     macros && totalMacroCals > 0
       ? Math.round(((macros[key] || 0) * kcalPerG / totalMacroCals) * 100)
       : null
+
+  const recommendation = getRecommendation(macros, dailyMacros)
 
   return (
     <div className="flex flex-col gap-4 animate-fade-in-up">
@@ -87,14 +126,28 @@ export function MacroResultCard({ imagePreview, description, calories, macros, o
           {calories ?? '—'}
         </span>
         <span className="text-lg text-gray-400 font-medium">kcal</span>
+        {dailyMacros && calories && (
+          <span className="text-xs text-gray-400 ml-1">
+            ({Math.round((calories / (dailyMacros.protein_kcal + dailyMacros.fat_kcal + dailyMacros.carbs_kcal)) * 100)}% de tu meta diaria)
+          </span>
+        )}
       </div>
 
       {/* Círculos de macros con semáforo */}
       <div className="grid grid-cols-4 gap-2 pt-1">
         {MACRO_CONFIG.map(({ key, labelKey, kcalPerG }) => {
           const grams = macros?.[key] ?? null
-          const p = pct(key, kcalPerG)
-          const color = getMacroColor(key, grams, p)
+          const p = calPct(key, kcalPerG)
+          const status = dailyMacros
+            ? getMacroStatus(key, grams, dailyMacros[key])
+            : getMacroStatusFromCalPct(key, p)
+          const color = status ? STATUS_COLOR[status] : '#9ca3af'
+
+          // Para fibra con metas diarias, mostrar % del diario en vez de % de calorías
+          const displayPct = dailyMacros && dailyMacros[key] && grams != null
+            ? `${Math.round((grams / dailyMacros[key]) * 100)}%`
+            : p != null ? `${p}%` : '—'
+
           return (
             <div key={key} className="flex flex-col items-center gap-1.5">
               <div
@@ -105,26 +158,54 @@ export function MacroResultCard({ imagePreview, description, calories, macros, o
                   {grams != null ? `${grams}g` : '—'}
                 </span>
                 <span className="text-xs font-semibold leading-none mt-0.5" style={{ color }}>
-                  {p != null ? `${p}%` : '—'}
+                  {displayPct}
                 </span>
               </div>
               <span className="text-[10px] text-gray-400 text-center leading-tight font-medium">
                 {t(labelKey)}
               </span>
+              {dailyMacros?.[key] && (
+                <span className="text-[9px] text-gray-300 dark:text-gray-600">
+                  /{dailyMacros[key]}g
+                </span>
+              )}
             </div>
           )
         })}
       </div>
 
-      {/* Leyenda semáforo */}
+      {/* Leyenda + recomendación */}
       {macros && (
-        <div className="flex items-center gap-3 justify-center pt-1">
-          {[['#22c55e', 'OK'], ['#f59e0b', 'Límite'], ['#ef4444', 'Exceso']].map(([c, label]) => (
-            <div key={label} className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: c }} />
-              <span className="text-[10px] text-gray-400">{label}</span>
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-3 justify-center">
+            {[['ok', 'OK'], ['warning', 'Límite'], ['excess', 'Exceso/bajo']].map(([s, label]) => (
+              <div key={s} className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: STATUS_COLOR[s] }} />
+                <span className="text-[10px] text-gray-400">{label}</span>
+              </div>
+            ))}
+          </div>
+
+          {recommendation && (
+            <div className={`flex items-start gap-2 rounded-xl px-3 py-2.5 text-sm ${
+              recommendation.startsWith('✓')
+                ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
+                : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400'
+            }`}>
+              <span className="flex-shrink-0 mt-0.5">
+                {recommendation.startsWith('✓') ? '✓' : '💡'}
+              </span>
+              <span className="leading-snug">
+                {recommendation.startsWith('✓') ? recommendation.slice(2) : recommendation}
+              </span>
             </div>
-          ))}
+          )}
+
+          {dailyMacros && (
+            <p className="text-[10px] text-gray-300 dark:text-gray-600 text-center">
+              % respecto a tu objetivo diario personal
+            </p>
+          )}
         </div>
       )}
     </div>
