@@ -4,7 +4,8 @@ const corsHeaders = {
 }
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
-const MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct'
+const MODEL_VISION = 'meta-llama/llama-4-scout-17b-16e-instruct'
+const MODEL_TEXT = 'llama-3.3-70b-versatile'
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -21,7 +22,8 @@ Deno.serve(async (req: Request) => {
       )
     }
 
-    const messageContent = imageUrl
+    const isImageMode = !!imageUrl
+    const messageContent = isImageMode
       ? [
           { type: 'image_url', image_url: { url: imageUrl } },
           {
@@ -32,7 +34,7 @@ Deno.serve(async (req: Request) => {
       : [
           {
             type: 'text',
-            text: `Estima las calorías de esta comida y responde SOLO con JSON válido sin texto adicional ni markdown: {"foods":["nombre del alimento"],"description":"${textDescription}","calories_estimated":número_entero}. La comida es: ${textDescription}`,
+            text: `Eres un nutricionista experto. Estima las calorías de una porción típica de esta comida: "${textDescription}". Responde SOLO con JSON válido sin texto adicional ni markdown, usando este formato exacto: {"foods":["nombre"],"description":"${textDescription}","calories_estimated":NUMERO}. El campo calories_estimated debe ser un número entero realista basado en una porción normal.`,
           },
         ]
 
@@ -43,7 +45,7 @@ Deno.serve(async (req: Request) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: MODEL,
+        model: isImageMode ? MODEL_VISION : MODEL_TEXT,
         messages: [
           {
             role: 'user',
