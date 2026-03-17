@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useProfileContext } from '../context/ProfileContext'
@@ -469,22 +469,29 @@ function CoachWidget({ profileId, profile, calTarget, todayCalories, todayLogs, 
 //  EDIT MODE — Widget Card wrapper
 // ─────────────────────────────────────────────────────────
 
-function EditableWidget({ id, children, onHide, onMoveUp, onMoveDown, isFirst, isLast, onDragStart, onDragOver, onDrop, isDragging }) {
+function EditableWidget({ id, children, onHide, onMoveUp, onMoveDown, isFirst, isLast, onPointerDown, isDragging, isOver }) {
   const meta = WIDGET_CATALOG.find(w => w.id === id)
 
   return (
     <div
-      draggable
-      onDragStart={() => onDragStart(id)}
-      onDragOver={e => { e.preventDefault(); onDragOver(id) }}
-      onDrop={e => { e.preventDefault(); onDrop(id) }}
-      className={`relative transition-all duration-150 ${isDragging ? 'opacity-40 scale-[0.98]' : 'opacity-100'}`}
+      data-widget-id={id}
+      className={`relative transition-all duration-200 select-none ${
+        isDragging
+          ? 'opacity-40 scale-[0.97] z-0'
+          : isOver
+          ? 'ring-2 ring-primary-400 ring-offset-2 dark:ring-offset-gray-900 rounded-2xl z-10'
+          : 'opacity-100'
+      }`}
     >
       {/* Edit overlay bar */}
-      <div className="absolute -top-0 left-0 right-0 z-20 flex items-center justify-between bg-gray-900/80 backdrop-blur-sm rounded-t-2xl px-3 py-1.5">
+      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between bg-gray-900/85 backdrop-blur-sm rounded-t-2xl px-3 py-1.5">
         <div className="flex items-center gap-2">
-          {/* Drag handle */}
-          <div className="cursor-grab active:cursor-grabbing touch-none text-gray-400 hover:text-white transition-colors">
+          {/* Drag handle — pointer events only on this element */}
+          <div
+            onPointerDown={(e) => onPointerDown(e, id)}
+            className="cursor-grab active:cursor-grabbing touch-none text-gray-400 hover:text-white transition-colors p-0.5 -m-0.5"
+            style={{ touchAction: 'none' }}
+          >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
               <circle cx="5" cy="4" r="1.5"/><circle cx="11" cy="4" r="1.5"/>
               <circle cx="5" cy="8" r="1.5"/><circle cx="11" cy="8" r="1.5"/>
@@ -536,7 +543,9 @@ export default function Dashboard() {
   } = useDashboardConfig()
 
   const [editMode, setEditMode] = useState(false)
-  const [dragFrom, setDragFrom] = useState(null)
+  const dragRef = useRef({ fromId: null, overId: null })
+  const [dragFromId, setDragFromId] = useState(null)
+  const [dragOverId, setDragOverId] = useState(null)
 
   const profile = profiles.find(p => p.id === activeProfileId)
 
@@ -546,13 +555,46 @@ export default function Dashboard() {
   const calTarget = profile ? calcCalorieTarget(tdee, profile.health_goal) : 0
   const lastBP = readings[0]
 
-  // ── Drag handlers ───────────────────────────────────────
-  const handleDragStart = useCallback((id) => setDragFrom(id), [])
-  const handleDragOver = useCallback(() => {}, [])
-  const handleDrop = useCallback((toId) => {
-    if (dragFrom && dragFrom !== toId) reorderWidgets(dragFrom, toId)
-    setDragFrom(null)
-  }, [dragFrom, reorderWidgets])
+  // ── Pointer-based drag (works on mouse + touch) ─────────
+  const handlePointerDown = useCallback((e, id) => {
+    e.preventDefault()
+    dragRef.current = { fromId: id, overId: id }
+    setDragFromId(id)
+    setDragOverId(id)
+  }, [])
+
+  useEffect(() => {
+    if (!dragFromId) return
+
+    const onMove = (e) => {
+      let el = document.elementFromPoint(e.clientX, e.clientY)
+      while (el && !el.dataset.widgetId) el = el.parentElement
+      if (el?.dataset.widgetId) {
+        const overId = el.dataset.widgetId
+        if (dragRef.current.overId !== overId) {
+          dragRef.current.overId = overId
+          setDragOverId(overId)
+        }
+      }
+    }
+
+    const onUp = () => {
+      const { fromId, overId } = dragRef.current
+      if (fromId && overId && fromId !== overId) reorderWidgets(fromId, overId)
+      dragRef.current = { fromId: null, overId: null }
+      setDragFromId(null)
+      setDragOverId(null)
+    }
+
+    document.addEventListener('pointermove', onMove)
+    document.addEventListener('pointerup', onUp)
+    document.addEventListener('pointercancel', onUp)
+    return () => {
+      document.removeEventListener('pointermove', onMove)
+      document.removeEventListener('pointerup', onUp)
+      document.removeEventListener('pointercancel', onUp)
+    }
+  }, [dragFromId, reorderWidgets])
 
   // ── Widget renderer ─────────────────────────────────────
   const renderWidget = (id) => {
@@ -701,13 +743,14 @@ export default function Dashboard() {
                     onHide={hideWidget}
                     onMoveUp={moveWidget} onMoveDown={moveWidget}
                     isFirst={absIndex === 0} isLast={absIndex === visibleWidgets.length - 1}
-                    onDragStart={handleDragStart} onDragOver={handleDragOver} onDrop={handleDrop}
-                    isDragging={dragFrom === id}
+                    onPointerDown={handlePointerDown}
+                    isDragging={dragFromId === id}
+                    isOver={dragOverId === id && dragFromId !== id}
                   >
                     {content}
                   </EditableWidget>
                 ) : (
-                  <div key={id}>{content}</div>
+                  <div key={id} data-widget-id={id}>{content}</div>
                 )
               })}
             </div>
@@ -726,13 +769,14 @@ export default function Dashboard() {
             onMoveUp={(wid) => moveWidget(wid, 'up')}
             onMoveDown={(wid) => moveWidget(wid, 'down')}
             isFirst={absIndex === 0} isLast={absIndex === visibleWidgets.length - 1}
-            onDragStart={handleDragStart} onDragOver={handleDragOver} onDrop={handleDrop}
-            isDragging={dragFrom === id}
+            onPointerDown={handlePointerDown}
+            isDragging={dragFromId === id}
+            isOver={dragOverId === id && dragFromId !== id}
           >
             {content}
           </EditableWidget>
         ) : (
-          <div key={id}>{content}</div>
+          <div key={id} data-widget-id={id}>{content}</div>
         )
       })}
 
