@@ -151,7 +151,8 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
         ))}
       </div>
 
-      {/* Photo */}
+      {/* Photo — se oculta completo cuando se muestra la tarjeta resultado */}
+      {!showResultCard && (
       <div className="flex flex-col gap-2">
         <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('food.photo')}</label>
         <input
@@ -206,6 +207,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
           </div>
         )}
       </div>
+      )}
 
       {showResultCard ? (
         <MacroResultCard
