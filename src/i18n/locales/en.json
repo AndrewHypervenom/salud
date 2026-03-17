@@ -39,7 +39,20 @@
     "deleted": "Profile deleted",
     "no_profiles": "No profiles yet. Create the first one!",
     "years": "years",
-    "whatsapp_section": "WhatsApp Notifications"
+    "whatsapp_section": "WhatsApp Notifications",
+    "health_goal": "Health goal",
+    "health_goal_lose_weight": "Lose weight",
+    "health_goal_maintain": "Maintain weight",
+    "health_goal_gain_muscle": "Gain muscle",
+    "section_personal": "Personal info",
+    "section_physical": "Measurements & activity",
+    "section_goal": "Health goal",
+    "section_medical": "Medical notes",
+    "section_notifications": "Notifications",
+    "tdee_preview_label": "Calorie preview",
+    "tdee_preview_bmr": "BMR",
+    "tdee_preview_tdee": "TDEE",
+    "tdee_preview_target": "Adjusted goal"
   },
   "dashboard": {
     "title": "Health Summary",
@@ -53,7 +66,18 @@
     "no_bp": "No records",
     "go_to": "See more",
     "habits_today": "Today's Habits",
-    "calories_today": "Today's Calories"
+    "calories_today": "Today's Calories",
+    "goal_lose_weight": "Lose weight",
+    "goal_maintain": "Maintain",
+    "goal_gain_muscle": "Gain muscle",
+    "meal_missing": "Not logged",
+    "calories_remaining": "{{n}} kcal remaining",
+    "calories_over": "Exceeded by {{n}} kcal",
+    "log_food_btn": "Log food",
+    "motivation_ok": "Keep it up! You're doing great.",
+    "motivation_warn": "Almost at your goal. Watch those calories!",
+    "motivation_over": "You exceeded your goal today.",
+    "motivation_empty": "Start by logging your first meal!"
   },
   "calories": {
     "title": "Daily Calories",

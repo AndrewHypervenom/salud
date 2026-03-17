@@ -6,6 +6,7 @@ import { useProfiles } from '../../hooks/useProfiles'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useAuth } from '../../context/AuthContext'
 import { hashPin } from '../../lib/crypto'
+import { calcBMR, calcTDEE, calcCalorieTarget } from '../../lib/formulas'
 import { Input } from '../../components/ui/Input'
 import { Select } from '../../components/ui/Select'
 import { Button } from '../../components/ui/Button'
@@ -25,7 +26,7 @@ export default function ProfileForm() {
   const [showPinSetup, setShowPinSetup] = useState(false)
   const [pinSaving, setPinSaving] = useState(false)
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({
+  const { register, handleSubmit, reset, watch, formState: { errors, isSubmitting } } = useForm({
     defaultValues: {
       name: '',
       age: '',
@@ -33,6 +34,7 @@ export default function ProfileForm() {
       height_cm: '',
       sex: 'female',
       activity: 'sedentary',
+      health_goal: 'maintain',
       notes: '',
       phone_whatsapp: '',
       callmebot_api_key: '',
@@ -57,12 +59,20 @@ export default function ProfileForm() {
         height_cm: profile.height_cm,
         sex: profile.sex,
         activity: profile.activity,
+        health_goal: profile.health_goal || 'maintain',
         notes: profile.notes || '',
         phone_whatsapp: profile.phone_whatsapp || '',
         callmebot_api_key: profile.callmebot_api_key || '',
       })
     }
   }, [id, profiles, isEdit, reset, profile])
+
+  const watchedValues = watch(['weight_kg', 'height_cm', 'age', 'sex', 'activity', 'health_goal'])
+  const [wWeight, wHeight, wAge, wSex, wActivity, wGoal] = watchedValues
+  const previewBMR = (wWeight && wHeight && wAge && wSex)
+    ? calcBMR(parseFloat(wWeight), parseFloat(wHeight), parseInt(wAge), wSex) : null
+  const previewTDEE = previewBMR ? calcTDEE(previewBMR, wActivity) : null
+  const previewTarget = previewTDEE ? calcCalorieTarget(previewTDEE, wGoal) : null
 
   const onSubmit = async (data) => {
     const payload = {
@@ -110,71 +120,128 @@ export default function ProfileForm() {
 
       <Card>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-          <Input
-            label={t('profile.name')}
-            placeholder="María García"
-            error={errors.name?.message}
-            {...register('name', { required: t('common.error') })}
-          />
-          <div className="grid grid-cols-2 gap-3">
+
+          {/* Sección 1 — Datos personales */}
+          <div>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+              {t('profile.section_personal')}
+            </p>
             <Input
-              label={t('profile.age')}
-              type="number"
-              min="1"
-              max="129"
-              error={errors.age?.message}
-              {...register('age', { required: true, min: 1, max: 129 })}
+              label={t('profile.name')}
+              placeholder="María García"
+              error={errors.name?.message}
+              {...register('name', { required: t('common.error') })}
             />
+          </div>
+
+          {/* Sección 2 — Medidas y actividad */}
+          <div className="border-t border-gray-100 dark:border-gray-700 pt-4 flex flex-col gap-3">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+              {t('profile.section_physical')}
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                label={t('profile.age')}
+                type="number"
+                min="1"
+                max="129"
+                error={errors.age?.message}
+                {...register('age', { required: true, min: 1, max: 129 })}
+              />
+              <Select
+                label={t('profile.sex')}
+                error={errors.sex?.message}
+                {...register('sex', { required: true })}
+              >
+                <option value="female">{t('profile.sex_female')}</option>
+                <option value="male">{t('profile.sex_male')}</option>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                label={t('profile.weight_kg')}
+                type="number"
+                step="0.1"
+                min="20"
+                max="300"
+                placeholder="70"
+                error={errors.weight_kg?.message}
+                {...register('weight_kg', { required: true, min: 20 })}
+              />
+              <Input
+                label={t('profile.height_cm')}
+                type="number"
+                step="0.1"
+                min="50"
+                max="250"
+                placeholder="160"
+                error={errors.height_cm?.message}
+                {...register('height_cm', { required: true, min: 50 })}
+              />
+            </div>
             <Select
-              label={t('profile.sex')}
-              error={errors.sex?.message}
-              {...register('sex', { required: true })}
+              label={t('profile.activity')}
+              {...register('activity')}
             >
-              <option value="female">{t('profile.sex_female')}</option>
-              <option value="male">{t('profile.sex_male')}</option>
+              <option value="sedentary">{t('profile.activity_sedentary')}</option>
+              <option value="light">{t('profile.activity_light')}</option>
+              <option value="moderate">{t('profile.activity_moderate')}</option>
+              <option value="active">{t('profile.activity_active')}</option>
+              <option value="very_active">{t('profile.activity_very_active')}</option>
             </Select>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+
+          {/* Sección 3 — Objetivo de salud */}
+          <div className="border-t border-gray-100 dark:border-gray-700 pt-4 flex flex-col gap-3">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+              {t('profile.section_goal')}
+            </p>
+            <Select
+              label={t('profile.health_goal')}
+              {...register('health_goal')}
+            >
+              <option value="lose_weight">{t('profile.health_goal_lose_weight')}</option>
+              <option value="maintain">{t('profile.health_goal_maintain')}</option>
+              <option value="gain_muscle">{t('profile.health_goal_gain_muscle')}</option>
+            </Select>
+            {previewTarget !== null && (
+              <div className="bg-primary-50 dark:bg-primary-900/20 rounded-xl p-3 flex flex-col gap-1">
+                <p className="text-xs font-semibold text-primary-700 dark:text-primary-300 mb-1">
+                  {t('profile.tdee_preview_label')}
+                </p>
+                <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300">
+                  <span>{t('profile.tdee_preview_bmr')}</span>
+                  <span>{Math.round(previewBMR)} kcal</span>
+                </div>
+                <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300">
+                  <span>{t('profile.tdee_preview_tdee')}</span>
+                  <span>{previewTDEE} kcal</span>
+                </div>
+                <div className="flex justify-between text-sm font-bold text-primary-700 dark:text-primary-300">
+                  <span>{t('profile.tdee_preview_target')}</span>
+                  <span>{previewTarget} kcal</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Sección 4 — Notas médicas */}
+          <div className="border-t border-gray-100 dark:border-gray-700 pt-4 flex flex-col gap-3">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+              {t('profile.section_medical')}
+            </p>
             <Input
-              label={t('profile.weight_kg')}
-              type="number"
-              step="0.1"
-              min="20"
-              max="300"
-              placeholder="70"
-              error={errors.weight_kg?.message}
-              {...register('weight_kg', { required: true, min: 20 })}
-            />
-            <Input
-              label={t('profile.height_cm')}
-              type="number"
-              step="0.1"
-              min="50"
-              max="250"
-              placeholder="160"
-              error={errors.height_cm?.message}
-              {...register('height_cm', { required: true, min: 50 })}
+              label={t('profile.notes')}
+              placeholder="Colesterol 205, triglicéridos 161..."
+              {...register('notes')}
             />
           </div>
-          <Select
-            label={t('profile.activity')}
-            {...register('activity')}
-          >
-            <option value="sedentary">{t('profile.activity_sedentary')}</option>
-            <option value="light">{t('profile.activity_light')}</option>
-            <option value="moderate">{t('profile.activity_moderate')}</option>
-            <option value="active">{t('profile.activity_active')}</option>
-            <option value="very_active">{t('profile.activity_very_active')}</option>
-          </Select>
-          <Input
-            label={t('profile.notes')}
-            placeholder="Colesterol 205, triglicéridos 161..."
-            {...register('notes')}
-          />
 
-          {/* WhatsApp section */}
+          {/* Sección 5 — Notificaciones */}
           <div className="border-t border-gray-100 dark:border-gray-700 pt-4 flex flex-col gap-3">
-            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">📱 {t('profile.whatsapp_section')}</p>
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+              📱 {t('profile.section_notifications')}
+            </p>
             <Input
               label={t('whatsapp.phone')}
               type="tel"

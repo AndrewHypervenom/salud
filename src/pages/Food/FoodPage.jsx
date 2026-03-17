@@ -5,7 +5,7 @@ import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useHabits } from '../../hooks/useHabits'
 import { useFoodLogs } from '../../hooks/useFoodLogs'
-import { calcBMR, calcTDEE, getCalorieStatus, CALORIE_COLORS } from '../../lib/formulas'
+import { calcBMR, calcTDEE, calcCalorieTarget, getCalorieStatus, CALORIE_COLORS } from '../../lib/formulas'
 import { Card } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
 import { FoodEntryForm } from './FoodEntryForm'
@@ -34,12 +34,13 @@ export default function FoodPage() {
   const tdee = profile
     ? calcTDEE(calcBMR(profile.weight_kg, profile.height_cm, profile.age, profile.sex), profile.activity)
     : 0
+  const calTarget = profile ? calcCalorieTarget(tdee, profile.health_goal) : 0
 
-  const caloriePercent = tdee > 0 ? Math.min((todayCalories / tdee) * 100, 100) : 0
-  const overGoal = todayCalories > tdee
-  const calorieStatus = getCalorieStatus(todayCalories, tdee)
+  const caloriePercent = calTarget > 0 ? Math.min((todayCalories / calTarget) * 100, 100) : 0
+  const overGoal = todayCalories > calTarget
+  const calorieStatus = getCalorieStatus(todayCalories, calTarget)
   const calColors = CALORIE_COLORS[calorieStatus]
-  const caloriesLeft = tdee - todayCalories
+  const caloriesLeft = calTarget - todayCalories
 
   const logsForMeal = (meal) => todayLogs.filter(l => l.meal_type === meal)
 
@@ -56,14 +57,14 @@ export default function FoodPage() {
 
   const completedHabits = habits.filter(h => habitLogs.some(l => l.habit_id === h.id)).length
   const foodSummary = profile
-    ? `Comidas de ${profile.name} hoy: ${todayCalories} kcal de ${tdee} kcal meta.\n${MEAL_TYPES.map(m => {
+    ? `Comidas de ${profile.name} hoy: ${todayCalories} kcal de ${calTarget} kcal meta.\n${MEAL_TYPES.map(m => {
         const logs = logsForMeal(m)
         return logs.length ? `${MEAL_ICONS[m]} ${t(`food.${m}`)}: ${logs.map(l => l.description).join(', ')}` : null
       }).filter(Boolean).join('\n')}`
     : ''
 
   const daySummary = profile
-    ? `Resumen de ${profile.name} hoy:\n✅ Hábitos: ${completedHabits}/${habits.length}\n🍽️ Calorías: ${todayCalories}/${tdee} kcal`
+    ? `Resumen de ${profile.name} hoy:\n✅ Hábitos: ${completedHabits}/${habits.length}\n🍽️ Calorías: ${todayCalories}/${calTarget} kcal`
     : ''
 
   if (!activeProfileId || !profile) {
@@ -88,7 +89,7 @@ export default function FoodPage() {
             <p className="text-sm text-gray-500">{t('food.today_calories')}</p>
             <p className={`text-3xl font-bold ${calColors.text}`}>
               {todayCalories}
-              <span className="text-base font-normal text-gray-400"> / {tdee} kcal</span>
+              <span className="text-base font-normal text-gray-400"> / {calTarget} kcal</span>
               {calorieStatus === 'over' && <span className="ml-1 text-base">⚠️</span>}
             </p>
             <p className="text-xs text-gray-400 mt-0.5">

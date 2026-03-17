@@ -80,3 +80,14 @@ export const CALORIE_COLORS = {
   warn: { text: 'text-amber-600',   bar: 'bg-amber-500' },
   over: { text: 'text-red-600',     bar: 'bg-red-500' },
 }
+
+export const HEALTH_GOAL_ADJUSTMENTS = {
+  lose_weight:  -300,
+  maintain:        0,
+  gain_muscle:  +200,
+}
+
+export function calcCalorieTarget(tdee, healthGoal = 'maintain') {
+  const adjustment = HEALTH_GOAL_ADJUSTMENTS[healthGoal] ?? 0
+  return Math.max(1200, tdee + adjustment)
+}

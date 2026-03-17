@@ -39,7 +39,20 @@
     "deleted": "Perfil eliminado",
     "no_profiles": "No hay perfiles. ¡Crea el primero!",
     "years": "años",
-    "whatsapp_section": "Notificaciones WhatsApp"
+    "whatsapp_section": "Notificaciones WhatsApp",
+    "health_goal": "Objetivo de salud",
+    "health_goal_lose_weight": "Bajar de peso",
+    "health_goal_maintain": "Mantener peso",
+    "health_goal_gain_muscle": "Ganar músculo",
+    "section_personal": "Datos personales",
+    "section_physical": "Medidas y actividad",
+    "section_goal": "Objetivo de salud",
+    "section_medical": "Notas médicas",
+    "section_notifications": "Notificaciones",
+    "tdee_preview_label": "Vista previa de calorías",
+    "tdee_preview_bmr": "TMB",
+    "tdee_preview_tdee": "TDEE",
+    "tdee_preview_target": "Meta ajustada"
   },
   "dashboard": {
     "title": "Resumen de Salud",
@@ -53,7 +66,18 @@
     "no_bp": "Sin registros",
     "go_to": "Ver más",
     "habits_today": "Hábitos de Hoy",
-    "calories_today": "Calorías de Hoy"
+    "calories_today": "Calorías de Hoy",
+    "goal_lose_weight": "Bajar peso",
+    "goal_maintain": "Mantener",
+    "goal_gain_muscle": "Ganar músculo",
+    "meal_missing": "Sin registrar",
+    "calories_remaining": "Te quedan {{n}} kcal",
+    "calories_over": "Superaste por {{n}} kcal",
+    "log_food_btn": "Registrar comida",
+    "motivation_ok": "¡Vas muy bien! Sigue así.",
+    "motivation_warn": "Casi en tu meta. ¡Cuidado con las calorías!",
+    "motivation_over": "Superaste tu meta de hoy.",
+    "motivation_empty": "¡Empieza registrando tu primera comida!"
   },
   "calories": {
     "title": "Calorías Diarias",
