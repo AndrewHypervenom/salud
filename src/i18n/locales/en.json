@@ -251,7 +251,15 @@
   "welcome": {
     "subtitle": "Your family health, always at hand",
     "select_profile": "Select your profile",
-    "create_account": "Create new account"
+    "create_account": "Create new account",
+    "enter_phone": "Your phone number",
+    "phone_placeholder": "E.g. 15551234567",
+    "continue": "Continue",
+    "not_found": "Number not registered. Please check your number.",
+    "server_error": "Connection error. Please try again.",
+    "locked_login": "Too many attempts. Wait {{mins}} minute(s).",
+    "phone_step_title": "What is your phone number?",
+    "phone_step_hint": "You will use it to sign in to the app"
   },
   "pin": {
     "enter_title": "Enter your access code",
@@ -271,6 +279,7 @@
     "finish_setup": "Finish setup",
     "locked": "Profile locked",
     "locked_message": "Too many attempts. Please wait 5 minutes and try again.",
+    "locked_message_mins": "Too many attempts. Wait {{mins}} minute(s).",
     "delete": "Delete",
     "lock_all": "Lock all profiles",
     "change_pin": "Change access code",

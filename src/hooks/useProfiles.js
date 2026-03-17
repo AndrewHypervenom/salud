@@ -54,5 +54,17 @@ export function useProfiles() {
     setProfiles(prev => prev.filter(p => p.id !== id))
   }
 
-  return { profiles, loading, error, fetchProfiles, createProfile, updateProfile, deleteProfile }
+  const findProfileByPhone = async (phone) => {
+    const normalized = phone.replace(/\D/g, '')
+    const { data, error: err } = await supabase
+      .from('profiles')
+      .select('id, name, access_code')
+      .eq('phone_whatsapp', normalized)
+      .limit(1)
+      .maybeSingle()
+    if (err) throw err
+    return data
+  }
+
+  return { profiles, loading, error, fetchProfiles, createProfile, updateProfile, deleteProfile, findProfileByPhone }
 }

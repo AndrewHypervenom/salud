@@ -139,6 +139,30 @@ create index if not exists food_logs_profile_id_idx      on food_logs(profile_id
 create index if not exists food_logs_logged_at_idx       on food_logs(logged_at desc);
 
 -- -------------------------------------------------------------
+-- Intentos de login fallidos (brute force protection)
+-- Ejecutar en Supabase SQL Editor
+-- -------------------------------------------------------------
+create table if not exists login_attempts (
+  id           uuid        primary key default gen_random_uuid(),
+  identifier   text        not null,  -- phone normalizado o 'recovery:<profile_id>'
+  attempted_at timestamptz not null default now()
+);
+
+create index if not exists login_attempts_identifier_idx
+  on login_attempts (identifier, attempted_at desc);
+
+alter table login_attempts enable row level security;
+
+create policy "allow_insert_attempts" on login_attempts
+  for insert to anon with check (true);
+
+create policy "allow_select_attempts" on login_attempts
+  for select to anon using (true);
+
+create policy "allow_delete_attempts" on login_attempts
+  for delete to anon using (true);
+
+-- -------------------------------------------------------------
 -- Row Level Security (desactivado para uso familiar sin auth)
 -- Activar si en el futuro se agrega autenticación real.
 -- -------------------------------------------------------------

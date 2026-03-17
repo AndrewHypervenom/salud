@@ -251,7 +251,15 @@
   "welcome": {
     "subtitle": "Tu salud familiar, siempre a mano",
     "select_profile": "Selecciona tu perfil",
-    "create_account": "Crear cuenta nueva"
+    "create_account": "Crear cuenta nueva",
+    "enter_phone": "Tu número de celular",
+    "phone_placeholder": "Ej. 50688887777",
+    "continue": "Continuar",
+    "not_found": "Número no registrado. Verifica tu número.",
+    "server_error": "Error de conexión. Intenta de nuevo.",
+    "locked_login": "Demasiados intentos. Espera {{mins}} minuto(s).",
+    "phone_step_title": "¿Cuál es tu número de celular?",
+    "phone_step_hint": "Lo usarás para entrar a la app"
   },
   "pin": {
     "enter_title": "Ingresa tu código de acceso",
@@ -271,6 +279,7 @@
     "finish_setup": "Finalizar configuración",
     "locked": "Perfil bloqueado",
     "locked_message": "Demasiados intentos. Espera 5 minutos e intenta de nuevo.",
+    "locked_message_mins": "Demasiados intentos. Espera {{mins}} minuto(s).",
     "delete": "Borrar",
     "lock_all": "Bloquear todos los perfiles",
     "change_pin": "Cambiar código de acceso",

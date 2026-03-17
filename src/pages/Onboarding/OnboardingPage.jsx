@@ -58,6 +58,8 @@ export default function OnboardingPage() {
 
   const [input, setInput] = useState('')
   const [phase, setPhase] = useState('chat')
+  const [phoneNumber, setPhoneNumber] = useState('')
+  const [phoneError, setPhoneError] = useState('')
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
   const bottomRef = useRef(null)
@@ -76,7 +78,7 @@ export default function OnboardingPage() {
   }, [messages, loading])
 
   useEffect(() => {
-    if (done && extracted) setPhase('pin')
+    if (done && extracted) setPhase('phone')
   }, [done, extracted])
 
   const handleSend = () => {
@@ -106,7 +108,7 @@ export default function OnboardingPage() {
     try {
       const access_code = await hashPin(pin)
       const recovery_code = await hashPin(recoveryWord)
-      const profile = await createProfile({ ...normalized, access_code, recovery_code })
+      const profile = await createProfile({ ...normalized, access_code, recovery_code, phone_whatsapp: phoneNumber.replace(/\D/g, '') })
       setActiveProfileId(profile.id)
       unlockProfile(profile.id)
       // Seed default habits silently — don't block navigation on failure
@@ -117,6 +119,50 @@ export default function OnboardingPage() {
       setSaveError(`Error al guardar: ${err.message || 'Inténtalo de nuevo.'}`)
       setSaving(false)
     }
+  }
+
+  if (phase === 'phone') {
+    const handlePhoneContinue = () => {
+      const digits = phoneNumber.replace(/\D/g, '')
+      if (digits.length < 8) {
+        setPhoneError('Ingresa un número válido (mínimo 8 dígitos).')
+        return
+      }
+      setPhoneError('')
+      setPhase('pin')
+    }
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center px-6 py-12">
+        <div className="w-full max-w-xs flex flex-col gap-8">
+          <div className="text-center">
+            <div className="text-4xl mb-3">📱</div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-50">{t('welcome.phone_step_title')}</h2>
+            <p className="text-gray-500 mt-2 text-sm">{t('welcome.phone_step_hint')}</p>
+          </div>
+          <div className="flex flex-col gap-3">
+            <input
+              type="tel"
+              inputMode="numeric"
+              value={phoneNumber}
+              onChange={e => { setPhoneNumber(e.target.value); setPhoneError('') }}
+              onKeyDown={e => e.key === 'Enter' && handlePhoneContinue()}
+              placeholder={t('welcome.phone_placeholder')}
+              autoFocus
+              autoComplete="tel"
+              className="w-full px-5 py-4 text-xl border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500 rounded-2xl focus:outline-none focus:border-primary-500 transition-colors"
+            />
+            {phoneError && <p className="text-red-500 text-sm text-center">{phoneError}</p>}
+          </div>
+          <button
+            onClick={handlePhoneContinue}
+            disabled={!phoneNumber.replace(/\D/g, '')}
+            className="w-full py-5 bg-primary-600 text-white text-xl font-bold rounded-2xl hover:bg-primary-700 disabled:opacity-40 transition-all shadow-md"
+          >
+            {t('welcome.continue')}
+          </button>
+        </div>
+      </div>
+    )
   }
 
   if (phase === 'pin') {

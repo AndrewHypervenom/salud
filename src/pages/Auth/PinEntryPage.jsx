@@ -1,90 +1,92 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useParams, Link } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useProfiles } from '../../hooks/useProfiles'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useAuth } from '../../context/AuthContext'
+import { useLoginAttempts } from '../../hooks/useLoginAttempts'
 import { verifyPin } from '../../lib/crypto'
-import { Spinner } from '../../components/ui/Spinner'
-
-const MAX_ATTEMPTS = 3
-const LOCKOUT_MS = 5 * 60 * 1000 // 5 minutes
 
 const NUMPAD = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫']
 
 export default function PinEntryPage() {
   const { t } = useTranslation()
-  const { id } = useParams()
   const navigate = useNavigate()
-  const { profiles, loading } = useProfiles()
+  const { state } = useLocation()
   const { setActiveProfileId } = useProfileContext()
   const { unlockProfile } = useAuth()
+  const { checkLocked, recordFailure, clearAttempts } = useLoginAttempts()
 
   const [pin, setPin] = useState('')
   const [shake, setShake] = useState(false)
+  const [locked, setLocked] = useState(false)
+  const [remainingMins, setRemainingMins] = useState(0)
   const [attempts, setAttempts] = useState(0)
-  const [lockedUntil, setLockedUntil] = useState(null)
+  const [tooMany, setTooMany] = useState(false)
 
-  const profile = profiles.find(p => p.id === id)
-  const isLocked = lockedUntil != null && Date.now() < lockedUntil
+  const { profileId, profileName, accessCode, phone } = state || {}
 
-  // Restore lock from sessionStorage on mount
+  // Redirect if accessed directly without state
   useEffect(() => {
-    const raw = sessionStorage.getItem(`pin_lock_${id}`)
-    if (raw) {
-      const until = parseInt(raw)
-      if (Date.now() < until) setLockedUntil(until)
-      else sessionStorage.removeItem(`pin_lock_${id}`)
+    if (!profileId || !accessCode) {
+      navigate('/', { replace: true })
     }
-  }, [id])
+  }, [profileId, accessCode, navigate])
+
+  // Check server-side lock on mount
+  useEffect(() => {
+    if (!phone) return
+    checkLocked(phone).then(({ locked: l, remainingMs }) => {
+      if (l) {
+        setLocked(true)
+        setRemainingMins(Math.ceil(remainingMs / 60000))
+        setTooMany(true)
+      }
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phone])
 
   // Auto-verify when 4 digits entered
   useEffect(() => {
-    if (pin.length !== 4 || !profile?.access_code) return
+    if (pin.length !== 4 || !accessCode) return
     let cancelled = false
 
-    verifyPin(pin, profile.access_code).then(valid => {
+    verifyPin(pin, accessCode).then(async valid => {
       if (cancelled) return
       if (valid) {
-        setActiveProfileId(id)
-        unlockProfile(id)
+        await clearAttempts(phone)
+        setActiveProfileId(profileId)
+        unlockProfile(profileId)
         navigate('/dashboard', { replace: true })
       } else {
         setShake(true)
         setPin('')
-        setAttempts(prev => {
-          const next = prev + 1
-          if (next >= MAX_ATTEMPTS) {
-            const until = Date.now() + LOCKOUT_MS
-            setLockedUntil(until)
-            sessionStorage.setItem(`pin_lock_${id}`, String(until))
-          }
-          return next
-        })
+        await recordFailure(phone)
+        const next = attempts + 1
+        setAttempts(next)
+        const { locked: l, remainingMs } = await checkLocked(phone)
+        if (l) {
+          setLocked(true)
+          setRemainingMins(Math.ceil(remainingMs / 60000))
+          setTooMany(true)
+        }
         setTimeout(() => setShake(false), 600)
       }
     })
 
     return () => { cancelled = true }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pin])
 
   const handleDigit = (d) => {
-    if (isLocked || pin.length >= 4) return
+    if (locked || pin.length >= 4) return
     setPin(prev => prev + d)
   }
 
   const handleDelete = () => {
-    if (!isLocked) setPin(prev => prev.slice(0, -1))
+    if (!locked) setPin(prev => prev.slice(0, -1))
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
-        <Spinner />
-      </div>
-    )
-  }
+  if (!profileId) return null
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center px-4">
@@ -100,10 +102,10 @@ export default function PinEntryPage() {
 
         {/* Avatar + name */}
         <div className="flex flex-col items-center gap-2">
-          <div className="w-20 h-20 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-3xl">
-            {profile ? profile.name[0].toUpperCase() : '?'}
+          <div className="w-20 h-20 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold text-3xl">
+            {profileName ? profileName[0].toUpperCase() : '?'}
           </div>
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-50">{profile?.name}</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-gray-50">{profileName}</p>
           <p className="text-gray-500 text-sm">{t('pin.enter_title')}</p>
         </div>
 
@@ -120,10 +122,12 @@ export default function PinEntryPage() {
         </div>
 
         {/* Status messages */}
-        {isLocked && (
-          <p className="text-red-600 text-center text-sm">{t('pin.locked_message')}</p>
+        {locked && (
+          <p className="text-red-600 text-center text-sm">
+            {t('pin.locked_message_mins', { mins: remainingMins })}
+          </p>
         )}
-        {!isLocked && attempts > 0 && attempts < MAX_ATTEMPTS && (
+        {!locked && attempts > 0 && (
           <p className="text-red-500 text-sm">{t('pin.wrong')}</p>
         )}
 
@@ -136,7 +140,7 @@ export default function PinEntryPage() {
                 <button
                   key={idx}
                   onClick={handleDelete}
-                  disabled={isLocked}
+                  disabled={locked}
                   aria-label={t('pin.delete')}
                   className="w-full h-20 rounded-2xl bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center justify-center text-2xl font-bold text-gray-700 dark:text-gray-200 active:scale-95 transition-transform disabled:opacity-40"
                 >
@@ -148,7 +152,7 @@ export default function PinEntryPage() {
               <button
                 key={idx}
                 onClick={() => handleDigit(btn)}
-                disabled={isLocked}
+                disabled={locked}
                 aria-label={btn}
                 className="w-full h-20 rounded-2xl bg-white dark:bg-gray-700 shadow-sm border border-gray-200 dark:border-gray-600 hover:bg-primary-50 dark:hover:bg-gray-600 flex items-center justify-center text-3xl font-bold text-gray-800 dark:text-gray-100 active:scale-95 transition-transform disabled:opacity-40"
               >
@@ -158,10 +162,10 @@ export default function PinEntryPage() {
           })}
         </div>
 
-        {/* Forgot PIN — shown after max attempts */}
-        {attempts >= MAX_ATTEMPTS && (
+        {/* Forgot PIN — shown after server lockout */}
+        {tooMany && (
           <Link
-            to={`/profiles/${id}/recover`}
+            to={`/profiles/${profileId}/recover`}
             className="text-primary-600 text-sm underline"
           >
             {t('pin.forgot')}

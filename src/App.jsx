@@ -3,7 +3,7 @@ import { ThemeProvider } from './context/ThemeContext'
 import { AuthProvider } from './context/AuthContext'
 import { ProfileProvider } from './context/ProfileContext'
 import AppLayout from './components/layout/AppLayout'
-import WelcomePage from './pages/Welcome/WelcomePage'
+import LoginPage from './pages/Auth/LoginPage'
 import PinEntryPage from './pages/Auth/PinEntryPage'
 import RecoveryPage from './pages/Auth/RecoveryPage'
 import OnboardingPage from './pages/Onboarding/OnboardingPage'
@@ -26,8 +26,8 @@ export default function App() {
       <ProfileProvider>
         <Routes>
           {/* Fullscreen routes — no TopBar/nav chrome */}
-          <Route path="/" element={<WelcomePage />} />
-          <Route path="/profiles/:id/unlock" element={<PinEntryPage />} />
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/login/pin" element={<PinEntryPage />} />
           <Route path="/profiles/:id/recover" element={<RecoveryPage />} />
           <Route path="/onboarding/new" element={<OnboardingPage />} />
 

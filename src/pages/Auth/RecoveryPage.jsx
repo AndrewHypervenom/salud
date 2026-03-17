@@ -4,12 +4,12 @@ import { useTranslation } from 'react-i18next'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useAuth } from '../../context/AuthContext'
+import { useLoginAttempts } from '../../hooks/useLoginAttempts'
 import { verifyPin, hashPin } from '../../lib/crypto'
 import { Spinner } from '../../components/ui/Spinner'
 import PinSetupStep from '../Onboarding/PinSetupStep'
 
-const MAX_ATTEMPTS = 3
-const LOCKOUT_MS = 5 * 60 * 1000
+const MAX_ATTEMPTS = 5
 
 export default function RecoveryPage() {
   const { t } = useTranslation()
@@ -18,40 +18,38 @@ export default function RecoveryPage() {
   const { profiles, loading, updateProfile } = useProfiles()
   const { setActiveProfileId } = useProfileContext()
   const { unlockProfile } = useAuth()
+  const { checkLocked, recordFailure, clearAttempts } = useLoginAttempts()
 
   const [word, setWord] = useState('')
   const [error, setError] = useState('')
   const [attempts, setAttempts] = useState(0)
-  const [lockedUntil, setLockedUntil] = useState(null)
+  const [locked, setLocked] = useState(false)
   const [recovered, setRecovered] = useState(false)
   const [saving, setSaving] = useState(false)
 
   const profile = profiles.find(p => p.id === id)
-  const isLocked = lockedUntil != null && Date.now() < lockedUntil
+  const identifier = `recovery:${id}`
 
   useEffect(() => {
-    const raw = sessionStorage.getItem(`recovery_lock_${id}`)
-    if (raw) {
-      const until = parseInt(raw)
-      if (Date.now() < until) setLockedUntil(until)
-      else sessionStorage.removeItem(`recovery_lock_${id}`)
-    }
+    checkLocked(identifier).then(({ locked: l }) => setLocked(l))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (isLocked || !word.trim() || !profile?.recovery_code) return
+    if (locked || !word.trim() || !profile?.recovery_code) return
 
     const valid = await verifyPin(word.trim(), profile.recovery_code)
     if (valid) {
+      await clearAttempts(identifier)
       setRecovered(true)
     } else {
+      await recordFailure(identifier)
       const next = attempts + 1
       setAttempts(next)
-      if (next >= MAX_ATTEMPTS) {
-        const until = Date.now() + LOCKOUT_MS
-        setLockedUntil(until)
-        sessionStorage.setItem(`recovery_lock_${id}`, String(until))
+      const { locked: l, remainingMs } = await checkLocked(identifier)
+      if (l) {
+        setLocked(true)
         setError(t('pin.recovery_locked'))
       } else {
         setError(t('pin.recovery_wrong', { remaining: MAX_ATTEMPTS - next }))
@@ -121,7 +119,7 @@ export default function RecoveryPage() {
             value={word}
             onChange={e => { setWord(e.target.value); setError('') }}
             placeholder={t('pin.recovery_placeholder')}
-            disabled={isLocked}
+            disabled={locked}
             autoComplete="off"
             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-center text-lg focus:outline-none focus:border-primary-500 disabled:opacity-40"
           />
