@@ -71,7 +71,7 @@ export default function CaloriesPage() {
 
       {/* Macros */}
       <Card>
-        <h2 className="font-semibold text-gray-900 dark:text-gray-50 mb-4">Macronutrientes</h2>
+        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Macronutrientes</h2>
         <div className="flex flex-col gap-4">
           <MacroBar
             label={t('calories.protein')}

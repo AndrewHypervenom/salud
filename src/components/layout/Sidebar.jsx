@@ -18,7 +18,7 @@ export function Sidebar() {
   const { t } = useTranslation()
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 min-h-screen pt-4">
+    <aside className="hidden md:flex flex-col w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 min-h-screen pt-4">
       <nav className="flex flex-col gap-1 px-3">
         {navItems.map(item => (
           <NavLink

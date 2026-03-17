@@ -92,7 +92,7 @@ export default function Dashboard() {
         </Link>
         <div>
           <p className="text-sm text-gray-500">{t('dashboard.welcome')}</p>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-50">{profile.name}</h1>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">{profile.name}</h1>
         </div>
       </div>
 
@@ -210,7 +210,7 @@ export default function Dashboard() {
             </div>
             {lastBP ? (
               <>
-                <p className="text-xl font-bold text-gray-900 dark:text-gray-50">{lastBP.systolic}/{lastBP.diastolic}</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{lastBP.systolic}/{lastBP.diastolic}</p>
                 <p className="text-xs text-gray-400 mb-1">{t('bp.mmhg')}</p>
                 {bpClass && <Badge className={bpClass.badgeClass}>{t(bpStatusKey)}</Badge>}
               </>
@@ -226,7 +226,7 @@ export default function Dashboard() {
               <p className="text-xs text-gray-500 font-medium">{t('dashboard.doctor_questions')}</p>
               <span className="text-lg">👨‍⚕️</span>
             </div>
-            <p className="text-3xl font-bold text-gray-900 dark:text-gray-50">{pendingQuestions}</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{pendingQuestions}</p>
             <p className="text-xs text-gray-400">{t('dashboard.questions_pending')}</p>
           </Card>
         </Link>

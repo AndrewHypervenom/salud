@@ -210,7 +210,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
           }}
           placeholder={t('food.description_placeholder')}
           required
-          className="px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-primary-500"
+          className="px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-primary-500"
         />
       </div>
 
@@ -250,7 +250,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
           min="0"
           max="5000"
           placeholder="350"
-          className="px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-primary-500"
+          className="px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-primary-500"
         />
       </div>
 
@@ -262,7 +262,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
           value={notes}
           onChange={e => setNotes(e.target.value)}
           placeholder="..."
-          className="px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-primary-500"
+          className="px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-primary-500"
         />
       </div>
 

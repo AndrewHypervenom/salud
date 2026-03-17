@@ -74,7 +74,7 @@ export default function RecoveryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <Spinner />
       </div>
     )
@@ -82,7 +82,7 @@ export default function RecoveryPage() {
 
   if (recovered) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center px-4 py-12">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center px-4 py-12">
         <div className="w-full max-w-xs">
           {saving ? (
             <div className="flex justify-center"><Spinner /></div>
@@ -95,7 +95,7 @@ export default function RecoveryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-xs flex flex-col items-center gap-6">
 
         <button
@@ -109,7 +109,7 @@ export default function RecoveryPage() {
           <div className="w-20 h-20 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-3xl">
             {profile ? profile.name[0].toUpperCase() : '?'}
           </div>
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-50">{profile?.name}</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{profile?.name}</p>
           <p className="text-gray-500 text-center text-sm">{t('pin.recovery_title')}</p>
         </div>
 
@@ -121,7 +121,7 @@ export default function RecoveryPage() {
             placeholder={t('pin.recovery_placeholder')}
             disabled={locked}
             autoComplete="off"
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-center text-lg focus:outline-none focus:border-primary-500 disabled:opacity-40"
+            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 rounded-xl text-center text-lg focus:outline-none focus:border-primary-500 disabled:opacity-40"
           />
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
           <button

@@ -89,7 +89,7 @@ export default function PinSetupStep({ onComplete, disabled }) {
     return (
       <div className="flex flex-col gap-6">
         <div className="text-center">
-          <p className="text-xl font-bold text-gray-900 dark:text-gray-50">{t('pin.recovery_setup_title')}</p>
+          <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('pin.recovery_setup_title')}</p>
           <p className="text-gray-500 text-sm mt-1">{t('pin.recovery_setup_hint')}</p>
         </div>
         <div className="flex flex-col gap-4">
@@ -101,7 +101,7 @@ export default function PinSetupStep({ onComplete, disabled }) {
             placeholder={t('pin.recovery_placeholder')}
             autoComplete="off"
             disabled={disabled}
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-center text-lg focus:outline-none focus:border-primary-500 disabled:opacity-40"
+            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 rounded-xl text-center text-lg focus:outline-none focus:border-primary-500 disabled:opacity-40"
           />
           {recoveryError && (
             <p className="text-red-500 text-sm text-center">{recoveryError}</p>
@@ -122,7 +122,7 @@ export default function PinSetupStep({ onComplete, disabled }) {
   return (
     <div className="flex flex-col items-center gap-6">
       <div className="text-center">
-        <p className="text-xl font-bold text-gray-900 dark:text-gray-50">
+        <p className="text-xl font-bold text-gray-900 dark:text-gray-100">
           {step === 'pin' ? t('pin.setup_title') : t('pin.confirm_title')}
         </p>
         {pinError && <p className="text-red-500 text-sm mt-1">{pinError}</p>}

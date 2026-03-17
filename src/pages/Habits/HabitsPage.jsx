@@ -68,7 +68,7 @@ export default function HabitsPage() {
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">{t('habits.title')}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('habits.title')}</h1>
         <p className="text-gray-500">{t('habits.subtitle')}</p>
       </div>
 
@@ -151,14 +151,14 @@ export default function HabitsPage() {
             value={newEmoji}
             onChange={e => setNewEmoji(e.target.value)}
             placeholder="✅"
-            className="w-14 px-2 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-xl text-center text-xl focus:outline-none focus:border-primary-500"
+            className="w-14 px-2 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-xl text-center text-xl focus:outline-none focus:border-primary-500"
           />
           <input
             type="text"
             value={newName}
             onChange={e => setNewName(e.target.value)}
             placeholder={t('habits.habit_name')}
-            className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-primary-500"
+            className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-primary-500"
           />
           <button
             type="submit"

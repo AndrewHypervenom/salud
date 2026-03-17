@@ -107,7 +107,7 @@ export default function ProgressPage() {
   if (analyses.length === 0) {
     return (
       <div className="flex flex-col gap-4">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">Progreso</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Progreso</h1>
         <div className="flex flex-col items-center justify-center py-16 text-center gap-4">
           <span className="text-5xl">📊</span>
           <p className="text-gray-500 max-w-xs">
@@ -137,7 +137,7 @@ export default function ProgressPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">📈 Progreso</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">📈 Progreso</h1>
 
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-2">

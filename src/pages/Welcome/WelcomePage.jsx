@@ -36,20 +36,20 @@ export default function WelcomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <Spinner />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm flex flex-col gap-6">
 
         {/* App header */}
         <div className="text-center">
           <div className="text-5xl mb-3">💚</div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">{t('app_title')}</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{t('app_title')}</h1>
           <p className="text-gray-500 mt-1">{t('welcome.subtitle')}</p>
         </div>
 
@@ -71,7 +71,7 @@ export default function WelcomePage() {
                     {profile.name[0].toUpperCase()}
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-gray-900 dark:text-gray-50 text-lg">{profile.name}</p>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100 text-lg">{profile.name}</p>
                     <p className="text-sm text-gray-400">{profile.age} {t('profile.years')}</p>
                   </div>
                   {locked && (

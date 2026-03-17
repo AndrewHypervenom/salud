@@ -132,11 +132,11 @@ export default function OnboardingPage() {
       setPhase('pin')
     }
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center px-6 py-12">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center px-6 py-12">
         <div className="w-full max-w-xs flex flex-col gap-8">
           <div className="text-center">
             <div className="text-4xl mb-3">📱</div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-50">{t('welcome.phone_step_title')}</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('welcome.phone_step_title')}</h2>
             <p className="text-gray-500 mt-2 text-sm">{t('welcome.phone_step_hint')}</p>
           </div>
           <div className="flex flex-col gap-3">
@@ -149,7 +149,7 @@ export default function OnboardingPage() {
               placeholder={t('welcome.phone_placeholder')}
               autoFocus
               autoComplete="tel"
-              className="w-full px-5 py-4 text-xl border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500 rounded-2xl focus:outline-none focus:border-primary-500 transition-colors"
+              className="w-full px-5 py-4 text-xl border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:placeholder-gray-500 rounded-2xl focus:outline-none focus:border-primary-500 transition-colors"
             />
             {phoneError && <p className="text-red-500 text-sm text-center">{phoneError}</p>}
           </div>
@@ -167,12 +167,12 @@ export default function OnboardingPage() {
 
   if (phase === 'pin') {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center px-4 py-12">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center px-4 py-12">
         <div className="w-full max-w-xs flex flex-col gap-6">
 
           <div className="text-center">
             <div className="text-4xl mb-2">🎉</div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-50">{t('onboarding.phase_pin')}</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('onboarding.phase_pin')}</h2>
           </div>
 
           {/* Error prominente — visible en móvil sin scroll */}
@@ -200,14 +200,14 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
 
       <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-4 flex items-center gap-3 flex-shrink-0">
         <button onClick={() => navigate('/')} className="text-gray-400 hover:text-gray-600 text-sm">
           ← {t('common.back')}
         </button>
         <div>
-          <p className="font-bold text-gray-900 dark:text-gray-50">💚 {t('app_title')}</p>
+          <p className="font-bold text-gray-900 dark:text-gray-100">💚 {t('app_title')}</p>
           <p className="text-xs text-gray-400">{t('onboarding.title')}</p>
         </div>
       </div>
@@ -248,7 +248,7 @@ export default function OnboardingPage() {
           onKeyDown={handleKeyDown}
           placeholder={t('onboarding.send')}
           disabled={loading || done}
-          className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl focus:outline-none focus:border-primary-500 text-sm disabled:opacity-40"
+          className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 rounded-xl focus:outline-none focus:border-primary-500 text-sm disabled:opacity-40"
         />
         <button
           onClick={handleSend}

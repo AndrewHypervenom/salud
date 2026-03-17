@@ -16,7 +16,7 @@ export function TopBar() {
   }
 
   return (
-    <header className="sticky top-0 z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 h-16 flex items-center justify-between">
+    <header className="sticky top-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 h-16 flex items-center justify-between">
       <div className="flex items-center gap-3">
         <span className="text-xl font-bold text-primary-600 dark:text-primary-400">💚 {t('app_title')}</span>
       </div>

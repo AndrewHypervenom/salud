@@ -18,7 +18,7 @@ export default function ExercisePage() {
 
       {/* Program table */}
       <Card>
-        <h2 className="font-bold text-gray-900 dark:text-gray-50 mb-3">🏃 Programa 8 semanas</h2>
+        <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-3">🏃 Programa 8 semanas</h2>
         <div className="overflow-x-auto -mx-4 px-4">
           <table className="w-full text-sm">
             <thead>
@@ -52,7 +52,7 @@ export default function ExercisePage() {
 
       {/* Benefits */}
       <Card>
-        <h2 className="font-bold text-gray-900 dark:text-gray-50 mb-3 flex items-center gap-2">
+        <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
           <span>💪</span> {t('exercise.benefits_title')}
         </h2>
         <ul className="flex flex-col gap-2">

@@ -40,7 +40,7 @@ export function ProfileSelector({ onClose }) {
               {profile.name[0].toUpperCase()}
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-gray-900 dark:text-gray-50">{profile.name}</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-100">{profile.name}</p>
               <p className="text-sm text-gray-500">{profile.age} {t('profile.years')}</p>
             </div>
             {locked && <span className="text-base" aria-label={t('pin.locked')}>🔒</span>}

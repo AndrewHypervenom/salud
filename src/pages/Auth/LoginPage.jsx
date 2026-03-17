@@ -71,13 +71,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center px-6 py-12">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center px-6 py-12">
       <div className="w-full max-w-sm flex flex-col gap-8">
 
         {/* Header */}
         <div className="text-center">
           <div className="text-6xl mb-4">💚</div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">{t('app_title')}</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{t('app_title')}</h1>
           <p className="text-gray-500 mt-2 text-lg">{t('welcome.subtitle')}</p>
         </div>
 
@@ -95,7 +95,7 @@ export default function LoginPage() {
             placeholder={t('welcome.phone_placeholder')}
             autoFocus
             autoComplete="tel"
-            className="w-full px-5 py-4 text-xl border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-500 rounded-2xl focus:outline-none focus:border-primary-500 transition-colors"
+            className="w-full px-5 py-4 text-xl border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:placeholder-gray-500 rounded-2xl focus:outline-none focus:border-primary-500 transition-colors"
           />
           {error && (
             <p className="text-red-500 text-sm text-center">{error}</p>

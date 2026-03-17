@@ -268,7 +268,7 @@ export default function ProfileForm() {
         <Card>
           <div className="flex flex-col gap-3">
             <div>
-              <p className="font-semibold text-gray-900 dark:text-gray-50">{t('pin.change_pin')}</p>
+              <p className="font-semibold text-gray-900 dark:text-gray-100">{t('pin.change_pin')}</p>
               <p className="text-sm text-gray-500">{t('pin.change_pin_hint')}</p>
             </div>
             {showPinSetup ? (

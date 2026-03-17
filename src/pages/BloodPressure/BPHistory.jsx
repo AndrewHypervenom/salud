@@ -32,7 +32,7 @@ export function BPHistory({ readings, onDelete }) {
                   {date.toLocaleDateString()}<br />
                   <span className="text-xs text-gray-400">{date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                 </td>
-                <td className="py-3 pr-2 font-bold text-gray-900 dark:text-gray-50">
+                <td className="py-3 pr-2 font-bold text-gray-900 dark:text-gray-100">
                   {r.systolic}/{r.diastolic}
                 </td>
                 <td className="py-3 pr-2">

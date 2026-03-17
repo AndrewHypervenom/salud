@@ -88,7 +88,7 @@ export default function DoctorQuestionsPage() {
         <>
           {/* Predefined */}
           <Card>
-            <h2 className="font-bold text-gray-900 dark:text-gray-50 mb-3">{t('doctor.predefined_title')}</h2>
+            <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-3">{t('doctor.predefined_title')}</h2>
             <div className="flex flex-col gap-2">
               {predefined.map(q => (
                 <QuestionItem
@@ -104,7 +104,7 @@ export default function DoctorQuestionsPage() {
 
           {/* Custom */}
           <Card>
-            <h2 className="font-bold text-gray-900 dark:text-gray-50 mb-3">{t('doctor.custom_title')}</h2>
+            <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-3">{t('doctor.custom_title')}</h2>
             {custom.length > 0 && (
               <div className="flex flex-col gap-2 mb-4">
                 {custom.map(q => (

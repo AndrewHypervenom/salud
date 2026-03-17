@@ -89,7 +89,7 @@ export default function PinEntryPage() {
   if (!profileId) return null
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-xs flex flex-col items-center gap-8">
 
         {/* Back */}
@@ -105,7 +105,7 @@ export default function PinEntryPage() {
           <div className="w-20 h-20 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-700 dark:text-primary-300 font-bold text-3xl">
             {profileName ? profileName[0].toUpperCase() : '?'}
           </div>
-          <p className="text-2xl font-bold text-gray-900 dark:text-gray-50">{profileName}</p>
+          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{profileName}</p>
           <p className="text-gray-500 text-sm">{t('pin.enter_title')}</p>
         </div>
 

@@ -8,7 +8,7 @@ export function Select({ label, error, children, className, ...props }) {
         className={clsx(
           'block w-full rounded-xl border-gray-300 h-12 px-3 text-base',
           'focus:border-primary-500 focus:ring-primary-500',
-          'dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:focus:border-primary-400',
+          'dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:border-primary-400',
           error && 'border-red-500',
           className,
         )}
