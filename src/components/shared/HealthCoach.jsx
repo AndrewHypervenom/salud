@@ -1,17 +1,54 @@
+import { useEffect, useRef } from 'react'
 import { useHealthCoach } from '../../hooks/useHealthCoach'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { Spinner } from '../ui/Spinner'
 
-export function HealthCoach({ profile, calTarget, todayCalories, foodLogs, habits, habitLogs, lastBP }) {
-  const { recommendations, loading, error, analyze, reset } = useHealthCoach()
+export function HealthCoach({ profileId, profile, calTarget, todayCalories, foodLogs, habits, habitLogs, lastBP }) {
+  const { todayAnalysis, loading, initialLoading, error, analyze } = useHealthCoach(profileId)
+  const autoTriggered = useRef(false)
+
+  const hasDinner = foodLogs.some(l => l.meal_type === 'dinner')
+
+  // Detect if food was logged AFTER the last analysis
+  const lastLogTime = foodLogs.length > 0
+    ? Math.max(...foodLogs.map(l => new Date(l.logged_at).getTime()))
+    : 0
+  const isStale = todayAnalysis && lastLogTime > new Date(todayAnalysis.updated_at).getTime()
+
+  // Auto-trigger once when dinner is logged and no analysis exists
+  useEffect(() => {
+    if (initialLoading) return
+    if (autoTriggered.current) return
+    if (!hasDinner) return
+    if (todayAnalysis) return
+    if (loading) return
+
+    autoTriggered.current = true
+    analyze({ profile, calTarget, todayCalories, foodLogs, habits, habitLogs, lastBP })
+  }, [initialLoading, hasDinner, todayAnalysis, loading])
 
   const handleAnalyze = () => {
     analyze({ profile, calTarget, todayCalories, foodLogs, habits, habitLogs, lastBP })
   }
 
-  // Estado vacío — botón de acción
-  if (!recommendations && !loading) {
+  // Loading initial check from DB
+  if (initialLoading) return null
+
+  // Generating
+  if (loading) {
+    return (
+      <Card className="border border-primary-200 bg-primary-50/50 dark:bg-primary-900/10">
+        <div className="flex items-center gap-3 py-2">
+          <Spinner />
+          <p className="text-sm text-gray-500">Generando análisis de tu día...</p>
+        </div>
+      </Card>
+    )
+  }
+
+  // No analysis yet + no dinner logged
+  if (!todayAnalysis && !hasDinner) {
     return (
       <Card className="border border-dashed border-primary-300 bg-primary-50/50 dark:bg-primary-900/10 dark:border-primary-700">
         <div className="flex flex-col items-center text-center gap-3 py-2">
@@ -19,35 +56,50 @@ export function HealthCoach({ profile, calTarget, todayCalories, foodLogs, habit
           <div>
             <p className="font-semibold text-gray-800 dark:text-gray-100">Coach IA</p>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Analiza tu día y recibe recomendaciones personalizadas para bajar de peso
+              El análisis se genera automáticamente al registrar la cena. También puedes analizarlo ahora.
             </p>
           </div>
-          {error && (
-            <p className="text-xs text-red-500">{error}</p>
-          )}
-          <Button onClick={handleAnalyze} className="w-full">
-            ✨ Analizar mi día
+          {error && <p className="text-xs text-red-500">{error}</p>}
+          <Button onClick={handleAnalyze} className="w-full" disabled={foodLogs.length === 0}>
+            ✨ Analizar mi día ahora
           </Button>
         </div>
       </Card>
     )
   }
 
-  // Estado cargando
-  if (loading) {
+  // No analysis yet but dinner is logged (auto-trigger in progress or failed)
+  if (!todayAnalysis) {
     return (
-      <Card className="border border-primary-200 bg-primary-50/50 dark:bg-primary-900/10">
-        <div className="flex flex-col items-center gap-3 py-4">
-          <Spinner />
-          <p className="text-sm text-gray-500">Analizando tu día...</p>
+      <Card className="border border-dashed border-primary-300 bg-primary-50/50 dark:bg-primary-900/10">
+        <div className="flex flex-col items-center text-center gap-3 py-2">
+          <span className="text-4xl">🤖</span>
+          {error && (
+            <>
+              <p className="text-xs text-red-500">{error}</p>
+              <Button onClick={handleAnalyze} className="w-full">Reintentar análisis</Button>
+            </>
+          )}
         </div>
       </Card>
     )
   }
 
-  // Resultados
+  // Analysis exists — show results
   return (
     <div className="flex flex-col gap-3">
+      {/* Stale warning */}
+      {isStale && (
+        <button
+          onClick={handleAnalyze}
+          className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 rounded-xl px-4 py-2 text-sm text-amber-700 dark:text-amber-300 w-full text-left"
+        >
+          <span>⚠️</span>
+          <span className="flex-1">Registraste comida después del análisis.</span>
+          <span className="font-semibold underline">Regenerar</span>
+        </button>
+      )}
+
       {/* Análisis del día */}
       <Card className="border-l-4 border-primary-500 bg-primary-50 dark:bg-primary-900/20">
         <div className="flex items-start gap-2">
@@ -57,14 +109,14 @@ export function HealthCoach({ profile, calTarget, todayCalories, foodLogs, habit
               Análisis de hoy
             </p>
             <p className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed">
-              {recommendations.analysis}
+              {todayAnalysis.analysis_text}
             </p>
           </div>
         </div>
       </Card>
 
       {/* Recomendaciones */}
-      {recommendations.recommendations?.map((rec, i) => (
+      {todayAnalysis.recommendations?.map((rec, i) => (
         <Card key={i} className="flex items-start gap-3">
           <span className="text-2xl flex-shrink-0 mt-0.5">{rec.icon}</span>
           <div>
@@ -75,27 +127,27 @@ export function HealthCoach({ profile, calTarget, todayCalories, foodLogs, habit
       ))}
 
       {/* Plan de mañana */}
-      {recommendations.tomorrow_plan && (
+      {todayAnalysis.tomorrow_plan && (
         <Card className="border-l-4 border-amber-400 bg-amber-50 dark:bg-amber-900/20">
           <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wide mb-1">
             📅 Plan para mañana
           </p>
           <p className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed">
-            {recommendations.tomorrow_plan}
+            {todayAnalysis.tomorrow_plan}
           </p>
         </Card>
       )}
 
       {/* Motivación */}
-      {recommendations.motivation && (
+      {todayAnalysis.motivation && (
         <p className="text-center text-sm font-medium text-primary-600 dark:text-primary-400 px-4">
-          💪 {recommendations.motivation}
+          💪 {todayAnalysis.motivation}
         </p>
       )}
 
-      {/* Botón regenerar */}
+      {/* Regenerar manual */}
       <button
-        onClick={reset}
+        onClick={handleAnalyze}
         className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-center underline"
       >
         Regenerar análisis

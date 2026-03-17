@@ -17,6 +17,7 @@ import BPPage from './pages/BloodPressure/BPPage'
 import DoctorQuestionsPage from './pages/DoctorQuestions/DoctorQuestionsPage'
 import HabitsPage from './pages/Habits/HabitsPage'
 import FoodPage from './pages/Food/FoodPage'
+import ProgressPage from './pages/Progress/ProgressPage'
 
 export default function App() {
   return (
@@ -42,6 +43,7 @@ export default function App() {
             <Route path="/doctor-questions" element={<DoctorQuestionsPage />} />
             <Route path="/habits" element={<HabitsPage />} />
             <Route path="/food" element={<FoodPage />} />
+            <Route path="/progress" element={<ProgressPage />} />
           </Route>
         </Routes>
       </ProfileProvider>

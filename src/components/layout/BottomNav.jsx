@@ -10,6 +10,7 @@ const mainItems = [
 ]
 
 const moreItems = [
+  { to: '/progress', label: 'nav.progress', icon: '📈' },
   { to: '/calories', label: 'nav.calories', icon: '🔥' },
   { to: '/diet', label: 'nav.diet', icon: '🥗' },
   { to: '/exercise', label: 'nav.exercise', icon: '🏃' },

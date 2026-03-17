@@ -153,6 +153,7 @@ export default function Dashboard() {
 
       {/* Bloque 5 — Coach IA */}
       <HealthCoach
+        profileId={activeProfileId}
         profile={profile}
         calTarget={calTarget}
         todayCalories={todayCalories}

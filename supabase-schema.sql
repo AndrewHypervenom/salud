@@ -75,6 +75,27 @@ create index doctor_questions_profile_id_idx on doctor_questions(profile_id);
 --   CHECK (health_goal IN ('lose_weight', 'maintain', 'gain_muscle'));
 
 -- -------------------------------------------------------------
+-- Análisis diarios generados por IA (Coach)
+-- -------------------------------------------------------------
+-- CREATE TABLE IF NOT EXISTS daily_analyses (
+--   id            uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+--   profile_id    uuid        NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+--   analysis_date date        NOT NULL,
+--   total_calories integer    NOT NULL DEFAULT 0,
+--   cal_target    integer     NOT NULL DEFAULT 0,
+--   analysis_text text,
+--   recommendations jsonb,
+--   tomorrow_plan text,
+--   motivation    text,
+--   food_count    integer     NOT NULL DEFAULT 0,
+--   created_at    timestamptz NOT NULL DEFAULT now(),
+--   updated_at    timestamptz NOT NULL DEFAULT now(),
+--   UNIQUE (profile_id, analysis_date)
+-- );
+-- CREATE INDEX IF NOT EXISTS daily_analyses_profile_id_idx ON daily_analyses(profile_id);
+-- CREATE INDEX IF NOT EXISTS daily_analyses_date_idx ON daily_analyses(analysis_date DESC);
+
+-- -------------------------------------------------------------
 -- Hábitos diarios
 -- -------------------------------------------------------------
 create table if not exists habits (
