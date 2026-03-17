@@ -35,7 +35,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { imageUrl, description: textDescription } = await req.json()
+    const { imageUrl, description: textDescription, correction } = await req.json()
 
     if (!imageUrl && !textDescription) {
       return new Response(
@@ -71,14 +71,18 @@ Deno.serve(async (req: Request) => {
     }
 
     // ── Paso 2: Modelo de texto 70b para calcular macros con precisión ──
+    const correctionNote = correction
+      ? `\nCORRECCIÓN DEL USUARIO: "${correction}" — ajusta la descripción y los macros según esta corrección.`
+      : ''
+
     const nutritionPrompt = `Eres un nutricionista clínico experto en composición nutricional de alimentos.
 
-Analiza esta comida: "${foodDescription}"
+Analiza esta comida: "${foodDescription}"${correctionNote}
 
 Basándote en tablas nutricionales estándar (USDA, BEDCA), calcula los macronutrientes exactos para las porciones indicadas.
 
 Responde SOLO con JSON válido sin texto adicional ni markdown:
-{"foods":${JSON.stringify(detectedFoods.length ? detectedFoods : [foodDescription])},"description":"${foodDescription}","calories_estimated":NUMERO,"macros":{"protein_g":NUMERO,"carbs_g":NUMERO,"fat_g":NUMERO,"fiber_g":NUMERO}}
+{"foods":${JSON.stringify(detectedFoods.length ? detectedFoods : [foodDescription])},"description":"descripción actualizada incluyendo la corrección si la hay","calories_estimated":NUMERO,"macros":{"protein_g":NUMERO,"carbs_g":NUMERO,"fat_g":NUMERO,"fiber_g":NUMERO}}
 
 Reglas:
 - Todos los valores deben ser números enteros

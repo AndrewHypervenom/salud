@@ -24,6 +24,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
   const [aiCalories, setAiCalories] = useState('')
   const [aiMacros, setAiMacros] = useState(null)
   const [showResultCard, setShowResultCard] = useState(false)
+  const [correction, setCorrection] = useState('')
   const [recalculating, setRecalculating] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
@@ -81,14 +82,14 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
     }
   }
 
-  const handleRecalculate = async () => {
+  const handleRecalculate = async (correctionText = '') => {
     if (!description.trim()) return
     setRecalculating(true)
     setError(null)
     try {
-      const { data, error: fnErr } = await supabase.functions.invoke('analyze-food', {
-        body: { description: description.trim() },
-      })
+      const body = { description: description.trim() }
+      if (correctionText.trim()) body.correction = correctionText.trim()
+      const { data, error: fnErr } = await supabase.functions.invoke('analyze-food', { body })
       if (fnErr) throw new Error(fnErr.message)
       if (data?.calories_estimated) {
         const cal = String(data.calories_estimated)
@@ -98,6 +99,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
         setAiMacros(data?.macros ?? null)
         setShowResultCard(true)
         setAiUsed(true)
+        setCorrection('')
       }
     } catch (e) {
       setError(e.message)
@@ -210,13 +212,40 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
       )}
 
       {showResultCard ? (
-        <MacroResultCard
-          imagePreview={imagePreview}
-          description={description}
-          calories={calories ? parseInt(calories) : null}
-          macros={aiMacros}
-          onEdit={() => setShowResultCard(false)}
-        />
+        <>
+          <MacroResultCard
+            imagePreview={imagePreview}
+            description={description}
+            calories={calories ? parseInt(calories) : null}
+            macros={aiMacros}
+            onEdit={() => setShowResultCard(false)}
+          />
+
+          {/* Corrección de ingredientes */}
+          <div className="flex flex-col gap-2 bg-gray-50 dark:bg-gray-800/60 rounded-2xl px-4 py-3">
+            <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+              ¿Algún ingrediente incorrecto?
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={correction}
+                onChange={e => setCorrection(e.target.value)}
+                placeholder="Ej: la salsa es alioli, no tomate"
+                className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 rounded-xl focus:outline-none focus:border-primary-500"
+                onKeyDown={e => e.key === 'Enter' && correction.trim() && handleRecalculate(correction)}
+              />
+              <button
+                type="button"
+                onClick={() => handleRecalculate(correction)}
+                disabled={!correction.trim() || recalculating}
+                className="px-3 py-2 bg-primary-600 text-white rounded-xl text-sm font-semibold disabled:opacity-40 hover:bg-primary-700 transition-colors flex items-center gap-1.5"
+              >
+                {recalculating ? <Spinner size="sm" /> : '🔄'}
+              </button>
+            </div>
+          </div>
+        </>
       ) : (
         <>
           {/* Description */}
