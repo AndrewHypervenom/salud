@@ -14,7 +14,7 @@ export default function LoginPage() {
   const { isUnlocked, unlockProfile } = useAuth()
   const { checkLocked } = useLoginAttempts()
 
-  const [phone, setPhone] = useState('')
+  const [phone, setPhone] = useState(() => localStorage.getItem('lastPhone') ?? '')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -43,10 +43,13 @@ export default function LoginPage() {
 
       const profile = await findProfileByPhone(normalized)
       if (!profile) {
+        localStorage.removeItem('lastPhone')
         setError(t('welcome.not_found'))
         setLoading(false)
         return
       }
+
+      localStorage.setItem('lastPhone', normalized)
 
       if (!profile.access_code) {
         // No PIN — login directly
