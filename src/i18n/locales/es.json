@@ -387,6 +387,8 @@
     "fiber": "Fibras",
     "macros": "Macronutrientes",
     "incorrect": "Es incorrecto",
+    "incorrect_question": "¿Algún ingrediente incorrecto?",
+    "correction_placeholder": "Ej: la salsa es alioli, no tomate",
     "goal_met": "¡Meta cumplida! 🎯",
     "summary_whatsapp": "Comidas de {{name}} hoy: {{cal}} kcal de {{target}} kcal meta.",
     "day_summary": "Resumen de {{name}} hoy:"
@@ -488,12 +490,16 @@
     "title": "Buscar Alimento",
     "search_placeholder": "Buscar por nombre (ej: manzana, pollo)...",
     "no_results": "No se encontraron resultados. Intenta con otro término.",
-    "hint": "Busca por nombre o escanea el código de barras de un producto."
+    "hint": "Busca por nombre o escanea el código de barras de un producto.",
+    "food_name": "Alimento",
+    "serving": "Porción",
+    "scanned_code": "Código escaneado:"
   },
   "badges": {
     "title": "Mis Logros",
     "unlocked": "Desbloqueados",
-    "locked": "Bloqueados"
+    "locked": "Bloqueados",
+    "unlock_title": "¡Logro desbloqueado!"
   },
   "whatsapp": {
     "title": "Alertas WhatsApp",
@@ -526,7 +532,8 @@
     "regenerate": "Regenerar",
     "analysis_today": "Análisis de hoy",
     "tomorrow_plan": "📅 Plan para mañana",
-    "regenerate_analysis": "Regenerar análisis"
+    "regenerate_analysis": "Regenerar análisis",
+    "error": "Error al generar análisis"
   },
   "progress": {
     "title": "Progreso",

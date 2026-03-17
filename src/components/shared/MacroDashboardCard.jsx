@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Card } from '../ui/Card'
 import { calcMacros } from '../../lib/formulas'
 
@@ -26,6 +27,7 @@ function MacroBar({ label, value, max, color, unit = 'g' }) {
 }
 
 export function MacroDashboardCard({ calTarget, todayLogs = [] }) {
+  const { t } = useTranslation()
   if (!calTarget) return null
 
   const macroGoals = calcMacros(calTarget)
@@ -45,29 +47,29 @@ export function MacroDashboardCard({ calTarget, todayLogs = [] }) {
 
   return (
     <Card>
-      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Macronutrientes</p>
+      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">{t('food.macros')}</p>
       <div className="flex flex-col gap-3">
         <MacroBar
-          label="Proteína"
+          label={t('food.protein')}
           value={Math.round(totals.protein)}
           max={macroGoals.protein_g}
           color="text-blue-500"
         />
         <MacroBar
-          label="Carbohidratos"
+          label={t('food.carbs')}
           value={Math.round(totals.carbs)}
           max={macroGoals.carbs_g}
           color="text-green-500"
         />
         <MacroBar
-          label="Grasas"
+          label={t('food.fat')}
           value={Math.round(totals.fat)}
           max={macroGoals.fat_g}
           color="text-amber-500"
         />
         {totals.fiber > 0 && (
           <MacroBar
-            label="Fibra"
+            label={t('food.fiber')}
             value={Math.round(totals.fiber)}
             max={25}
             color="text-emerald-500"

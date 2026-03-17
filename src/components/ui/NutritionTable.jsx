@@ -1,8 +1,11 @@
+import { useTranslation } from 'react-i18next'
+
 /**
  * NutritionTable — tabla de valores nutricionales
  * Props: items (array), dailyRef (object with kcal/protein/carbs/fat for RDI%)
  */
 export function NutritionTable({ items = [], dailyRef = null, className = '' }) {
+  const { t } = useTranslation()
   if (!items.length) return null
 
   const refKcal = dailyRef?.calories || 2000
@@ -15,8 +18,8 @@ export function NutritionTable({ items = [], dailyRef = null, className = '' }) 
       <table className="w-full text-xs">
         <thead>
           <tr className="border-b border-gray-200 dark:border-gray-700">
-            <th className="text-left py-2 pr-2 font-semibold text-gray-600 dark:text-gray-300">Alimento</th>
-            <th className="text-right py-2 px-1 font-semibold text-gray-600 dark:text-gray-300">Porción</th>
+            <th className="text-left py-2 pr-2 font-semibold text-gray-600 dark:text-gray-300">{t('food_search.food_name')}</th>
+            <th className="text-right py-2 px-1 font-semibold text-gray-600 dark:text-gray-300">{t('food_search.serving')}</th>
             <th className="text-right py-2 px-1 font-semibold text-gray-600 dark:text-gray-300">kcal</th>
             <th className="text-right py-2 px-1 font-semibold text-blue-500">P(g)</th>
             <th className="text-right py-2 px-1 font-semibold text-green-500">C(g)</th>

@@ -172,7 +172,7 @@ export default function FoodSearchPage() {
       {/* Código escaneado */}
       {scanned && !scanMode && (
         <p className="text-xs text-gray-500 text-center">
-          Código escaneado: <span className="font-mono font-semibold">{scanned}</span>
+          {t('food_search.scanned_code')} <span className="font-mono font-semibold">{scanned}</span>
         </p>
       )}
 

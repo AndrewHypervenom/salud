@@ -387,6 +387,8 @@
     "fiber": "Fiber",
     "macros": "Macronutrients",
     "incorrect": "That's incorrect",
+    "incorrect_question": "Any incorrect ingredient?",
+    "correction_placeholder": "e.g. the sauce is aioli, not tomato",
     "goal_met": "Goal met! 🎯",
     "summary_whatsapp": "{{name}}'s meals today: {{cal}} kcal of {{target}} kcal goal.",
     "day_summary": "{{name}}'s summary today:"
@@ -488,12 +490,16 @@
     "title": "Search Food",
     "search_placeholder": "Search by name (e.g. apple, chicken)...",
     "no_results": "No results found. Try a different term.",
-    "hint": "Search by name or scan a product barcode."
+    "hint": "Search by name or scan a product barcode.",
+    "food_name": "Food",
+    "serving": "Serving",
+    "scanned_code": "Scanned code:"
   },
   "badges": {
     "title": "My Achievements",
     "unlocked": "Unlocked",
-    "locked": "Locked"
+    "locked": "Locked",
+    "unlock_title": "Achievement unlocked!"
   },
   "whatsapp": {
     "title": "WhatsApp Alerts",
@@ -526,7 +532,8 @@
     "regenerate": "Regenerate",
     "analysis_today": "Today's analysis",
     "tomorrow_plan": "📅 Tomorrow's plan",
-    "regenerate_analysis": "Regenerate analysis"
+    "regenerate_analysis": "Regenerate analysis",
+    "error": "Error generating analysis"
   },
   "progress": {
     "title": "Progress",

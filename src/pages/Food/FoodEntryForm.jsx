@@ -231,14 +231,14 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, dailyM
           {/* Corrección de ingredientes */}
           <div className="flex flex-col gap-2 bg-gray-50 dark:bg-gray-800/60 rounded-2xl px-4 py-3">
             <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-              ¿Algún ingrediente incorrecto?
+              {t('food.incorrect_question')}
             </label>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={correction}
                 onChange={e => setCorrection(e.target.value)}
-                placeholder="Ej: la salsa es alioli, no tomate"
+                placeholder={t('food.correction_placeholder')}
                 className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 rounded-xl focus:outline-none focus:border-primary-500"
                 onKeyDown={e => e.key === 'Enter' && correction.trim() && handleRecalculate(correction)}
               />

@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 
 const todayDate = () => new Date().toLocaleDateString('en-CA') // YYYY-MM-DD
 
 export function useHealthCoach(profileId) {
+  const { t } = useTranslation()
   const [todayAnalysis, setTodayAnalysis] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -77,7 +79,7 @@ export function useHealthCoach(profileId) {
       if (dbError) throw dbError
       setTodayAnalysis(saved)
     } catch (err) {
-      setError(err.message || 'Error al generar análisis')
+      setError(err.message || t('coach.error'))
     } finally {
       setLoading(false)
     }

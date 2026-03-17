@@ -1,10 +1,12 @@
 import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 /**
  * BadgeNotification — toast de celebración al desbloquear un logro
  * Props: badge ({key, emoji, label_es, label_en}), onDismiss, lang
  */
 export function BadgeNotification({ badge, onDismiss, lang = 'es' }) {
+  const { t } = useTranslation()
   useEffect(() => {
     if (!badge) return
     const id = setTimeout(() => onDismiss?.(), 3500)
@@ -23,7 +25,7 @@ export function BadgeNotification({ badge, onDismiss, lang = 'es' }) {
       <span className="text-4xl">{badge.emoji}</span>
       <div>
         <p className="text-xs font-semibold text-yellow-600 dark:text-yellow-400 uppercase tracking-wide">
-          ¡Logro desbloqueado!
+          {t('badges.unlock_title')}
         </p>
         <p className="text-sm font-bold text-gray-900 dark:text-gray-100">{label}</p>
       </div>
