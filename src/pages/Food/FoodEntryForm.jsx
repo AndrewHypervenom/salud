@@ -270,7 +270,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, dailyM
           {!aiUsed && description.trim() && (
             <button
               type="button"
-              onClick={handleRecalculate}
+              onClick={() => handleRecalculate()}
               disabled={recalculating}
               className="w-full py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-semibold text-sm shadow-md shadow-blue-500/20 hover:scale-[1.02] transition-all disabled:opacity-40 disabled:scale-100 flex items-center justify-center gap-2"
             >
@@ -283,7 +283,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, dailyM
           {descriptionChanged && (
             <button
               type="button"
-              onClick={handleRecalculate}
+              onClick={() => handleRecalculate()}
               disabled={recalculating}
               className="w-full py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-semibold text-sm shadow-md shadow-orange-500/20 hover:scale-[1.02] transition-all disabled:opacity-40 disabled:scale-100 flex items-center justify-center gap-2"
             >
