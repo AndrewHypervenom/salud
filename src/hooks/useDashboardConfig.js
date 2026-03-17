@@ -2,18 +2,18 @@ import { useState, useCallback, useEffect } from 'react'
 
 // ── Catálogo completo de widgets disponibles ──────────────────────────────────
 export const WIDGET_CATALOG = [
-  { id: 'calories',      label: 'Calorías',         icon: '🔥', size: 'full' },
-  { id: 'quick_actions', label: 'Acciones rápidas',  icon: '⚡', size: 'full' },
-  { id: 'meals',         label: 'Comidas del día',   icon: '🍽️', size: 'full' },
-  { id: 'macros',        label: 'Macronutrientes',   icon: '📊', size: 'full' },
-  { id: 'water',         label: 'Hidratación',       icon: '💧', size: 'half' },
-  { id: 'fasting',       label: 'Ayuno',             icon: '⚡', size: 'half' },
-  { id: 'habits',        label: 'Hábitos',           icon: '✅', size: 'full' },
-  { id: 'coach',         label: 'Coach IA',          icon: '🤖', size: 'full' },
-  { id: 'bp',            label: 'Presión arterial',  icon: '❤️', size: 'half' },
-  { id: 'weight',        label: 'Peso',              icon: '⚖️', size: 'half' },
-  { id: 'doctor',        label: 'Preguntas médico',  icon: '👨‍⚕️', size: 'half' },
-  { id: 'streak',        label: 'Racha de hábitos',  icon: '🔥', size: 'half' },
+  { id: 'calories',      label: 'widgets.calories',      icon: '🔥', size: 'full' },
+  { id: 'quick_actions', label: 'widgets.quick_actions',  icon: '⚡', size: 'full' },
+  { id: 'meals',         label: 'widgets.meals',          icon: '🍽️', size: 'full' },
+  { id: 'macros',        label: 'widgets.macros',         icon: '📊', size: 'full' },
+  { id: 'water',         label: 'widgets.water',          icon: '💧', size: 'half' },
+  { id: 'fasting',       label: 'widgets.fasting',        icon: '⚡', size: 'half' },
+  { id: 'habits',        label: 'widgets.habits',         icon: '✅', size: 'full' },
+  { id: 'coach',         label: 'widgets.coach',          icon: '🤖', size: 'full' },
+  { id: 'bp',            label: 'widgets.bp',             icon: '❤️', size: 'half' },
+  { id: 'weight',        label: 'widgets.weight',         icon: '⚖️', size: 'half' },
+  { id: 'doctor',        label: 'widgets.doctor',         icon: '👨‍⚕️', size: 'half' },
+  { id: 'streak',        label: 'widgets.streak',         icon: '🔥', size: 'half' },
 ]
 
 // ── Catálogo completo de rutas personalizables en nav ─────────────────────────

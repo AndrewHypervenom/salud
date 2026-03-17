@@ -7,12 +7,12 @@ import { supabase } from '../../lib/supabase'
 import { Card } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
 
-const MEAL_TYPES = [
-  { value: 'breakfast', label: 'Desayuno' },
-  { value: 'lunch', label: 'Almuerzo' },
-  { value: 'dinner', label: 'Cena' },
-  { value: 'snack', label: 'Merienda' },
-  { value: 'any', label: 'Cualquiera' },
+const MEAL_TYPE_KEYS = [
+  { value: 'breakfast', labelKey: 'food.breakfast' },
+  { value: 'lunch', labelKey: 'food.lunch' },
+  { value: 'dinner', labelKey: 'food.dinner' },
+  { value: 'snack', labelKey: 'food.snack' },
+  { value: 'any', labelKey: 'recipes.meal_any' },
 ]
 
 export default function RecipeFormPage() {
@@ -126,7 +126,7 @@ export default function RecipeFormPage() {
           </svg>
         </button>
         <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-          {isEdit ? 'Editar receta' : t('recipes.new_recipe')}
+          {isEdit ? t('recipes.edit_recipe') : t('recipes.new_recipe')}
         </h1>
       </div>
 
@@ -134,12 +134,12 @@ export default function RecipeFormPage() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {/* Título */}
           <div>
-            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide block mb-1">Título *</label>
+            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide block mb-1">{t('recipes.form_title_label')}</label>
             <input
               type="text"
               value={title}
               onChange={e => setTitle(e.target.value)}
-              placeholder="Arroz con pollo saludable"
+              placeholder={t('recipes.placeholder_title')}
               required
               className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary-500"
             />
@@ -147,9 +147,9 @@ export default function RecipeFormPage() {
 
           {/* Tipo de comida */}
           <div>
-            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide block mb-2">Tipo de comida</label>
+            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide block mb-2">{t('recipes.form_meal_type_label')}</label>
             <div className="grid grid-cols-3 gap-2">
-              {MEAL_TYPES.map(mt => (
+              {MEAL_TYPE_KEYS.map(mt => (
                 <button
                   key={mt.value}
                   type="button"
@@ -160,7 +160,7 @@ export default function RecipeFormPage() {
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
                   }`}
                 >
-                  {mt.label}
+                  {t(mt.labelKey)}
                 </button>
               ))}
             </div>
@@ -168,19 +168,19 @@ export default function RecipeFormPage() {
 
           {/* Descripción */}
           <div>
-            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide block mb-1">Descripción (opcional)</label>
+            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide block mb-1">{t('recipes.form_description_label')}</label>
             <input
               type="text"
               value={description}
               onChange={e => setDescription(e.target.value)}
-              placeholder="Plato balanceado rico en proteínas"
+              placeholder={t('recipes.placeholder_description')}
               className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary-500"
             />
           </div>
 
           {/* Foto */}
           <div>
-            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide block mb-1">Foto (opcional)</label>
+            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide block mb-1">{t('recipes.form_photo_label')}</label>
             <input
               type="file"
               accept="image/*"
@@ -195,12 +195,12 @@ export default function RecipeFormPage() {
           {/* Ingredientes */}
           <div>
             <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide block mb-1">
-              Ingredientes (uno por línea)
+              {t('recipes.form_ingredients_label')}
             </label>
             <textarea
               value={ingredientText}
               onChange={e => setIngredientText(e.target.value)}
-              placeholder={"2 tazas arroz integral\n200g pechuga de pollo\n1 zanahoria"}
+              placeholder={t('recipes.placeholder_ingredients')}
               rows={4}
               className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-xl text-sm resize-none focus:outline-none focus:border-primary-500"
             />
@@ -208,11 +208,11 @@ export default function RecipeFormPage() {
 
           {/* Instrucciones */}
           <div>
-            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide block mb-1">Instrucciones (opcional)</label>
+            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide block mb-1">{t('recipes.form_instructions_label')}</label>
             <textarea
               value={instructions}
               onChange={e => setInstructions(e.target.value)}
-              placeholder="1. Cocinar el arroz...\n2. Cocinar el pollo..."
+              placeholder={t('recipes.placeholder_instructions')}
               rows={4}
               className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-xl text-sm resize-none focus:outline-none focus:border-primary-500"
             />
@@ -220,15 +220,15 @@ export default function RecipeFormPage() {
 
           {/* Macros */}
           <div>
-            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide block mb-2">Macros por porción (opcional)</label>
+            <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide block mb-2">{t('recipes.form_macros_label')}</label>
             <div className="grid grid-cols-2 gap-2">
               <input type="number" value={calories} onChange={e => setCalories(e.target.value)} placeholder="kcal" min="0"
                 className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-xl" />
-              <input type="number" value={protein} onChange={e => setProtein(e.target.value)} placeholder="Proteína (g)" min="0"
+              <input type="number" value={protein} onChange={e => setProtein(e.target.value)} placeholder={t('recipes.placeholder_protein')} min="0"
                 className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-xl" />
-              <input type="number" value={carbs} onChange={e => setCarbs(e.target.value)} placeholder="Carbos (g)" min="0"
+              <input type="number" value={carbs} onChange={e => setCarbs(e.target.value)} placeholder={t('recipes.placeholder_carbs')} min="0"
                 className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-xl" />
-              <input type="number" value={fat} onChange={e => setFat(e.target.value)} placeholder="Grasas (g)" min="0"
+              <input type="number" value={fat} onChange={e => setFat(e.target.value)} placeholder={t('recipes.placeholder_fat')} min="0"
                 className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-xl" />
             </div>
           </div>

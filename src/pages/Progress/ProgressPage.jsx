@@ -41,7 +41,7 @@ function CaloriePct({ calories, target }) {
   )
 }
 
-function DayCard({ a, lang }) {
+function DayCard({ a, lang, t }) {
   const [open, setOpen] = useState(false)
   const pct = a.cal_target > 0 ? (a.total_calories / a.cal_target) * 100 : 0
   const statusColor = pct > 100 ? 'text-red-500' : pct >= 80 ? 'text-amber-500' : 'text-primary-600'
@@ -73,7 +73,7 @@ function DayCard({ a, lang }) {
           )}
           {a.tomorrow_plan && (
             <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-2">
-              <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 mb-0.5">Plan siguiente día</p>
+              <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 mb-0.5">{t('progress.tomorrow_plan_label')}</p>
               <p className="text-xs text-gray-600 dark:text-gray-300">{a.tomorrow_plan}</p>
             </div>
           )}
@@ -87,7 +87,7 @@ function DayCard({ a, lang }) {
 }
 
 export default function ProgressPage() {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const lang = i18n.language?.startsWith('es') ? 'es' : 'en'
   const { activeProfileId } = useProfileContext()
   const { profiles } = useProfiles()
@@ -102,7 +102,7 @@ export default function ProgressPage() {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center gap-4">
         <span className="text-5xl">📈</span>
-        <p className="text-gray-500">Selecciona un perfil para ver tu progreso.</p>
+        <p className="text-gray-500">{t('progress.select_profile')}</p>
       </div>
     )
   }
@@ -112,11 +112,11 @@ export default function ProgressPage() {
   if (analyses.length === 0) {
     return (
       <div className="flex flex-col gap-4">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Progreso</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('progress.title')}</h1>
         <div className="flex flex-col items-center justify-center py-16 text-center gap-4">
           <span className="text-5xl">📊</span>
           <p className="text-gray-500 max-w-xs">
-            Aún no hay análisis guardados. Registra tus comidas del día — el análisis se genera automáticamente al cenar.
+            {t('progress.no_analyses')}
           </p>
         </div>
       </div>
@@ -142,13 +142,13 @@ export default function ProgressPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">📈 Progreso</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">📈 {t('progress.title')}</h1>
 
       {/* Tab selector */}
       <div className="flex rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
         {[
-          { key: 'analysis', label: '🤖 Análisis IA' },
-          { key: 'weight', label: '⚖️ Peso' },
+          { key: 'analysis', label: t('progress.tab_analysis') },
+          { key: 'weight', label: t('progress.tab_weight') },
         ].map(opt => (
           <button
             key={opt.key}
@@ -170,11 +170,11 @@ export default function ProgressPage() {
           <div className="grid grid-cols-2 gap-2">
             <Card className="text-center py-3">
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{latestWeight ?? '—'}</p>
-              <p className="text-xs text-gray-400 leading-tight">kg actual</p>
+              <p className="text-xs text-gray-400 leading-tight">{t('progress.kg_current')}</p>
             </Card>
             <Card className="text-center py-3">
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{profile?.target_weight_kg ?? '—'}</p>
-              <p className="text-xs text-gray-400 leading-tight">kg meta</p>
+              <p className="text-xs text-gray-400 leading-tight">{t('progress.kg_goal')}</p>
             </Card>
           </div>
           {weightLoading ? (
@@ -182,19 +182,19 @@ export default function ProgressPage() {
           ) : weightLogs.length === 0 ? (
             <div className="flex flex-col items-center py-12 text-center gap-3">
               <span className="text-5xl">⚖️</span>
-              <p className="text-gray-400 text-sm">Sin registros de peso.</p>
+              <p className="text-gray-400 text-sm">{t('progress.no_weight_records')}</p>
               <Link to="/weight" className="px-4 py-2 bg-primary-600 text-white rounded-xl text-sm font-semibold">
-                Registrar peso
+                {t('progress.log_weight')}
               </Link>
             </div>
           ) : (
             <>
               <Card>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Historial</p>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">{t('progress.history_label')}</p>
                 <WeightChart logs={weightLogs.slice(0, 30)} targetWeight={profile?.target_weight_kg} height={160} />
               </Card>
               <Link to="/weight" className="text-sm text-primary-600 text-center py-1">
-                Ver historial completo →
+                {t('progress.view_full_history')}
               </Link>
             </>
           )}
@@ -207,30 +207,30 @@ export default function ProgressPage() {
       <div className="grid grid-cols-3 gap-2">
         <Card className="text-center py-3">
           <p className="text-2xl font-bold text-primary-600">{avg7}</p>
-          <p className="text-xs text-gray-400 leading-tight">kcal/día<br/>7 días</p>
+          <p className="text-xs text-gray-400 leading-tight">{t('progress.kcal_day')}<br/>{t('progress.days_7')}</p>
         </Card>
         <Card className="text-center py-3">
           <p className="text-2xl font-bold text-primary-600">{avg30}</p>
-          <p className="text-xs text-gray-400 leading-tight">kcal/día<br/>30 días</p>
+          <p className="text-xs text-gray-400 leading-tight">{t('progress.kcal_day')}<br/>{t('progress.days_30')}</p>
         </Card>
         <Card className="text-center py-3">
           <p className={`text-2xl font-bold ${pctUnderTarget >= 70 ? 'text-green-600' : pctUnderTarget >= 50 ? 'text-amber-500' : 'text-red-500'}`}>
             {pctUnderTarget}%
           </p>
-          <p className="text-xs text-gray-400 leading-tight">días bajo<br/>la meta</p>
+          <p className="text-xs text-gray-400 leading-tight">{t('progress.days_under_goal')}</p>
         </Card>
       </div>
 
       {calTarget > 0 && (
-        <p className="text-xs text-center text-gray-400">Meta calórica: {calTarget} kcal/día · {analyses.length} días registrados</p>
+        <p className="text-xs text-center text-gray-400">{t('progress.calorie_meta_summary', { cal: calTarget, n: analyses.length })}</p>
       )}
 
       {/* View toggle */}
       <div className="flex rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
         {[
-          { key: 'weeks', label: 'Semanas' },
-          { key: 'months', label: 'Meses' },
-          { key: 'all', label: 'Todo' },
+          { key: 'weeks', label: t('progress.view_weeks') },
+          { key: 'months', label: t('progress.view_months') },
+          { key: 'all', label: t('progress.view_all') },
         ].map(opt => (
           <button
             key={opt.key}
@@ -260,10 +260,10 @@ export default function ProgressPage() {
                 {formatWeekRange(monday, lang)}
               </p>
               <span className={`text-xs font-bold ${trendColor}`}>
-                {weekAvg} kcal/día ({weekPct}%)
+                {t('progress.avg_week_summary', { avg: weekAvg, pct: weekPct })}
               </span>
             </div>
-            {entries.map(a => <DayCard key={a.id} a={a} lang={lang} />)}
+            {entries.map(a => <DayCard key={a.id} a={a} lang={lang} t={t} />)}
           </div>
         )
       })}
@@ -284,16 +284,16 @@ export default function ProgressPage() {
                 {monthName} {year}
               </p>
               <span className={`text-xs font-bold ${trendColor}`}>
-                {monthAvg} kcal/día · {entries.length} días
+                {t('progress.avg_month_summary', { avg: monthAvg, n: entries.length })}
               </span>
             </div>
-            {entries.map(a => <DayCard key={a.id} a={a} lang={lang} />)}
+            {entries.map(a => <DayCard key={a.id} a={a} lang={lang} t={t} />)}
           </div>
         )
       })}
 
       {/* All view */}
-      {view === 'all' && analyses.map(a => <DayCard key={a.id} a={a} lang={lang} />)}
+      {view === 'all' && analyses.map(a => <DayCard key={a.id} a={a} lang={lang} t={t} />)}
       </>}
     </div>
   )

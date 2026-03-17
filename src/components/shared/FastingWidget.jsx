@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Card } from '../ui/Card'
 import { ProgressRing } from '../ui/ProgressRing'
 import { ElapsedTimer } from '../ui/CountdownTimer'
 import { useFasting } from '../../hooks/useFasting'
 
 export function FastingWidget({ profileId }) {
+  const { t } = useTranslation()
   const { activeSession, startFast } = useFasting(profileId)
 
   const handleStart = async (e) => {
@@ -21,14 +23,14 @@ export function FastingWidget({ profileId }) {
             ⚡
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-500 font-medium mb-0.5">Ayuno intermitente</p>
-            <p className="text-sm text-gray-600 dark:text-gray-300">Sin ayuno activo</p>
+            <p className="text-xs text-gray-500 font-medium mb-0.5">{t('fasting.title')}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-300">{t('fasting.no_active')}</p>
           </div>
           <button
             onClick={handleStart}
             className="px-3 py-1.5 bg-violet-600 text-white rounded-xl text-xs font-semibold hover:bg-violet-700 transition-colors flex-shrink-0"
           >
-            Iniciar
+            {t('fasting.start')}
           </button>
         </div>
       </Card>
@@ -49,11 +51,11 @@ export function FastingWidget({ profileId }) {
             <span className="text-base">⚡</span>
           </ProgressRing>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-500 font-medium mb-0.5">Ayuno activo</p>
+            <p className="text-xs text-gray-500 font-medium mb-0.5">{t('fasting.active')}</p>
             <p className="text-xl font-bold text-violet-600">
               <ElapsedTimer startTime={activeSession.start_time} />
             </p>
-            <p className="text-xs text-gray-400">Meta: {activeSession.target_hours}h · {Math.round(percent)}%</p>
+            <p className="text-xs text-gray-400">{t('fasting.meta_short', { h: activeSession.target_hours, pct: Math.round(percent) })}</p>
           </div>
         </div>
       </Card>

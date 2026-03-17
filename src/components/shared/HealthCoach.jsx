@@ -1,10 +1,12 @@
 import { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useHealthCoach } from '../../hooks/useHealthCoach'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { Spinner } from '../ui/Spinner'
 
 export function HealthCoach({ profileId, profile, calTarget, todayCalories, foodLogs, habits, habitLogs, lastBP }) {
+  const { t } = useTranslation()
   const { todayAnalysis, loading, initialLoading, error, analyze } = useHealthCoach(profileId)
   const autoTriggered = useRef(false)
 
@@ -41,7 +43,7 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
       <Card className="border border-primary-200 bg-primary-50/50 dark:bg-primary-900/10">
         <div className="flex items-center gap-3 py-2">
           <Spinner />
-          <p className="text-sm text-gray-500">Generando análisis de tu día...</p>
+          <p className="text-sm text-gray-500">{t('coach.generating')}</p>
         </div>
       </Card>
     )
@@ -54,14 +56,14 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
         <div className="flex flex-col items-center text-center gap-3 py-2">
           <span className="text-4xl">🤖</span>
           <div>
-            <p className="font-semibold text-gray-800 dark:text-gray-100">Coach IA</p>
+            <p className="font-semibold text-gray-800 dark:text-gray-100">{t('coach.title')}</p>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              El análisis se genera automáticamente al registrar la cena. También puedes analizarlo ahora.
+              {t('coach.auto_hint')}
             </p>
           </div>
           {error && <p className="text-xs text-red-500">{error}</p>}
           <Button onClick={handleAnalyze} className="w-full" disabled={foodLogs.length === 0}>
-            ✨ Analizar mi día ahora
+            {t('coach.analyze_now')}
           </Button>
         </div>
       </Card>
@@ -77,7 +79,7 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
           {error && (
             <>
               <p className="text-xs text-red-500">{error}</p>
-              <Button onClick={handleAnalyze} className="w-full">Reintentar análisis</Button>
+              <Button onClick={handleAnalyze} className="w-full">{t('coach.retry')}</Button>
             </>
           )}
         </div>
@@ -95,8 +97,8 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
           className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 rounded-xl px-4 py-2 text-sm text-amber-700 dark:text-amber-300 w-full text-left"
         >
           <span>⚠️</span>
-          <span className="flex-1">Registraste comida después del análisis.</span>
-          <span className="font-semibold underline">Regenerar</span>
+          <span className="flex-1">{t('coach.stale_warning')}</span>
+          <span className="font-semibold underline">{t('coach.regenerate')}</span>
         </button>
       )}
 
@@ -106,7 +108,7 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
           <span className="text-2xl flex-shrink-0">🤖</span>
           <div>
             <p className="text-xs font-semibold text-primary-700 dark:text-primary-300 uppercase tracking-wide mb-1">
-              Análisis de hoy
+              {t('coach.analysis_today')}
             </p>
             <p className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed">
               {todayAnalysis.analysis_text}
@@ -130,7 +132,7 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
       {todayAnalysis.tomorrow_plan && (
         <Card className="border-l-4 border-amber-400 bg-amber-50 dark:bg-amber-900/20">
           <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wide mb-1">
-            📅 Plan para mañana
+            {t('coach.tomorrow_plan')}
           </p>
           <p className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed">
             {todayAnalysis.tomorrow_plan}
@@ -150,7 +152,7 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
         onClick={handleAnalyze}
         className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-center underline"
       >
-        Regenerar análisis
+        {t('coach.regenerate_analysis')}
       </button>
     </div>
   )

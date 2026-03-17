@@ -130,19 +130,19 @@ export default function WeightPage() {
           <p className="text-xl font-bold text-gray-900 dark:text-gray-100">
             {latestWeight ?? '—'}
           </p>
-          <p className="text-xs text-gray-400 leading-tight">kg actual</p>
+          <p className="text-xs text-gray-400 leading-tight">{t('weight.kg_current')}</p>
         </Card>
         <Card className="text-center py-3">
           <p className="text-xl font-bold text-gray-900 dark:text-gray-100">
             {targetWeight ?? '—'}
           </p>
-          <p className="text-xs text-gray-400 leading-tight">kg meta</p>
+          <p className="text-xs text-gray-400 leading-tight">{t('weight.kg_goal')}</p>
         </Card>
         <Card className="text-center py-3">
           <p className={`text-xl font-bold ${diff === null ? 'text-gray-400' : diff > 0 ? 'text-amber-500' : diff < 0 ? 'text-red-500' : 'text-green-600'}`}>
             {diff !== null ? (diff > 0 ? `+${diff}` : diff) : '—'}
           </p>
-          <p className="text-xs text-gray-400 leading-tight">kg diferencia</p>
+          <p className="text-xs text-gray-400 leading-tight">{t('weight.kg_diff')}</p>
         </Card>
       </div>
 
@@ -151,11 +151,11 @@ export default function WeightPage() {
           <span className="text-2xl">{weeklyChange < 0 ? '📉' : '📈'}</span>
           <div>
             <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-              {weeklyChange < 0 ? 'Bajando' : 'Subiendo'} {Math.abs(weeklyChange)} kg/semana
+              {weeklyChange < 0 ? t('weight.trending_down') : t('weight.trending_up')} {Math.abs(weeklyChange)} {t('weight.per_week')}
             </p>
             {projectionWeeks && diff !== null && Math.abs(diff) > 0.5 && (
               <p className="text-xs text-gray-400">
-                Proyección: ~{projectionWeeks} semana{projectionWeeks !== 1 ? 's' : ''} para alcanzar meta
+                {t('weight.projection', { weeks: projectionWeeks })}
               </p>
             )}
           </div>
@@ -212,7 +212,7 @@ export default function WeightPage() {
               onClick={() => setShowAll(s => !s)}
               className="text-sm text-primary-600 text-center py-2"
             >
-              {showAll ? 'Mostrar menos' : `Ver todos (${logs.length})`}
+              {showAll ? t('weight.show_less') : t('weight.show_all', { n: logs.length })}
             </button>
           )}
         </div>

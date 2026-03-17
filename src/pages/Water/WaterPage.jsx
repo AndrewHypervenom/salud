@@ -8,13 +8,13 @@ import { Card } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
 
 const QUICK_OPTIONS = [
-  { label: 'Vaso', ml: 250, emoji: '🥤' },
-  { label: 'Botella pequeña', ml: 500, emoji: '🍶' },
-  { label: 'Botella grande', ml: 750, emoji: '🧴' },
+  { labelKey: 'water.quick_glass', ml: 250, emoji: '🥤' },
+  { labelKey: 'water.quick_small_bottle', ml: 500, emoji: '🍶' },
+  { labelKey: 'water.quick_large_bottle', ml: 750, emoji: '🧴' },
 ]
 
 export default function WaterPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { activeProfileId } = useProfileContext()
   const { profiles } = useProfiles()
   const profile = profiles.find(p => p.id === activeProfileId)
@@ -71,8 +71,8 @@ export default function WaterPage() {
         </ProgressRing>
         <p className="text-sm text-gray-500">
           {todayPercent >= 100
-            ? '¡Meta de hidratación cumplida! 🎉'
-            : `${remaining} ml restantes de ${waterGoal} ml`}
+            ? t('water.goal_met')
+            : t('water.remaining', { remaining, goal: waterGoal })}
         </p>
       </Card>
 
@@ -88,7 +88,7 @@ export default function WaterPage() {
               className="flex flex-col items-center gap-1 py-3 bg-blue-50 dark:bg-blue-900/20 rounded-2xl text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors disabled:opacity-40"
             >
               <span className="text-2xl">{opt.emoji}</span>
-              <span className="text-xs font-semibold">{opt.label}</span>
+              <span className="text-xs font-semibold">{t(opt.labelKey)}</span>
               <span className="text-xs text-blue-400">+{opt.ml}ml</span>
             </button>
           ))}
@@ -103,7 +103,7 @@ export default function WaterPage() {
             type="number"
             value={customMl}
             onChange={e => setCustomMl(e.target.value)}
-            placeholder="ml personalizados..."
+            placeholder={t('water.ml_placeholder')}
             min="1"
             max="2000"
             className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-xl focus:outline-none focus:border-blue-500"
@@ -114,7 +114,7 @@ export default function WaterPage() {
             disabled={!customMl || parseInt(customMl) <= 0 || adding}
             className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold disabled:opacity-40 hover:bg-blue-700 transition-colors"
           >
-            {adding ? <Spinner size="sm" /> : '+ Agregar'}
+            {adding ? <Spinner size="sm" /> : `+ ${t('water.add_btn')}`}
           </button>
         </div>
       </Card>
@@ -132,7 +132,7 @@ export default function WaterPage() {
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-blue-600">{entry.amount_ml} ml</p>
                   <p className="text-xs text-gray-400">
-                    {new Date(entry.logged_at).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(entry.logged_at).toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
                 <button

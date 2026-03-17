@@ -102,10 +102,10 @@ export default function FastingPage() {
           </ProgressRing>
           <div className="text-center">
             <p className="text-sm text-gray-500">
-              Meta: {activeSession.target_hours}h · {Math.round(activePercent)}% completado
+              {t('fasting.meta_progress', { h: activeSession.target_hours, pct: Math.round(activePercent) })}
             </p>
             <p className="text-xs text-gray-400 mt-0.5">
-              Fin previsto: {new Date(targetEndTime).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}
+              {t('fasting.end_time_est', { time: new Date(targetEndTime).toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' }) })}
             </p>
           </div>
           <div className="flex gap-3 w-full">
@@ -136,7 +136,7 @@ export default function FastingPage() {
                   onChange={e => setEditStart(e.target.value)}
                   className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-xl"
                 />
-                <label className="text-xs text-gray-500">{t('fasting.end_time')} (opcional)</label>
+                <label className="text-xs text-gray-500">{t('fasting.end_time')} {t('fasting.optional')}</label>
                 <input
                   type="datetime-local"
                   value={editEnd}
@@ -220,15 +220,15 @@ export default function FastingPage() {
                   <span className="text-xl">{s.completed ? '✅' : '⚡'}</span>
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                      {new Date(s.start_time).toLocaleDateString('es', { day: '2-digit', month: 'short' })}
+                      {new Date(s.start_time).toLocaleDateString(i18n.language, { day: '2-digit', month: 'short' })}
                       {' · '}
                       <span className={s.completed ? 'text-green-600' : 'text-amber-500'}>
                         {elapsed ? `${Math.round(elapsed * 10) / 10}h` : '?'} / {s.target_hours}h
                       </span>
                     </p>
                     <p className="text-xs text-gray-400">
-                      {new Date(s.start_time).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}
-                      {s.end_time && ` → ${new Date(s.end_time).toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}`}
+                      {new Date(s.start_time).toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' })}
+                      {s.end_time && ` → ${new Date(s.end_time).toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' })}`}
                     </p>
                   </div>
                 </Card>

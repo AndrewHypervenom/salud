@@ -1,12 +1,16 @@
+import { useTranslation } from 'react-i18next'
+
 /**
  * WeightChart — SVG line chart for weight history
  * Props: logs (array of {logged_date, weight_kg}), targetWeight (number|null)
  */
 export function WeightChart({ logs = [], targetWeight = null, height = 160, className = '' }) {
+  const { t } = useTranslation()
+
   if (logs.length === 0) {
     return (
       <div className={`flex items-center justify-center text-gray-400 text-sm ${className}`} style={{ height }}>
-        Sin datos de peso
+        {t('weight.no_data')}
       </div>
     )
   }
@@ -55,16 +59,16 @@ export function WeightChart({ logs = [], targetWeight = null, height = 160, clas
     <div className={className}>
       <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} className="overflow-visible">
         {/* Grid lines */}
-        {yTicks.map((t, i) => (
+        {yTicks.map((tick, i) => (
           <g key={i}>
             <line
-              x1={PAD.left} y1={t.y} x2={W - PAD.right} y2={t.y}
+              x1={PAD.left} y1={tick.y} x2={W - PAD.right} y2={tick.y}
               stroke="currentColor" strokeWidth="0.5"
               className="text-gray-200 dark:text-gray-700"
               strokeDasharray="4,4"
             />
-            <text x={PAD.left - 4} y={t.y + 4} textAnchor="end" fontSize="10"
-              className="fill-gray-400">{t.val}</text>
+            <text x={PAD.left - 4} y={tick.y + 4} textAnchor="end" fontSize="10"
+              className="fill-gray-400">{tick.val}</text>
           </g>
         ))}
 
@@ -76,7 +80,7 @@ export function WeightChart({ logs = [], targetWeight = null, height = 160, clas
               stroke="#22c55e" strokeWidth="1.5" strokeDasharray="6,4" opacity="0.7"
             />
             <text x={W - PAD.right + 4} y={targetY + 4} fontSize="9" fill="#22c55e">
-              Meta
+              {t('weight.goal_label')}
             </text>
           </>
         )}

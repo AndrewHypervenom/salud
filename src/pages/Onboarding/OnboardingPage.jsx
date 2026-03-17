@@ -37,13 +37,13 @@ function normalizeExtracted(raw) {
   }
 }
 
-function validateProfile(data) {
-  if (!data.name || data.name.length < 2) return 'El nombre no es válido (mínimo 2 caracteres).'
-  if (isNaN(data.age) || data.age < 1 || data.age > 120) return `Edad inválida: "${data.age}". Debe estar entre 1 y 120.`
-  if (isNaN(data.weight_kg) || data.weight_kg < 20 || data.weight_kg > 300) return `Peso inválido: "${data.weight_kg}". Debe estar entre 20 y 300 kg.`
-  if (isNaN(data.height_cm) || data.height_cm < 50 || data.height_cm > 250) return `Estatura inválida: "${data.height_cm}". Debe estar entre 50 y 250 cm.`
-  if (!['male', 'female'].includes(data.sex)) return `Sexo inválido: "${data.sex}". Vuelve al chat y responde "masculino" o "femenino".`
-  if (!['sedentary', 'light', 'moderate', 'active', 'very_active'].includes(data.activity)) return `Nivel de actividad inválido: "${data.activity}".`
+function validateProfile(data, t) {
+  if (!data.name || data.name.length < 2) return t('onboarding.valid_name')
+  if (isNaN(data.age) || data.age < 1 || data.age > 120) return t('onboarding.valid_age', { val: data.age })
+  if (isNaN(data.weight_kg) || data.weight_kg < 20 || data.weight_kg > 300) return t('onboarding.valid_weight', { val: data.weight_kg })
+  if (isNaN(data.height_cm) || data.height_cm < 50 || data.height_cm > 250) return t('onboarding.valid_height', { val: data.height_cm })
+  if (!['male', 'female'].includes(data.sex)) return t('onboarding.valid_sex', { val: data.sex })
+  if (!['sedentary', 'light', 'moderate', 'active', 'very_active'].includes(data.activity)) return t('onboarding.valid_activity', { val: data.activity })
   return null
 }
 
@@ -68,7 +68,7 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (!started.current) {
       started.current = true
-      sendMessage('Hola, quiero crear mi perfil.')
+      sendMessage(t('onboarding.init_message'))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -98,7 +98,7 @@ export default function OnboardingPage() {
     setSaveError('')
 
     const normalized = normalizeExtracted(extracted)
-    const validationError = validateProfile(normalized)
+    const validationError = validateProfile(normalized, t)
     if (validationError) {
       setSaveError(validationError)
       return
@@ -116,7 +116,7 @@ export default function OnboardingPage() {
       navigate('/dashboard', { replace: true })
     } catch (err) {
       console.error('createProfile error:', err)
-      setSaveError(`Error al guardar: ${err.message || 'Inténtalo de nuevo.'}`)
+      setSaveError(t('onboarding.save_error_prefix', { msg: err.message || '?' }))
       setSaving(false)
     }
   }
@@ -125,7 +125,7 @@ export default function OnboardingPage() {
     const handlePhoneContinue = () => {
       const digits = phoneNumber.replace(/\D/g, '')
       if (digits.length < 8) {
-        setPhoneError('Ingresa un número válido (mínimo 8 dígitos).')
+        setPhoneError(t('onboarding.phone_error'))
         return
       }
       setPhoneError('')
@@ -190,7 +190,7 @@ export default function OnboardingPage() {
           {saving && (
             <div className="flex flex-col items-center gap-2">
               <Spinner />
-              <p className="text-sm text-gray-500">Creando tu perfil...</p>
+              <p className="text-sm text-gray-500">{t('onboarding.creating_profile')}</p>
             </div>
           )}
 

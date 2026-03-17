@@ -20,7 +20,9 @@
     "food_search": "Search Food",
     "badges": "Achievements",
     "customize_title": "Customize bar",
-    "customize_hint": "Choose the 3 center icons"
+    "customize_hint": "Choose the 3 center icons",
+    "fixed": "Fixed",
+    "position_hint": "Choose for position {{n}}"
   },
   "profile": {
     "select": "Select profile",
@@ -94,7 +96,18 @@
     "motivation_ok": "Keep it up! You're doing great.",
     "motivation_warn": "Almost at your goal. Watch those calories!",
     "motivation_over": "You exceeded your goal today.",
-    "motivation_empty": "Start by logging your first meal!"
+    "motivation_empty": "Start by logging your first meal!",
+    "kg_vs_goal": "{{diff}} kg vs goal",
+    "kg_vs_yesterday": "{{diff}} kg vs yesterday",
+    "edit_mode_title": "Edit mode",
+    "edit_mode_hint": "Hold ≡ handle and drag to reorder",
+    "btn_done": "Done",
+    "btn_reset": "Reset",
+    "add_widgets": "Add widgets",
+    "calories_of": "of {{n}} kcal",
+    "completed_today": "Completed today",
+    "habits_of": "of {{n}} habits",
+    "doctor_short": "Doctor"
   },
   "calories": {
     "title": "Daily Calories",
@@ -262,7 +275,8 @@
     "back": "Back",
     "new": "New",
     "select_profile_first": "Select a profile first",
-    "no_data": "No data"
+    "no_data": "No data",
+    "optional": "(optional)"
   },
   "welcome": {
     "subtitle": "Your family health, always at hand",
@@ -299,7 +313,11 @@
     "delete": "Delete",
     "lock_all": "Lock all profiles",
     "change_pin": "Change access code",
-    "change_pin_hint": "Set a new code and recovery word for this profile."
+    "change_pin_hint": "Set a new code and recovery word for this profile.",
+    "weak_code": "Code too easy to guess. Choose another.",
+    "recovery_min_chars": "Minimum 3 characters.",
+    "recovery_no_numbers": "Cannot be numbers only.",
+    "recovery_too_simple": "Choose something more personal."
   },
   "onboarding": {
     "title": "Create new profile",
@@ -307,7 +325,17 @@
     "send_btn": "Send",
     "thinking": "Thinking...",
     "error_network": "Connection error. Please try again.",
-    "phase_pin": "Almost done! Now set up your access code"
+    "phase_pin": "Almost done! Now set up your access code",
+    "creating_profile": "Creating your profile...",
+    "valid_name": "Name is not valid (minimum 2 characters).",
+    "valid_age": "Invalid age: \"{{val}}\". Must be between 1 and 120.",
+    "valid_weight": "Invalid weight: \"{{val}}\". Must be between 20 and 300 kg.",
+    "valid_height": "Invalid height: \"{{val}}\". Must be between 50 and 250 cm.",
+    "valid_sex": "Invalid sex: \"{{val}}\".",
+    "valid_activity": "Invalid activity level: \"{{val}}\".",
+    "init_message": "Hello, I'd like to create my profile.",
+    "phone_error": "Enter a valid number (minimum 8 digits).",
+    "save_error_prefix": "Error saving: {{msg}}"
   },
   "habits": {
     "title": "Daily Habits",
@@ -358,19 +386,40 @@
     "fat": "Fat",
     "fiber": "Fiber",
     "macros": "Macronutrients",
-    "incorrect": "That's incorrect"
+    "incorrect": "That's incorrect",
+    "goal_met": "Goal met! 🎯",
+    "summary_whatsapp": "{{name}}'s meals today: {{cal}} kcal of {{target}} kcal goal.",
+    "day_summary": "{{name}}'s summary today:"
   },
   "water": {
     "title": "Hydration",
     "quick_add": "Quick add",
     "custom_amount": "Custom amount",
-    "today_log": "Today's log"
+    "today_log": "Today's log",
+    "goal_met": "Hydration goal met! 🎉",
+    "remaining": "{{remaining}} ml remaining of {{goal}} ml",
+    "quick_glass": "Glass",
+    "quick_small_bottle": "Small bottle",
+    "quick_large_bottle": "Large bottle",
+    "ml_placeholder": "Custom amount (ml)...",
+    "add_btn": "Add"
   },
   "weight": {
     "title": "Weight Tracking",
     "log_weight": "Log weight",
     "history": "History",
-    "no_logs": "No weight records yet. Log your first weight!"
+    "no_logs": "No weight records yet. Log your first weight!",
+    "kg_current": "kg current",
+    "kg_goal": "kg goal",
+    "kg_diff": "kg difference",
+    "trending_down": "Losing",
+    "trending_up": "Gaining",
+    "per_week": "kg/week",
+    "show_less": "Show less",
+    "show_all": "View all ({{n}})",
+    "no_data": "No weight data",
+    "goal_label": "Goal",
+    "projection": "Projection: ~{{weeks}} week(s) to reach goal"
   },
   "fasting": {
     "title": "Intermittent Fasting",
@@ -384,12 +433,56 @@
     "end_time": "End time",
     "target_hours": "Target duration",
     "completed_count": "fasts completed",
-    "history": "Recent sessions"
+    "history": "Recent sessions",
+    "meta_progress": "Goal: {{h}}h · {{pct}}% completed",
+    "meta_short": "Goal: {{h}}h · {{pct}}%",
+    "end_time_est": "Estimated end: {{time}}",
+    "optional": "(optional)"
   },
   "recipes": {
     "title": "Recipes",
     "new_recipe": "New recipe",
-    "no_recipes": "No recipes yet. Create your first one!"
+    "no_recipes": "No recipes yet. Create your first one!",
+    "tab_mine": "🗂️ My Recipes",
+    "tab_ai": "✨ AI Ideas",
+    "meal_all": "All",
+    "meal_any": "Any",
+    "delete_confirm": "Delete this recipe?",
+    "no_results_filter": "No recipes with that filter.",
+    "ingredients_prompt": "What ingredients do you have?",
+    "ingredients_placeholder": "Chicken, rice, carrot, onion...",
+    "use_todays_meals": "📋 Use today's meals",
+    "generate_ai": "✨ Generate AI ideas",
+    "generating": "Generating...",
+    "ai_ideas_title": "Recipe ideas",
+    "ai_error": "Could not generate ideas at this time.",
+    "btn_new": "+ New",
+    "btn_create_first": "+ Create first recipe",
+    "edit_recipe": "Edit recipe",
+    "macros_per_serving": "Macros per serving",
+    "ingredients_label": "Ingredients",
+    "carbs_short": "Carbs",
+    "not_found": "Recipe not found.",
+    "back_to_recipes": "Back to recipes",
+    "from_recipe": "From recipe",
+    "log_as_food": "🍽️ Log as food",
+    "form_title_label": "Title *",
+    "form_meal_type_label": "Meal type",
+    "form_description_label": "Description (optional)",
+    "form_photo_label": "Photo (optional)",
+    "form_ingredients_label": "Ingredients (one per line)",
+    "form_instructions_label": "Instructions (optional)",
+    "form_macros_label": "Macros per serving (optional)",
+    "kcal_per_serving": "kcal/serving",
+    "instructions_label": "Instructions",
+    "placeholder_title": "Healthy chicken rice",
+    "placeholder_description": "Balanced dish rich in protein",
+    "placeholder_protein": "Protein (g)",
+    "placeholder_carbs": "Carbs (g)",
+    "placeholder_fat": "Fat (g)",
+    "placeholder_ingredients": "2 cups brown rice\n200g chicken breast\n1 carrot",
+    "placeholder_instructions": "1. Cook the rice...\n2. Cook the chicken...",
+    "ai_prompt": "Suggest 3 healthy recipes using these ingredients: {{ingredients}}. For each recipe include: name, main ingredients, brief instructions, and approximate calorie content."
   },
   "food_search": {
     "title": "Search Food",
@@ -416,5 +509,73 @@
     "phone_hint": "International format: 1XXXXXXXXXX",
     "api_key": "CallMeBot API Key",
     "api_key_hint": "Get it by sending a message to CallMeBot"
+  },
+  "scanner": {
+    "camera_error": "Could not access camera: {{msg}}",
+    "starting": "Starting camera...",
+    "permission_hint": "Make sure the browser has camera permission.",
+    "aim_hint": "Aim at the product barcode"
+  },
+  "coach": {
+    "title": "AI Coach",
+    "generating": "Generating your day's analysis...",
+    "auto_hint": "Analysis is generated automatically when you log dinner. You can also analyze now.",
+    "analyze_now": "✨ Analyze my day now",
+    "retry": "Retry analysis",
+    "stale_warning": "You logged food after the analysis.",
+    "regenerate": "Regenerate",
+    "analysis_today": "Today's analysis",
+    "tomorrow_plan": "📅 Tomorrow's plan",
+    "regenerate_analysis": "Regenerate analysis"
+  },
+  "progress": {
+    "title": "Progress",
+    "tab_analysis": "🤖 AI Analysis",
+    "tab_weight": "⚖️ Weight",
+    "select_profile": "Select a profile to see your progress.",
+    "no_analyses": "No analyses saved yet. Log your meals — analysis is generated automatically when you log dinner.",
+    "kg_current": "kg current",
+    "kg_goal": "kg goal",
+    "no_weight_records": "No weight records.",
+    "log_weight": "Log weight",
+    "history_label": "History",
+    "view_full_history": "View full history →",
+    "view_weeks": "Weeks",
+    "view_months": "Months",
+    "view_all": "All",
+    "calorie_meta_summary": "Calorie goal: {{cal}} kcal/day · {{n}} days logged",
+    "tomorrow_plan_label": "Next day plan",
+    "kcal_day": "kcal/day",
+    "days_7": "7 days",
+    "days_30": "30 days",
+    "days_under_goal": "days under goal",
+    "avg_week_summary": "{{avg}} kcal/day ({{pct}}%)",
+    "avg_month_summary": "{{avg}} kcal/day · {{n}} days"
+  },
+  "macro": {
+    "balanced": "✓ Well-balanced plate for your goals",
+    "fat_excess": "Reduce oil or sauce to lower fat",
+    "protein_excess": "Very high protein — fine if your goal is to gain muscle",
+    "carbs_excess": "High carbs — consider reducing bread, rice or sweet sauces",
+    "fiber_low": "Low fiber — add more vegetables, legumes or whole grains",
+    "fiber_warning": "Acceptable fiber, but you could add more vegetables",
+    "daily_pct": "% of your daily goal",
+    "legend_limit": "Limit",
+    "legend_excess": "Excess",
+    "legend_low": "Insufficient"
+  },
+  "widgets": {
+    "calories": "Calories",
+    "quick_actions": "Quick actions",
+    "meals": "Today's meals",
+    "macros": "Macronutrients",
+    "water": "Hydration",
+    "fasting": "Fasting",
+    "habits": "Habits",
+    "coach": "AI Coach",
+    "bp": "Blood pressure",
+    "weight": "Weight",
+    "doctor": "Doctor questions",
+    "streak": "Habit streak"
   }
 }

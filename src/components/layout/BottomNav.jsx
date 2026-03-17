@@ -48,8 +48,8 @@ function NavCustomizer({ shortcuts, onSetShortcut, onClose }) {
         {/* Home fixed */}
         <div className="flex-1 flex flex-col items-center gap-1 opacity-40">
           <span className="text-2xl">🏠</span>
-          <span className="text-[10px] text-gray-500 font-medium">Inicio</span>
-          <span className="text-[9px] text-gray-400 px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded-full">Fijo</span>
+          <span className="text-[10px] text-gray-500 font-medium">{t('nav.dashboard')}</span>
+          <span className="text-[9px] text-gray-400 px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded-full">{t('nav.fixed')}</span>
         </div>
 
         {/* 3 editable slots */}
@@ -71,7 +71,7 @@ function NavCustomizer({ shortcuts, onSetShortcut, onClose }) {
                 {item ? t(item.label) : '—'}
               </span>
               <span className="text-[9px] text-primary-500 font-semibold px-1.5 py-0.5 bg-primary-50 dark:bg-primary-900/30 rounded-full">
-                Editar
+                {t('common.edit')}
               </span>
             </button>
           )
@@ -80,8 +80,8 @@ function NavCustomizer({ shortcuts, onSetShortcut, onClose }) {
         {/* More fixed */}
         <div className="flex-1 flex flex-col items-center gap-1 opacity-40">
           <span className="text-2xl">⋯</span>
-          <span className="text-[10px] text-gray-500 font-medium">Más</span>
-          <span className="text-[9px] text-gray-400 px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded-full">Fijo</span>
+          <span className="text-[10px] text-gray-500 font-medium">{t('nav.more')}</span>
+          <span className="text-[9px] text-gray-400 px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded-full">{t('nav.fixed')}</span>
         </div>
       </div>
 
@@ -89,7 +89,7 @@ function NavCustomizer({ shortcuts, onSetShortcut, onClose }) {
       {editingSlot !== null && (
         <div>
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
-            Elige para posición {editingSlot + 2}
+            {t('nav.position_hint', { n: editingSlot + 2 })}
           </p>
           <div className="grid grid-cols-4 gap-2 max-h-56 overflow-y-auto">
             {NAV_CATALOG.map(item => {

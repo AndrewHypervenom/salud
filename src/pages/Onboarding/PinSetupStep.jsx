@@ -16,10 +16,10 @@ function isWeakPin(pin) {
   return WEAK_PINS.has(pin)
 }
 
-function validateRecoveryWord(word) {
-  if (word.length < 3) return 'Mínimo 3 caracteres.'
-  if (/^\d+$/.test(word)) return 'No puede ser solo números.'
-  if (/^(.)\1+$/.test(word)) return 'Elige algo más personal.'
+function validateRecoveryWord(word, t) {
+  if (word.length < 3) return t('pin.recovery_min_chars')
+  if (/^\d+$/.test(word)) return t('pin.recovery_no_numbers')
+  if (/^(.)\1+$/.test(word)) return t('pin.recovery_too_simple')
   return null
 }
 
@@ -56,7 +56,7 @@ export default function PinSetupStep({ onComplete, disabled }) {
   const advance = (p) => {
     if (step === 'pin') {
       if (isWeakPin(p)) {
-        setPinError('Código muy fácil de adivinar. Elige otro.')
+        setPinError(t('pin.weak_code'))
         setPin('')
         return
       }
@@ -77,7 +77,7 @@ export default function PinSetupStep({ onComplete, disabled }) {
 
   const handleRecoverySubmit = () => {
     const word = recoveryWord.trim()
-    const err = validateRecoveryWord(word)
+    const err = validateRecoveryWord(word, t)
     if (err) {
       setRecoveryError(err)
       return

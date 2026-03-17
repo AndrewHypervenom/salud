@@ -20,7 +20,9 @@
     "food_search": "Buscar Alimento",
     "badges": "Logros",
     "customize_title": "Personalizar barra",
-    "customize_hint": "Elige los 3 íconos centrales"
+    "customize_hint": "Elige los 3 íconos centrales",
+    "fixed": "Fijo",
+    "position_hint": "Elige para posición {{n}}"
   },
   "profile": {
     "select": "Seleccionar perfil",
@@ -94,7 +96,18 @@
     "motivation_ok": "¡Vas muy bien! Sigue así.",
     "motivation_warn": "Casi en tu meta. ¡Cuidado con las calorías!",
     "motivation_over": "Superaste tu meta de hoy.",
-    "motivation_empty": "¡Empieza registrando tu primera comida!"
+    "motivation_empty": "¡Empieza registrando tu primera comida!",
+    "kg_vs_goal": "{{diff}} kg vs meta",
+    "kg_vs_yesterday": "{{diff}} kg vs ayer",
+    "edit_mode_title": "Modo edición",
+    "edit_mode_hint": "Mantén el handle ≡ y arrastra para reordenar",
+    "btn_done": "Listo",
+    "btn_reset": "Restablecer",
+    "add_widgets": "Agregar widgets",
+    "calories_of": "de {{n}} kcal",
+    "completed_today": "Completado hoy",
+    "habits_of": "de {{n}} hábitos",
+    "doctor_short": "Médico"
   },
   "calories": {
     "title": "Calorías Diarias",
@@ -262,7 +275,8 @@
     "back": "Volver",
     "new": "Nuevo",
     "select_profile_first": "Primero selecciona un perfil",
-    "no_data": "Sin datos"
+    "no_data": "Sin datos",
+    "optional": "(opcional)"
   },
   "welcome": {
     "subtitle": "Tu salud familiar, siempre a mano",
@@ -299,7 +313,11 @@
     "delete": "Borrar",
     "lock_all": "Bloquear todos los perfiles",
     "change_pin": "Cambiar código de acceso",
-    "change_pin_hint": "Establece un nuevo código y palabra de recuperación para este perfil."
+    "change_pin_hint": "Establece un nuevo código y palabra de recuperación para este perfil.",
+    "weak_code": "Código muy fácil de adivinar. Elige otro.",
+    "recovery_min_chars": "Mínimo 3 caracteres.",
+    "recovery_no_numbers": "No puede ser solo números.",
+    "recovery_too_simple": "Elige algo más personal."
   },
   "onboarding": {
     "title": "Crear nuevo perfil",
@@ -307,7 +325,17 @@
     "send_btn": "Enviar",
     "thinking": "Pensando...",
     "error_network": "Error de conexión. Por favor intenta de nuevo.",
-    "phase_pin": "¡Casi listo! Ahora configura tu código de acceso"
+    "phase_pin": "¡Casi listo! Ahora configura tu código de acceso",
+    "creating_profile": "Creando tu perfil...",
+    "valid_name": "El nombre no es válido (mínimo 2 caracteres).",
+    "valid_age": "Edad inválida: \"{{val}}\". Debe estar entre 1 y 120.",
+    "valid_weight": "Peso inválido: \"{{val}}\". Debe estar entre 20 y 300 kg.",
+    "valid_height": "Estatura inválida: \"{{val}}\". Debe estar entre 50 y 250 cm.",
+    "valid_sex": "Sexo inválido: \"{{val}}\".",
+    "valid_activity": "Nivel de actividad inválido: \"{{val}}\".",
+    "init_message": "Hola, quiero crear mi perfil.",
+    "phone_error": "Ingresa un número válido (mínimo 8 dígitos).",
+    "save_error_prefix": "Error al guardar: {{msg}}"
   },
   "habits": {
     "title": "Hábitos Diarios",
@@ -358,19 +386,40 @@
     "fat": "Grasas",
     "fiber": "Fibras",
     "macros": "Macronutrientes",
-    "incorrect": "Es incorrecto"
+    "incorrect": "Es incorrecto",
+    "goal_met": "¡Meta cumplida! 🎯",
+    "summary_whatsapp": "Comidas de {{name}} hoy: {{cal}} kcal de {{target}} kcal meta.",
+    "day_summary": "Resumen de {{name}} hoy:"
   },
   "water": {
     "title": "Hidratación",
     "quick_add": "Agregar rápido",
     "custom_amount": "Cantidad personalizada",
-    "today_log": "Registro de hoy"
+    "today_log": "Registro de hoy",
+    "goal_met": "¡Meta de hidratación cumplida! 🎉",
+    "remaining": "{{remaining}} ml restantes de {{goal}} ml",
+    "quick_glass": "Vaso",
+    "quick_small_bottle": "Botella pequeña",
+    "quick_large_bottle": "Botella grande",
+    "ml_placeholder": "ml personalizados...",
+    "add_btn": "Agregar"
   },
   "weight": {
     "title": "Control de Peso",
     "log_weight": "Registrar peso",
     "history": "Historial",
-    "no_logs": "No hay registros de peso. ¡Registra tu primer peso!"
+    "no_logs": "No hay registros de peso. ¡Registra tu primer peso!",
+    "kg_current": "kg actual",
+    "kg_goal": "kg meta",
+    "kg_diff": "kg diferencia",
+    "trending_down": "Bajando",
+    "trending_up": "Subiendo",
+    "per_week": "kg/semana",
+    "show_less": "Mostrar menos",
+    "show_all": "Ver todos ({{n}})",
+    "no_data": "Sin datos de peso",
+    "goal_label": "Meta",
+    "projection": "Proyección: ~{{weeks}} semana(s) para alcanzar meta"
   },
   "fasting": {
     "title": "Ayuno Intermitente",
@@ -384,12 +433,56 @@
     "end_time": "Hora fin",
     "target_hours": "Duración objetivo",
     "completed_count": "ayunos completados",
-    "history": "Últimas sesiones"
+    "history": "Últimas sesiones",
+    "meta_progress": "Meta: {{h}}h · {{pct}}% completado",
+    "meta_short": "Meta: {{h}}h · {{pct}}%",
+    "end_time_est": "Fin previsto: {{time}}",
+    "optional": "(opcional)"
   },
   "recipes": {
     "title": "Recetas",
     "new_recipe": "Nueva receta",
-    "no_recipes": "Aún no tienes recetas. ¡Crea la primera!"
+    "no_recipes": "Aún no tienes recetas. ¡Crea la primera!",
+    "tab_mine": "🗂️ Mis Recetas",
+    "tab_ai": "✨ Ideas IA",
+    "meal_all": "Todas",
+    "meal_any": "Cualquiera",
+    "delete_confirm": "¿Eliminar esta receta?",
+    "no_results_filter": "No hay recetas con ese filtro.",
+    "ingredients_prompt": "¿Qué ingredientes tienes?",
+    "ingredients_placeholder": "Pollo, arroz, zanahoria, cebolla...",
+    "use_todays_meals": "📋 Usar comidas de hoy",
+    "generate_ai": "✨ Generar ideas con IA",
+    "generating": "Generando...",
+    "ai_ideas_title": "Ideas de recetas",
+    "ai_error": "No se pudo generar ideas en este momento.",
+    "btn_new": "+ Nueva",
+    "btn_create_first": "+ Crear primera receta",
+    "edit_recipe": "Editar receta",
+    "macros_per_serving": "Macros por porción",
+    "ingredients_label": "Ingredientes",
+    "carbs_short": "Carbos",
+    "not_found": "Receta no encontrada.",
+    "back_to_recipes": "Volver a recetas",
+    "from_recipe": "Desde receta",
+    "log_as_food": "🍽️ Registrar como comida",
+    "form_title_label": "Título *",
+    "form_meal_type_label": "Tipo de comida",
+    "form_description_label": "Descripción (opcional)",
+    "form_photo_label": "Foto (opcional)",
+    "form_ingredients_label": "Ingredientes (uno por línea)",
+    "form_instructions_label": "Instrucciones (opcional)",
+    "form_macros_label": "Macros por porción (opcional)",
+    "kcal_per_serving": "kcal/porción",
+    "instructions_label": "Instrucciones",
+    "placeholder_title": "Arroz con pollo saludable",
+    "placeholder_description": "Plato balanceado rico en proteínas",
+    "placeholder_protein": "Proteína (g)",
+    "placeholder_carbs": "Carbos (g)",
+    "placeholder_fat": "Grasas (g)",
+    "placeholder_ingredients": "2 tazas arroz integral\n200g pechuga de pollo\n1 zanahoria",
+    "placeholder_instructions": "1. Cocinar el arroz...\n2. Cocinar el pollo...",
+    "ai_prompt": "Sugiere 3 recetas saludables usando estos ingredientes: {{ingredients}}. Para cada receta incluye: nombre, ingredientes principales, instrucciones breves, y valor calórico aproximado."
   },
   "food_search": {
     "title": "Buscar Alimento",
@@ -416,5 +509,73 @@
     "phone_hint": "Formato internacional: 506XXXXXXXX",
     "api_key": "API Key de CallMeBot",
     "api_key_hint": "Obténla enviando un mensaje a CallMeBot"
+  },
+  "scanner": {
+    "camera_error": "No se pudo acceder a la cámara: {{msg}}",
+    "starting": "Iniciando cámara...",
+    "permission_hint": "Asegúrate de que el navegador tiene permiso de cámara.",
+    "aim_hint": "Apunta al código de barras del producto"
+  },
+  "coach": {
+    "title": "Coach IA",
+    "generating": "Generando análisis de tu día...",
+    "auto_hint": "El análisis se genera automáticamente al registrar la cena. También puedes analizarlo ahora.",
+    "analyze_now": "✨ Analizar mi día ahora",
+    "retry": "Reintentar análisis",
+    "stale_warning": "Registraste comida después del análisis.",
+    "regenerate": "Regenerar",
+    "analysis_today": "Análisis de hoy",
+    "tomorrow_plan": "📅 Plan para mañana",
+    "regenerate_analysis": "Regenerar análisis"
+  },
+  "progress": {
+    "title": "Progreso",
+    "tab_analysis": "🤖 Análisis IA",
+    "tab_weight": "⚖️ Peso",
+    "select_profile": "Selecciona un perfil para ver tu progreso.",
+    "no_analyses": "Aún no hay análisis guardados. Registra tus comidas del día — el análisis se genera automáticamente al cenar.",
+    "kg_current": "kg actual",
+    "kg_goal": "kg meta",
+    "no_weight_records": "Sin registros de peso.",
+    "log_weight": "Registrar peso",
+    "history_label": "Historial",
+    "view_full_history": "Ver historial completo →",
+    "view_weeks": "Semanas",
+    "view_months": "Meses",
+    "view_all": "Todo",
+    "calorie_meta_summary": "Meta calórica: {{cal}} kcal/día · {{n}} días registrados",
+    "tomorrow_plan_label": "Plan siguiente día",
+    "kcal_day": "kcal/día",
+    "days_7": "7 días",
+    "days_30": "30 días",
+    "days_under_goal": "días bajo la meta",
+    "avg_week_summary": "{{avg}} kcal/día ({{pct}}%)",
+    "avg_month_summary": "{{avg}} kcal/día · {{n}} días"
+  },
+  "macro": {
+    "balanced": "✓ Plato bien equilibrado para tus objetivos",
+    "fat_excess": "Reduce el aceite o la salsa para bajar las grasas",
+    "protein_excess": "Proteínas muy altas — está bien si tu objetivo es ganar músculo",
+    "carbs_excess": "Carbohidratos altos — considera reducir pan, arroz o salsas dulces",
+    "fiber_low": "Poca fibra — añade más verduras, legumbres o cereales integrales",
+    "fiber_warning": "Fibra aceptable, pero podrías añadir más verduras",
+    "daily_pct": "% de tu meta diaria",
+    "legend_limit": "Límite",
+    "legend_excess": "Exceso",
+    "legend_low": "Insuficiente"
+  },
+  "widgets": {
+    "calories": "Calorías",
+    "quick_actions": "Acciones rápidas",
+    "meals": "Comidas del día",
+    "macros": "Macronutrientes",
+    "water": "Hidratación",
+    "fasting": "Ayuno",
+    "habits": "Hábitos",
+    "coach": "Coach IA",
+    "bp": "Presión arterial",
+    "weight": "Peso",
+    "doctor": "Preguntas médico",
+    "streak": "Racha de hábitos"
   }
 }

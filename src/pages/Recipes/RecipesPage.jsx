@@ -9,20 +9,20 @@ import { Card } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
 import { supabase } from '../../lib/supabase'
 
-const MEAL_TYPES = [
-  { value: '', label: 'Todas' },
-  { value: 'breakfast', label: 'Desayuno' },
-  { value: 'lunch', label: 'Almuerzo' },
-  { value: 'dinner', label: 'Cena' },
-  { value: 'snack', label: 'Merienda' },
-  { value: 'any', label: 'Cualquiera' },
+const MEAL_TYPE_KEYS = [
+  { value: '', labelKey: 'recipes.meal_all' },
+  { value: 'breakfast', labelKey: 'food.breakfast' },
+  { value: 'lunch', labelKey: 'food.lunch' },
+  { value: 'dinner', labelKey: 'food.dinner' },
+  { value: 'snack', labelKey: 'food.snack' },
+  { value: 'any', labelKey: 'recipes.meal_any' },
 ]
 
-function RecipeCard({ recipe, onDelete }) {
+function RecipeCard({ recipe, onDelete, t }) {
   const [deleting, setDeleting] = useState(false)
   const handleDelete = async (e) => {
     e.preventDefault()
-    if (!confirm('¿Eliminar esta receta?')) return
+    if (!confirm(t('recipes.delete_confirm'))) return
     setDeleting(true)
     try { await onDelete(recipe.id) } catch (e) { console.error(e) }
     setDeleting(false)
@@ -44,11 +44,11 @@ function RecipeCard({ recipe, onDelete }) {
           </div>
           {recipe.meal_type && (
             <span className="text-xs bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-full px-2 py-0.5 font-medium">
-              {MEAL_TYPES.find(m => m.value === recipe.meal_type)?.label || recipe.meal_type}
+              {t(MEAL_TYPE_KEYS.find(m => m.value === recipe.meal_type)?.labelKey || recipe.meal_type)}
             </span>
           )}
           {recipe.calories_per_serving && (
-            <p className="text-xs text-gray-400 mt-1">{recipe.calories_per_serving} kcal/porción</p>
+            <p className="text-xs text-gray-400 mt-1">{recipe.calories_per_serving} {t('recipes.kcal_per_serving')}</p>
           )}
         </Card>
       </Link>
@@ -64,6 +64,7 @@ function RecipeCard({ recipe, onDelete }) {
 }
 
 function AIIdeasTab({ profileId, todayLogs }) {
+  const { t } = useTranslation()
   const [ingredients, setIngredients] = useState('')
   const [ideas, setIdeas] = useState('')
   const [loading, setLoading] = useState(false)
@@ -84,11 +85,11 @@ function AIIdeasTab({ profileId, todayLogs }) {
         body: {
           mode: 'recipe_ideas',
           ingredients: ingredients.trim(),
-          message: `Sugiere 3 recetas saludables usando estos ingredientes: ${ingredients.trim()}. Para cada receta incluye: nombre, ingredientes principales, instrucciones breves, y valor calórico aproximado.`,
+          message: t('recipes.ai_prompt', { ingredients: ingredients.trim() }),
         },
       })
       if (fnErr) throw fnErr
-      setIdeas(data?.analysis || data?.recommendations || 'No se pudo generar ideas en este momento.')
+      setIdeas(data?.analysis || data?.recommendations || t('recipes.ai_error'))
     } catch (e) {
       setError(e.message)
     } finally {
@@ -99,11 +100,11 @@ function AIIdeasTab({ profileId, todayLogs }) {
   return (
     <div className="flex flex-col gap-4">
       <Card>
-        <p className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">¿Qué ingredientes tienes?</p>
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">{t('recipes.ingredients_prompt')}</p>
         <textarea
           value={ingredients}
           onChange={e => setIngredients(e.target.value)}
-          placeholder="Pollo, arroz, zanahoria, cebolla..."
+          placeholder={t('recipes.ingredients_placeholder')}
           rows={3}
           className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-xl resize-none focus:outline-none focus:border-primary-500 mb-2"
         />
@@ -113,7 +114,7 @@ function AIIdeasTab({ profileId, todayLogs }) {
               onClick={preFill}
               className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-xl text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
             >
-              📋 Usar comidas de hoy
+              {t('recipes.use_todays_meals')}
             </button>
           )}
           <button
@@ -121,7 +122,7 @@ function AIIdeasTab({ profileId, todayLogs }) {
             disabled={!ingredients.trim() || loading}
             className="flex-1 py-2 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-semibold disabled:opacity-40 hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
           >
-            {loading ? <><Spinner size="sm" /> Generando...</> : '✨ Generar ideas con IA'}
+            {loading ? <><Spinner size="sm" /> {t('recipes.generating')}</> : t('recipes.generate_ai')}
           </button>
         </div>
       </Card>
@@ -132,7 +133,7 @@ function AIIdeasTab({ profileId, todayLogs }) {
 
       {ideas && (
         <Card>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Ideas de recetas</p>
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('recipes.ai_ideas_title')}</p>
           <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">{ideas}</p>
         </Card>
       )}
@@ -168,7 +169,7 @@ export default function RecipesPage() {
             to="/recipes/new"
             className="px-4 py-2 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 transition-colors"
           >
-            + Nueva
+            {t('recipes.btn_new')}
           </Link>
         )}
       </div>
@@ -176,8 +177,8 @@ export default function RecipesPage() {
       {/* Tabs */}
       <div className="flex rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
         {[
-          { key: 'mine', label: '🗂️ Mis Recetas' },
-          { key: 'ai', label: '✨ Ideas IA' },
+          { key: 'mine', label: t('recipes.tab_mine') },
+          { key: 'ai', label: t('recipes.tab_ai') },
         ].map(tabOpt => (
           <button
             key={tabOpt.key}
@@ -197,7 +198,7 @@ export default function RecipesPage() {
         <>
           {/* Filtros */}
           <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-            {MEAL_TYPES.map(mt => (
+            {MEAL_TYPE_KEYS.map(mt => (
               <button
                 key={mt.value}
                 onClick={() => setMealFilter(mt.value)}
@@ -207,7 +208,7 @@ export default function RecipesPage() {
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
                 }`}
               >
-                {mt.label}
+                {t(mt.labelKey)}
               </button>
             ))}
           </div>
@@ -218,19 +219,19 @@ export default function RecipesPage() {
             <div className="flex flex-col items-center py-12 text-center gap-3">
               <span className="text-5xl">👨‍🍳</span>
               <p className="text-gray-400 text-sm">
-                {mealFilter ? 'No hay recetas con ese filtro.' : t('recipes.no_recipes')}
+                {mealFilter ? t('recipes.no_results_filter') : t('recipes.no_recipes')}
               </p>
               <Link
                 to="/recipes/new"
                 className="px-4 py-2 bg-primary-600 text-white rounded-xl text-sm font-semibold"
               >
-                + Crear primera receta
+                {t('recipes.btn_create_first')}
               </Link>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3">
               {filtered.map(r => (
-                <RecipeCard key={r.id} recipe={r} onDelete={deleteRecipe} />
+                <RecipeCard key={r.id} recipe={r} onDelete={deleteRecipe} t={t} />
               ))}
             </div>
           )}

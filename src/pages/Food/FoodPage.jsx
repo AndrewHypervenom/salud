@@ -80,14 +80,14 @@ export default function FoodPage() {
 
   const completedHabits = habits.filter(h => habitLogs.some(l => l.habit_id === h.id)).length
   const foodSummary = profile
-    ? `Comidas de ${profile.name} hoy: ${todayCalories} kcal de ${calTarget} kcal meta.\n${MEAL_TYPES.map(m => {
+    ? `${t('food.summary_whatsapp', { name: profile.name, cal: todayCalories, target: calTarget })}\n${MEAL_TYPES.map(m => {
         const logs = logsForMeal(m)
         return logs.length ? `${MEAL_ICONS[m]} ${t(`food.${m}`)}: ${logs.map(l => l.description).join(', ')}` : null
       }).filter(Boolean).join('\n')}`
     : ''
 
   const daySummary = profile
-    ? `Resumen de ${profile.name} hoy:\n✅ Hábitos: ${completedHabits}/${habits.length}\n🍽️ Calorías: ${todayCalories}/${calTarget} kcal`
+    ? `${t('food.day_summary', { name: profile.name })}\n✅ ${t('nav.habits')}: ${completedHabits}/${habits.length}\n🍽️ ${t('food.today_calories')}: ${todayCalories}/${calTarget} kcal`
     : ''
 
   if (!activeProfileId || !profile) {
@@ -118,10 +118,10 @@ export default function FoodPage() {
             </p>
             <p className="text-xs text-gray-400 mt-0.5">
               {calorieStatus === 'over'
-                ? `Superaste por ${Math.abs(caloriesLeft)} kcal`
+                ? t('dashboard.calories_over', { n: Math.abs(caloriesLeft) })
                 : caloriePercent >= 100
-                  ? '¡Meta cumplida! 🎯'
-                  : `Te quedan ${caloriesLeft} kcal`}
+                  ? t('food.goal_met')
+                  : t('dashboard.calories_remaining', { n: caloriesLeft })}
             </p>
           </div>
           <div className="text-right">

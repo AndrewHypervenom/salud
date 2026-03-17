@@ -59,7 +59,7 @@ function getMacroStatusFromCalPct(key, calPct) {
 function getRecommendation(macros, dailyMacros) {
   if (!macros) return null
 
-  const tips = []
+  const keys = []
 
   // Evaluamos cada macro contra el presupuesto diario
   for (const { key } of MACRO_CONFIG) {
@@ -67,26 +67,14 @@ function getRecommendation(macros, dailyMacros) {
     const dailyG = dailyMacros?.[key]
     const status = getMacroStatus(key, mealG, dailyG)
 
-    if (key === 'fat_g' && status === 'excess') {
-      tips.push('Reduce el aceite o la salsa para bajar las grasas')
-    }
-    if (key === 'protein_g' && status === 'excess') {
-      tips.push('Proteínas muy altas — está bien si tu objetivo es ganar músculo')
-    }
-    if (key === 'carbs_g' && status === 'excess') {
-      tips.push('Carbohidratos altos — considera reducir pan, arroz o salsas dulces')
-    }
-    if (key === 'fiber_g' && status === 'excess') {
-      // En fibra "excess" significa insuficiente
-      tips.push('Poca fibra — añade más verduras, legumbres o cereales integrales')
-    }
-    if (key === 'fiber_g' && status === 'warning') {
-      tips.push('Fibra aceptable, pero podrías añadir más verduras')
-    }
+    if (key === 'fat_g' && status === 'excess') keys.push('macro.fat_excess')
+    if (key === 'protein_g' && status === 'excess') keys.push('macro.protein_excess')
+    if (key === 'carbs_g' && status === 'excess') keys.push('macro.carbs_excess')
+    if (key === 'fiber_g' && status === 'excess') keys.push('macro.fiber_low')
+    if (key === 'fiber_g' && status === 'warning') keys.push('macro.fiber_warning')
   }
 
-  if (tips.length === 0) return '✓ Plato bien equilibrado para tus objetivos'
-  return tips[0] // mostramos el tip más prioritario
+  return keys.length === 0 ? 'macro.balanced' : keys[0]
 }
 
 export function MacroResultCard({ imagePreview, description, calories, macros, dailyMacros, onEdit }) {
@@ -136,7 +124,7 @@ export function MacroResultCard({ imagePreview, description, calories, macros, d
         <span className="text-lg text-gray-400 font-medium">kcal</span>
         {dailyMacros && calories && (
           <span className="text-xs text-gray-400 ml-1">
-            ({Math.round((calories / (dailyMacros.protein_kcal + dailyMacros.fat_kcal + dailyMacros.carbs_kcal)) * 100)}% de tu meta diaria)
+            ({Math.round((calories / (dailyMacros.protein_kcal + dailyMacros.fat_kcal + dailyMacros.carbs_kcal)) * 100)}% {t('macro.daily_pct')})
           </span>
         )}
       </div>
@@ -186,32 +174,32 @@ export function MacroResultCard({ imagePreview, description, calories, macros, d
       {macros && (
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-3 justify-center flex-wrap">
-            {[['ok', 'OK'], ['warning', 'Límite'], ['excess', 'Exceso'], ['low', 'Insuficiente']].map(([s, label]) => (
+            {[['ok', 'OK'], ['warning', 'macro.legend_limit'], ['excess', 'macro.legend_excess'], ['low', 'macro.legend_low']].map(([s, labelKey]) => (
               <div key={s} className="flex items-center gap-1">
                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: STATUS_COLOR[s] }} />
-                <span className="text-[10px] text-gray-400">{label}</span>
+                <span className="text-[10px] text-gray-400">{s === 'ok' ? 'OK' : t(labelKey)}</span>
               </div>
             ))}
           </div>
 
           {recommendation && (
             <div className={`flex items-start gap-2 rounded-xl px-3 py-2.5 text-sm ${
-              recommendation.startsWith('✓')
+              recommendation === 'macro.balanced'
                 ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
                 : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400'
             }`}>
               <span className="flex-shrink-0 mt-0.5">
-                {recommendation.startsWith('✓') ? '✓' : '💡'}
+                {recommendation === 'macro.balanced' ? '✓' : '💡'}
               </span>
               <span className="leading-snug">
-                {recommendation.startsWith('✓') ? recommendation.slice(2) : recommendation}
+                {recommendation === 'macro.balanced' ? t(recommendation).replace('✓ ', '') : t(recommendation)}
               </span>
             </div>
           )}
 
           {dailyMacros && (
             <p className="text-[10px] text-gray-300 dark:text-gray-600 text-center">
-              % respecto a tu objetivo diario personal
+              {t('macro.daily_pct')}
             </p>
           )}
         </div>

@@ -76,7 +76,7 @@ function CaloriesWidget({ todayCalories, calTarget, profile }) {
         <div className="flex-1">
           <p className={`text-4xl font-bold tabular-nums ${colors.text}`}>{todayCalories}</p>
           <p className="text-sm text-gray-400">
-            de <span className="font-semibold text-gray-600 dark:text-gray-300">{calTarget}</span> kcal
+            {t('dashboard.calories_of', { n: calTarget })}
           </p>
           <div className="mt-2 h-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
             <div
@@ -97,12 +97,13 @@ function CaloriesWidget({ todayCalories, calTarget, profile }) {
 
 function QuickActionsWidget() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const actions = [
-    { icon: '🍽️', label: 'Comida',    to: '/food',    color: 'from-primary-500 to-primary-600' },
-    { icon: '💧', label: 'Agua',      to: '/water',   color: 'from-blue-400 to-blue-500' },
-    { icon: '⚖️', label: 'Peso',      to: '/weight',  color: 'from-violet-500 to-violet-600' },
-    { icon: '⚡', label: 'Ayuno',     to: '/fasting', color: 'from-amber-400 to-amber-500' },
-    { icon: '🔍', label: 'Buscar',    to: '/food-search', color: 'from-teal-400 to-teal-500' },
+    { icon: '🍽️', labelKey: 'nav.food',        to: '/food',        color: 'from-primary-500 to-primary-600' },
+    { icon: '💧', labelKey: 'nav.water',        to: '/water',       color: 'from-blue-400 to-blue-500' },
+    { icon: '⚖️', labelKey: 'nav.weight',       to: '/weight',      color: 'from-violet-500 to-violet-600' },
+    { icon: '⚡', labelKey: 'nav.fasting',      to: '/fasting',     color: 'from-amber-400 to-amber-500' },
+    { icon: '🔍', labelKey: 'nav.food_search',  to: '/food-search', color: 'from-teal-400 to-teal-500' },
   ]
   return (
     <div className="flex gap-2">
@@ -113,7 +114,7 @@ function QuickActionsWidget() {
           className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-2xl bg-gradient-to-b ${a.color} text-white shadow-sm active:scale-95 transition-transform`}
         >
           <span className="text-xl">{a.icon}</span>
-          <span className="text-[10px] font-semibold">{a.label}</span>
+          <span className="text-[10px] font-semibold">{t(a.labelKey)}</span>
         </button>
       ))}
     </div>
@@ -167,6 +168,7 @@ function MealsWidget({ todayLogs, calTarget }) {
 }
 
 function MacrosWidget({ todayLogs, calTarget }) {
+  const { t } = useTranslation()
   const macroGoals = calTarget ? calcMacros(calTarget) : null
   const hasMacros = todayLogs.some(l => l.protein_g || l.carbs_g || l.fat_g)
   if (!hasMacros || !macroGoals) return null
@@ -177,24 +179,24 @@ function MacrosWidget({ todayLogs, calTarget }) {
   )
 
   const bars = [
-    { label: 'Proteína', value: Math.round(totals.p), max: macroGoals.protein_g, color: '#3b82f6', bg: 'bg-blue-500', track: 'bg-blue-100 dark:bg-blue-900/30' },
-    { label: 'Carbohidratos', value: Math.round(totals.c), max: macroGoals.carbs_g, color: '#22c55e', bg: 'bg-green-500', track: 'bg-green-100 dark:bg-green-900/30' },
-    { label: 'Grasas', value: Math.round(totals.f), max: macroGoals.fat_g, color: '#f59e0b', bg: 'bg-amber-400', track: 'bg-amber-100 dark:bg-amber-900/30' },
+    { labelKey: 'food.protein', value: Math.round(totals.p), max: macroGoals.protein_g, color: '#3b82f6', bg: 'bg-blue-500', track: 'bg-blue-100 dark:bg-blue-900/30' },
+    { labelKey: 'food.carbs', value: Math.round(totals.c), max: macroGoals.carbs_g, color: '#22c55e', bg: 'bg-green-500', track: 'bg-green-100 dark:bg-green-900/30' },
+    { labelKey: 'food.fat', value: Math.round(totals.f), max: macroGoals.fat_g, color: '#f59e0b', bg: 'bg-amber-400', track: 'bg-amber-100 dark:bg-amber-900/30' },
   ]
 
   return (
     <Card>
-      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Macronutrientes</p>
+      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">{t('food.macros')}</p>
       <div className="flex gap-4 mb-4">
         {bars.map(b => {
           const pct = b.max > 0 ? Math.min((b.value / b.max) * 100, 100) : 0
           return (
-            <div key={b.label} className="flex-1 flex flex-col items-center gap-1">
+            <div key={b.labelKey} className="flex-1 flex flex-col items-center gap-1">
               <ProgressRing percent={pct} size={52} strokeWidth={5} color={b.color}>
                 <span className="text-[10px] font-bold text-gray-700 dark:text-gray-200">{Math.round(pct)}%</span>
               </ProgressRing>
               <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">{b.value}g</p>
-              <p className="text-[10px] text-gray-400 text-center leading-tight">{b.label}</p>
+              <p className="text-[10px] text-gray-400 text-center leading-tight">{t(b.labelKey)}</p>
             </div>
           )
         })}
@@ -204,8 +206,8 @@ function MacrosWidget({ todayLogs, calTarget }) {
           const pct = b.max > 0 ? Math.min((b.value / b.max) * 100, 100) : 0
           const over = b.value > b.max
           return (
-            <div key={b.label} className="flex items-center gap-2">
-              <span className="text-xs text-gray-500 w-20 flex-shrink-0">{b.label}</span>
+            <div key={b.labelKey} className="flex items-center gap-2">
+              <span className="text-xs text-gray-500 w-20 flex-shrink-0">{t(b.labelKey)}</span>
               <div className={`flex-1 h-2 rounded-full ${b.track}`}>
                 <div className={`h-2 rounded-full transition-all duration-700 ${over ? 'bg-red-400' : b.bg}`} style={{ width: `${pct}%` }} />
               </div>
@@ -221,6 +223,7 @@ function MacrosWidget({ todayLogs, calTarget }) {
 }
 
 function WaterDashWidget({ profileId, waterGoalMl }) {
+  const { t } = useTranslation()
   const { todayTotal, todayPercent, addWater } = useWaterLogs(profileId, waterGoalMl)
   const ringColor = todayPercent >= 100 ? '#22c55e' : '#3b82f6'
 
@@ -238,7 +241,7 @@ function WaterDashWidget({ profileId, waterGoalMl }) {
             <span className="text-sm">💧</span>
           </ProgressRing>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-400 font-medium">Agua</p>
+            <p className="text-xs text-gray-400 font-medium">{t('nav.water')}</p>
             <p className="text-base font-bold text-blue-600 tabular-nums">{todayTotal}<span className="text-xs font-normal text-gray-400 ml-0.5">/{waterGoalMl}ml</span></p>
           </div>
           <button
@@ -254,6 +257,7 @@ function WaterDashWidget({ profileId, waterGoalMl }) {
 }
 
 function FastingDashWidget({ profileId }) {
+  const { t } = useTranslation()
   const { activeSession, startFast } = useFasting(profileId)
 
   const handleStart = async (e) => {
@@ -268,8 +272,8 @@ function FastingDashWidget({ profileId }) {
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-xl flex-shrink-0">⚡</div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-400 font-medium">Ayuno</p>
-            <p className="text-xs text-gray-500">Sin ayuno activo</p>
+            <p className="text-xs text-gray-400 font-medium">{t('nav.fasting')}</p>
+            <p className="text-xs text-gray-500">{t('fasting.no_active')}</p>
           </div>
           <button
             onClick={handleStart}
@@ -293,7 +297,7 @@ function FastingDashWidget({ profileId }) {
             <span className="text-sm">⚡</span>
           </ProgressRing>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-400 font-medium">Ayuno activo</p>
+            <p className="text-xs text-gray-400 font-medium">{t('fasting.active')}</p>
             <ElapsedTimer startTime={activeSession.start_time} className="text-sm font-bold text-violet-600" />
           </div>
         </div>
@@ -361,7 +365,7 @@ function BPWidget({ readings }) {
     <Link to="/blood-pressure">
       <Card className="h-full hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-gray-400 font-medium">Presión</p>
+          <p className="text-xs text-gray-400 font-medium">{t('nav.blood_pressure')}</p>
           <span className="text-base">❤️</span>
         </div>
         {last ? (
@@ -379,6 +383,7 @@ function BPWidget({ readings }) {
 }
 
 function WeightDashWidget({ profileId, targetWeight }) {
+  const { t } = useTranslation()
   const { latestWeight, logs } = useWeightLogs(profileId)
   const diff = latestWeight && targetWeight ? Math.round((latestWeight - targetWeight) * 10) / 10 : null
   const trend = logs.length >= 2 ? Math.round((logs[0].weight_kg - logs[1].weight_kg) * 10) / 10 : null
@@ -387,7 +392,7 @@ function WeightDashWidget({ profileId, targetWeight }) {
     <Link to="/weight">
       <Card className="h-full hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-gray-400 font-medium">Peso</p>
+          <p className="text-xs text-gray-400 font-medium">{t('nav.weight')}</p>
           <span className="text-base">⚖️</span>
         </div>
         <p className="text-xl font-bold text-gray-900 dark:text-gray-100 tabular-nums">
@@ -395,12 +400,12 @@ function WeightDashWidget({ profileId, targetWeight }) {
         </p>
         {diff !== null && (
           <p className={`text-xs font-semibold mt-0.5 ${diff === 0 ? 'text-green-500' : diff > 0 ? 'text-amber-500' : 'text-blue-500'}`}>
-            {diff > 0 ? `+${diff}` : diff} kg vs meta
+            {t('dashboard.kg_vs_goal', { diff: diff > 0 ? `+${diff}` : diff })}
           </p>
         )}
         {trend !== null && (
           <p className="text-[10px] text-gray-400 mt-0.5">
-            {trend < 0 ? '📉' : '📈'} {Math.abs(trend)} kg vs ayer
+            {trend < 0 ? '📉' : '📈'} {t('dashboard.kg_vs_yesterday', { diff: Math.abs(trend) })}
           </p>
         )}
       </Card>
@@ -417,7 +422,7 @@ function DoctorWidget({ questions }) {
     <Link to="/doctor-questions">
       <Card className="h-full hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-gray-400 font-medium">Médico</p>
+          <p className="text-xs text-gray-400 font-medium">{t('dashboard.doctor_short')}</p>
           <span className="text-base">👨‍⚕️</span>
         </div>
         <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{pending}</p>
@@ -436,17 +441,18 @@ function DoctorWidget({ questions }) {
 }
 
 function StreakWidget({ habits, habitLogs }) {
+  const { t } = useTranslation()
   const done = habits.filter(h => habitLogs.some(l => l.habit_id === h.id)).length
   const pct = habits.length > 0 ? Math.round((done / habits.length) * 100) : 0
 
   return (
     <Card className="h-full">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-xs text-gray-400 font-medium">Completado hoy</p>
+        <p className="text-xs text-gray-400 font-medium">{t('dashboard.completed_today')}</p>
         <span className="text-base">🔥</span>
       </div>
       <p className="text-2xl font-bold text-orange-500">{pct}%</p>
-      <p className="text-[10px] text-gray-400">{done} de {habits.length} hábitos</p>
+      <p className="text-[10px] text-gray-400">{done} {t('dashboard.habits_of', { n: habits.length })}</p>
     </Card>
   )
 }
@@ -471,6 +477,7 @@ function CoachWidget({ profileId, profile, calTarget, todayCalories, todayLogs, 
 // ─────────────────────────────────────────────────────────
 
 function EditableWidget({ id, children, onHide, onMoveUp, onMoveDown, isFirst, isLast, onPointerDown, isDragging, isOver }) {
+  const { t } = useTranslation()
   const meta = WIDGET_CATALOG.find(w => w.id === id)
 
   return (
@@ -503,7 +510,7 @@ function EditableWidget({ id, children, onHide, onMoveUp, onMoveDown, isFirst, i
           <rect x="0" y="3.25" width="12" height="1.5" rx="0.75"/>
           <rect x="0" y="6.5" width="12" height="1.5" rx="0.75"/>
         </svg>
-        <span className="text-white text-[10px] font-semibold opacity-80 leading-none">{meta?.label}</span>
+        <span className="text-white text-[10px] font-semibold opacity-80 leading-none">{meta ? t(meta.label) : ''}</span>
       </div>
 
       {/* Up/Down reorder — bottom bar, subtle */}
@@ -722,14 +729,14 @@ export default function Dashboard() {
           {editMode ? (
             <>
               <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M10 2L5 9l-3-3" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              Listo
+              {t('dashboard.btn_done')}
             </>
           ) : (
             <>
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M8.5 1.5l2 2L3 11H1V9l7.5-7.5z"/>
               </svg>
-              Editar
+              {t('common.edit')}
             </>
           )}
         </button>
@@ -740,14 +747,14 @@ export default function Dashboard() {
         <div className="flex items-center gap-3 px-4 py-3 bg-primary-50 dark:bg-primary-900/20 rounded-2xl border border-primary-100 dark:border-primary-800">
           <span className="text-lg">✏️</span>
           <div className="flex-1">
-            <p className="text-xs font-semibold text-primary-700 dark:text-primary-300">Modo edición</p>
-            <p className="text-[11px] text-primary-600/70 dark:text-primary-400/70">Mantén el handle ≡ y arrastra para reordenar</p>
+            <p className="text-xs font-semibold text-primary-700 dark:text-primary-300">{t('dashboard.edit_mode_title')}</p>
+            <p className="text-[11px] text-primary-600/70 dark:text-primary-400/70">{t('dashboard.edit_mode_hint')}</p>
           </div>
           <button
             onClick={resetAll}
             className="text-[11px] font-semibold text-primary-600 dark:text-primary-400 border border-primary-200 dark:border-primary-700 px-2.5 py-1 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/40 transition-colors"
           >
-            Restablecer
+            {t('dashboard.btn_reset')}
           </button>
         </div>
       )}
@@ -807,7 +814,7 @@ export default function Dashboard() {
       {/* ── ADD HIDDEN WIDGETS (edit mode) ─────────────────── */}
       {editMode && hiddenWidgets.length > 0 && (
         <div>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3 px-1">Agregar widgets</p>
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3 px-1">{t('dashboard.add_widgets')}</p>
           <div className="grid grid-cols-2 gap-2.5">
             {hiddenWidgets.map(id => {
               const meta = WIDGET_CATALOG.find(w => w.id === id)
@@ -820,7 +827,7 @@ export default function Dashboard() {
                 >
                   <span className="text-2xl">{meta.icon}</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 leading-tight">{meta.label}</p>
+                    <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 leading-tight">{t(meta.label)}</p>
                   </div>
                   <span className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 group-hover:bg-primary-500 text-gray-500 group-hover:text-white flex items-center justify-center text-sm font-bold transition-all">+</span>
                 </button>
