@@ -11,7 +11,14 @@
     "habits": "Habits",
     "food": "Food",
     "progress": "Progress",
-    "more": "More"
+    "more": "More",
+    "tools": "Tools",
+    "water": "Water",
+    "weight": "Weight",
+    "fasting": "Fasting",
+    "recipes": "Recipes",
+    "food_search": "Search Food",
+    "badges": "Achievements"
   },
   "profile": {
     "select": "Select profile",
@@ -50,6 +57,13 @@
     "section_goal": "Health goal",
     "section_medical": "Medical notes",
     "section_notifications": "Notifications",
+    "section_targets": "Weight & hydration goals",
+    "target_weight_kg": "Target weight (kg)",
+    "weight_goal_speed": "Loss rate",
+    "weight_goal_speed_slow": "Slow (0.25 kg/wk)",
+    "weight_goal_speed_moderate": "Moderate (0.5 kg/wk)",
+    "weight_goal_speed_fast": "Fast (1 kg/wk)",
+    "water_goal_ml": "Water goal (ml/day)",
     "tdee_preview_label": "Calorie preview",
     "tdee_preview_bmr": "BMR",
     "tdee_preview_tdee": "TDEE",
@@ -343,6 +357,48 @@
     "fiber": "Fiber",
     "macros": "Macronutrients",
     "incorrect": "That's incorrect"
+  },
+  "water": {
+    "title": "Hydration",
+    "quick_add": "Quick add",
+    "custom_amount": "Custom amount",
+    "today_log": "Today's log"
+  },
+  "weight": {
+    "title": "Weight Tracking",
+    "log_weight": "Log weight",
+    "history": "History",
+    "no_logs": "No weight records yet. Log your first weight!"
+  },
+  "fasting": {
+    "title": "Intermittent Fasting",
+    "active": "Active fast",
+    "no_active": "No active fast",
+    "elapsed": "Elapsed",
+    "start": "Start fast",
+    "end": "End fast",
+    "edit_times": "Edit times",
+    "start_time": "Start time",
+    "end_time": "End time",
+    "target_hours": "Target duration",
+    "completed_count": "fasts completed",
+    "history": "Recent sessions"
+  },
+  "recipes": {
+    "title": "Recipes",
+    "new_recipe": "New recipe",
+    "no_recipes": "No recipes yet. Create your first one!"
+  },
+  "food_search": {
+    "title": "Search Food",
+    "search_placeholder": "Search by name (e.g. apple, chicken)...",
+    "no_results": "No results found. Try a different term.",
+    "hint": "Search by name or scan a product barcode."
+  },
+  "badges": {
+    "title": "My Achievements",
+    "unlocked": "Unlocked",
+    "locked": "Locked"
   },
   "whatsapp": {
     "title": "WhatsApp Alerts",

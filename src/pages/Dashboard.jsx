@@ -13,6 +13,9 @@ import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { Spinner } from '../components/ui/Spinner'
 import { HealthCoach } from '../components/shared/HealthCoach'
+import { MacroDashboardCard } from '../components/shared/MacroDashboardCard'
+import { WaterWidget } from '../components/shared/WaterWidget'
+import { FastingWidget } from '../components/shared/FastingWidget'
 
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack']
 const MEAL_ICONS = { breakfast: '🌅', lunch: '☀️', dinner: '🌙', snack: '🍎' }
@@ -150,6 +153,13 @@ export default function Dashboard() {
           )
         })}
       </div>
+
+      {/* Bloque 4b — Macros del día */}
+      <MacroDashboardCard calTarget={calTarget} todayLogs={todayLogs} />
+
+      {/* Bloque 4c — Agua y Ayuno widgets */}
+      <WaterWidget profileId={activeProfileId} waterGoalMl={profile.water_goal_ml || 2000} />
+      <FastingWidget profileId={activeProfileId} />
 
       {/* Bloque 5 — Coach IA */}
       <HealthCoach

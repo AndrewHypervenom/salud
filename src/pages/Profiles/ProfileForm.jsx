@@ -38,6 +38,9 @@ export default function ProfileForm() {
       notes: '',
       phone_whatsapp: '',
       callmebot_api_key: '',
+      target_weight_kg: '',
+      weight_goal_speed: 'moderate',
+      water_goal_ml: 2000,
     }
   })
 
@@ -63,11 +66,14 @@ export default function ProfileForm() {
         notes: profile.notes || '',
         phone_whatsapp: profile.phone_whatsapp || '',
         callmebot_api_key: profile.callmebot_api_key || '',
+        target_weight_kg: profile.target_weight_kg || '',
+        weight_goal_speed: profile.weight_goal_speed || 'moderate',
+        water_goal_ml: profile.water_goal_ml || 2000,
       })
     }
   }, [id, profiles, isEdit, reset, profile])
 
-  const watchedValues = watch(['weight_kg', 'height_cm', 'age', 'sex', 'activity', 'health_goal'])
+  const watchedValues = watch(['weight_kg', 'height_cm', 'age', 'sex', 'activity', 'health_goal', 'target_weight_kg', 'water_goal_ml'])
   const [wWeight, wHeight, wAge, wSex, wActivity, wGoal] = watchedValues
   const previewBMR = (wWeight && wHeight && wAge && wSex)
     ? calcBMR(parseFloat(wWeight), parseFloat(wHeight), parseInt(wAge), wSex) : null
@@ -80,6 +86,8 @@ export default function ProfileForm() {
       age: parseInt(data.age),
       weight_kg: parseFloat(data.weight_kg),
       height_cm: parseFloat(data.height_cm),
+      target_weight_kg: data.target_weight_kg ? parseFloat(data.target_weight_kg) : null,
+      water_goal_ml: data.water_goal_ml ? parseInt(data.water_goal_ml) : 2000,
     }
     try {
       await updateProfile(id, payload)
@@ -223,6 +231,41 @@ export default function ProfileForm() {
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Sección 3b — Objetivos adicionales */}
+          <div className="border-t border-gray-100 dark:border-gray-700 pt-4 flex flex-col gap-3">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+              🎯 {t('profile.section_targets')}
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                label={t('profile.target_weight_kg')}
+                type="number"
+                step="0.1"
+                min="20"
+                max="300"
+                placeholder="65"
+                {...register('target_weight_kg')}
+              />
+              <Input
+                label={t('profile.water_goal_ml')}
+                type="number"
+                step="100"
+                min="500"
+                max="5000"
+                placeholder="2000"
+                {...register('water_goal_ml')}
+              />
+            </div>
+            <Select
+              label={t('profile.weight_goal_speed')}
+              {...register('weight_goal_speed')}
+            >
+              <option value="slow">{t('profile.weight_goal_speed_slow')}</option>
+              <option value="moderate">{t('profile.weight_goal_speed_moderate')}</option>
+              <option value="fast">{t('profile.weight_goal_speed_fast')}</option>
+            </Select>
           </div>
 
           {/* Sección 4 — Notas médicas */}

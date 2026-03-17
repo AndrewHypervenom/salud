@@ -18,6 +18,15 @@ const moreItems = [
   { to: '/profiles', label: 'nav.profiles', icon: '👥' },
 ]
 
+const toolItems = [
+  { to: '/water', label: 'nav.water', icon: '💧' },
+  { to: '/weight', label: 'nav.weight', icon: '⚖️' },
+  { to: '/fasting', label: 'nav.fasting', icon: '⚡' },
+  { to: '/recipes', label: 'nav.recipes', icon: '👨‍🍳' },
+  { to: '/food-search', label: 'nav.food_search', icon: '🔍' },
+  { to: '/badges', label: 'nav.badges', icon: '🏆' },
+]
+
 export function BottomNav() {
   const { t } = useTranslation()
   const [showMore, setShowMore] = useState(false)
@@ -28,11 +37,28 @@ export function BottomNav() {
         <div className="fixed inset-0 z-40 flex flex-col justify-end md:hidden" onClick={() => setShowMore(false)}>
           <div className="absolute inset-0 bg-black/30" />
           <div
-            className="relative bg-white dark:bg-gray-800 rounded-t-3xl p-6 pb-24"
+            className="relative bg-white dark:bg-gray-800 rounded-t-3xl p-6 pb-24 max-h-[70vh] overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
             <h3 className="font-bold text-gray-700 dark:text-gray-200 mb-3 text-sm uppercase tracking-wider">{t('nav.more')}</h3>
             {moreItems.map(item => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                onClick={() => setShowMore(false)}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-3 rounded-xl mb-1 ${
+                    isActive ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400' : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700'
+                  }`
+                }
+              >
+                <span className="text-2xl">{item.icon}</span>
+                <span className="font-medium">{t(item.label)}</span>
+              </NavLink>
+            ))}
+
+            <h3 className="font-bold text-gray-700 dark:text-gray-200 mb-3 mt-5 text-sm uppercase tracking-wider">{t('nav.tools')}</h3>
+            {toolItems.map(item => (
               <NavLink
                 key={item.to}
                 to={item.to}

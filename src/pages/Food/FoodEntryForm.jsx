@@ -7,14 +7,14 @@ import { MacroResultCard } from '../../components/ui/MacroResultCard'
 
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack']
 
-export function FoodEntryForm({ initialMealType = 'breakfast', profileId, dailyMacros, onSave, onCancel }) {
+export function FoodEntryForm({ initialMealType = 'breakfast', profileId, dailyMacros, prefill = null, onSave, onCancel }) {
   const { t } = useTranslation()
   const fileRef = useRef(null)
 
   const [mealType, setMealType] = useState(initialMealType)
-  const [description, setDescription] = useState('')
-  const [calories, setCalories] = useState('')
-  const [notes, setNotes] = useState('')
+  const [description, setDescription] = useState(prefill?.description || '')
+  const [calories, setCalories] = useState(prefill?.calories_estimated ? String(prefill.calories_estimated) : '')
+  const [notes, setNotes] = useState(prefill?.notes || '')
   const [imageFile, setImageFile] = useState(null)
   const [imagePreview, setImagePreview] = useState(null)
   const [imageUrl, setImageUrl] = useState(null)
@@ -22,8 +22,12 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, dailyM
   const [aiUsed, setAiUsed] = useState(false)
   const [aiDescription, setAiDescription] = useState('')
   const [aiCalories, setAiCalories] = useState('')
-  const [aiMacros, setAiMacros] = useState(null)
-  const [showResultCard, setShowResultCard] = useState(false)
+  const [aiMacros, setAiMacros] = useState(
+    prefill?.protein_g != null
+      ? { protein_g: prefill.protein_g, carbs_g: prefill.carbs_g, fat_g: prefill.fat_g, fiber_g: prefill.fiber_g ?? null }
+      : null
+  )
+  const [showResultCard, setShowResultCard] = useState(!!prefill?.calories_estimated)
   const [correction, setCorrection] = useState('')
   const [recalculating, setRecalculating] = useState(false)
   const [saving, setSaving] = useState(false)

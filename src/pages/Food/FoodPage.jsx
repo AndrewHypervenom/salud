@@ -1,15 +1,17 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useHabits } from '../../hooks/useHabits'
 import { useFoodLogs } from '../../hooks/useFoodLogs'
+import { useBadges } from '../../hooks/useBadges'
 import { calcBMR, calcTDEE, calcCalorieTarget, calcMacros, getCalorieStatus, CALORIE_COLORS } from '../../lib/formulas'
 import { Card } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
 import { FoodEntryForm } from './FoodEntryForm'
 import { WhatsAppAlerts } from '../../components/shared/WhatsAppAlerts'
+import { BadgeNotification } from '../../components/shared/BadgeNotification'
 
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack']
 
@@ -21,14 +23,29 @@ const MEAL_ICONS = {
 }
 
 export default function FoodPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const lang = i18n.language?.startsWith('es') ? 'es' : 'en'
+  const location = useLocation()
+  const navigate = useNavigate()
   const { activeProfileId } = useProfileContext()
   const { profiles } = useProfiles()
   const { todayLogs, loading, todayCalories, addFoodLog, deleteFoodLog } = useFoodLogs(activeProfileId)
   const { habits, todayLogs: habitLogs } = useHabits(activeProfileId)
+  const { newBadge, checkAndUnlock, clearNewBadge } = useBadges(activeProfileId)
 
   const [openForm, setOpenForm] = useState(null) // meal_type string or null
+  const [prefill, setPrefill] = useState(null)
   const [deleting, setDeleting] = useState(null)
+
+  // Detectar prefill desde navigation state
+  useEffect(() => {
+    if (location.state?.prefill) {
+      setPrefill(location.state.prefill)
+      setOpenForm(location.state.prefill.meal_type || 'breakfast')
+      // Limpiar el state para evitar re-open al navegar de vuelta
+      navigate(location.pathname, { replace: true, state: {} })
+    }
+  }, [location.state, navigate, location.pathname])
 
   const profile = profiles.find(p => p.id === activeProfileId)
   const tdee = profile
@@ -48,6 +65,11 @@ export default function FoodPage() {
   const handleSave = async (data) => {
     await addFoodLog(data)
     setOpenForm(null)
+    setPrefill(null)
+    // Check badges
+    const logCount = todayLogs.length + 1
+    if (logCount === 1) await checkAndUnlock('first_log', true)
+    if (logCount >= 30) await checkAndUnlock('food_tracker_30', true)
   }
 
   const handleDelete = async (id) => {
@@ -79,6 +101,7 @@ export default function FoodPage() {
 
   return (
     <div className="flex flex-col gap-4">
+      <BadgeNotification badge={newBadge} onDismiss={clearNewBadge} lang={lang} />
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('food.title')}</h1>
       </div>
@@ -143,8 +166,9 @@ export default function FoodPage() {
                   initialMealType={meal}
                   profileId={activeProfileId}
                   dailyMacros={dailyMacros}
+                  prefill={prefill}
                   onSave={handleSave}
-                  onCancel={() => setOpenForm(null)}
+                  onCancel={() => { setOpenForm(null); setPrefill(null) }}
                 />
               </Card>
             )}

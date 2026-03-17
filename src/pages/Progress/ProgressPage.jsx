@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router-dom'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useAnalysisHistory } from '../../hooks/useAnalysisHistory'
+import { useWeightLogs } from '../../hooks/useWeightLogs'
 import { Card } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
+import { WeightChart } from '../../components/ui/WeightChart'
 
 const MONTH_NAMES_ES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
 const MONTH_NAMES_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -89,6 +92,8 @@ export default function ProgressPage() {
   const { activeProfileId } = useProfileContext()
   const { profiles } = useProfiles()
   const { analyses, loading, weeks, months } = useAnalysisHistory(activeProfileId)
+  const { logs: weightLogs, loading: weightLoading, latestWeight } = useWeightLogs(activeProfileId)
+  const [tab, setTab] = useState('analysis') // 'analysis' | 'weight'
   const [view, setView] = useState('weeks') // 'weeks' | 'months' | 'all'
 
   const profile = profiles.find(p => p.id === activeProfileId)
@@ -139,6 +144,65 @@ export default function ProgressPage() {
     <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">📈 Progreso</h1>
 
+      {/* Tab selector */}
+      <div className="flex rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
+        {[
+          { key: 'analysis', label: '🤖 Análisis IA' },
+          { key: 'weight', label: '⚖️ Peso' },
+        ].map(opt => (
+          <button
+            key={opt.key}
+            onClick={() => setTab(opt.key)}
+            className={`flex-1 py-2.5 text-sm font-medium transition-colors ${
+              tab === opt.key
+                ? 'bg-primary-600 text-white'
+                : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab: Peso */}
+      {tab === 'weight' && (
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-2 gap-2">
+            <Card className="text-center py-3">
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{latestWeight ?? '—'}</p>
+              <p className="text-xs text-gray-400 leading-tight">kg actual</p>
+            </Card>
+            <Card className="text-center py-3">
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{profile?.target_weight_kg ?? '—'}</p>
+              <p className="text-xs text-gray-400 leading-tight">kg meta</p>
+            </Card>
+          </div>
+          {weightLoading ? (
+            <div className="flex justify-center py-8"><Spinner /></div>
+          ) : weightLogs.length === 0 ? (
+            <div className="flex flex-col items-center py-12 text-center gap-3">
+              <span className="text-5xl">⚖️</span>
+              <p className="text-gray-400 text-sm">Sin registros de peso.</p>
+              <Link to="/weight" className="px-4 py-2 bg-primary-600 text-white rounded-xl text-sm font-semibold">
+                Registrar peso
+              </Link>
+            </div>
+          ) : (
+            <>
+              <Card>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Historial</p>
+                <WeightChart logs={weightLogs.slice(0, 30)} targetWeight={profile?.target_weight_kg} height={160} />
+              </Card>
+              <Link to="/weight" className="text-sm text-primary-600 text-center py-1">
+                Ver historial completo →
+              </Link>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Tab: Análisis IA */}
+      {tab === 'analysis' && <>
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-2">
         <Card className="text-center py-3">
@@ -230,6 +294,7 @@ export default function ProgressPage() {
 
       {/* All view */}
       {view === 'all' && analyses.map(a => <DayCard key={a.id} a={a} lang={lang} />)}
+      </>}
     </div>
   )
 }

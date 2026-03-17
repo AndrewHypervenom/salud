@@ -11,7 +11,14 @@
     "habits": "Hábitos",
     "food": "Comidas",
     "progress": "Progreso",
-    "more": "Más"
+    "more": "Más",
+    "tools": "Herramientas",
+    "water": "Agua",
+    "weight": "Peso",
+    "fasting": "Ayuno",
+    "recipes": "Recetas",
+    "food_search": "Buscar Alimento",
+    "badges": "Logros"
   },
   "profile": {
     "select": "Seleccionar perfil",
@@ -50,6 +57,13 @@
     "section_goal": "Objetivo de salud",
     "section_medical": "Notas médicas",
     "section_notifications": "Notificaciones",
+    "section_targets": "Objetivos de peso e hidratación",
+    "target_weight_kg": "Peso meta (kg)",
+    "weight_goal_speed": "Ritmo de pérdida",
+    "weight_goal_speed_slow": "Lento (0.25 kg/sem)",
+    "weight_goal_speed_moderate": "Moderado (0.5 kg/sem)",
+    "weight_goal_speed_fast": "Rápido (1 kg/sem)",
+    "water_goal_ml": "Meta de agua (ml/día)",
     "tdee_preview_label": "Vista previa de calorías",
     "tdee_preview_bmr": "TMB",
     "tdee_preview_tdee": "TDEE",
@@ -343,6 +357,48 @@
     "fiber": "Fibras",
     "macros": "Macronutrientes",
     "incorrect": "Es incorrecto"
+  },
+  "water": {
+    "title": "Hidratación",
+    "quick_add": "Agregar rápido",
+    "custom_amount": "Cantidad personalizada",
+    "today_log": "Registro de hoy"
+  },
+  "weight": {
+    "title": "Control de Peso",
+    "log_weight": "Registrar peso",
+    "history": "Historial",
+    "no_logs": "No hay registros de peso. ¡Registra tu primer peso!"
+  },
+  "fasting": {
+    "title": "Ayuno Intermitente",
+    "active": "Ayuno activo",
+    "no_active": "Sin ayuno activo",
+    "elapsed": "Transcurrido",
+    "start": "Iniciar ayuno",
+    "end": "Finalizar ayuno",
+    "edit_times": "Editar tiempos",
+    "start_time": "Hora inicio",
+    "end_time": "Hora fin",
+    "target_hours": "Duración objetivo",
+    "completed_count": "ayunos completados",
+    "history": "Últimas sesiones"
+  },
+  "recipes": {
+    "title": "Recetas",
+    "new_recipe": "Nueva receta",
+    "no_recipes": "Aún no tienes recetas. ¡Crea la primera!"
+  },
+  "food_search": {
+    "title": "Buscar Alimento",
+    "search_placeholder": "Buscar por nombre (ej: manzana, pollo)...",
+    "no_results": "No se encontraron resultados. Intenta con otro término.",
+    "hint": "Busca por nombre o escanea el código de barras de un producto."
+  },
+  "badges": {
+    "title": "Mis Logros",
+    "unlocked": "Desbloqueados",
+    "locked": "Bloqueados"
   },
   "whatsapp": {
     "title": "Alertas WhatsApp",

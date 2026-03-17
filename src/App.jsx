@@ -18,6 +18,14 @@ import DoctorQuestionsPage from './pages/DoctorQuestions/DoctorQuestionsPage'
 import HabitsPage from './pages/Habits/HabitsPage'
 import FoodPage from './pages/Food/FoodPage'
 import ProgressPage from './pages/Progress/ProgressPage'
+import WaterPage from './pages/Water/WaterPage'
+import WeightPage from './pages/Weight/WeightPage'
+import FastingPage from './pages/Fasting/FastingPage'
+import RecipesPage from './pages/Recipes/RecipesPage'
+import RecipeFormPage from './pages/Recipes/RecipeFormPage'
+import RecipeDetailPage from './pages/Recipes/RecipeDetailPage'
+import FoodSearchPage from './pages/FoodSearch/FoodSearchPage'
+import BadgesPage from './pages/Badges/BadgesPage'
 
 export default function App() {
   return (
@@ -44,6 +52,15 @@ export default function App() {
             <Route path="/habits" element={<HabitsPage />} />
             <Route path="/food" element={<FoodPage />} />
             <Route path="/progress" element={<ProgressPage />} />
+            <Route path="/water" element={<WaterPage />} />
+            <Route path="/weight" element={<WeightPage />} />
+            <Route path="/fasting" element={<FastingPage />} />
+            <Route path="/recipes" element={<RecipesPage />} />
+            <Route path="/recipes/new" element={<RecipeFormPage />} />
+            <Route path="/recipes/:id/edit" element={<RecipeFormPage />} />
+            <Route path="/recipes/:id" element={<RecipeDetailPage />} />
+            <Route path="/food-search" element={<FoodSearchPage />} />
+            <Route path="/badges" element={<BadgesPage />} />
           </Route>
         </Routes>
       </ProfileProvider>
