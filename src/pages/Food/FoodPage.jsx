@@ -165,6 +165,14 @@ export default function FoodPage() {
                       {log.calories_estimated && (
                         <p className="text-xs text-primary-600 font-semibold mt-0.5">{log.calories_estimated} kcal</p>
                       )}
+                      {(log.protein_g || log.carbs_g || log.fat_g) && (
+                        <p className="text-xs mt-1 font-medium">
+                          <span className="text-blue-500">P:{log.protein_g}g</span>
+                          <span className="text-green-500"> · C:{log.carbs_g}g</span>
+                          <span className="text-amber-500"> · G:{log.fat_g}g</span>
+                          {log.fiber_g != null && <span className="text-emerald-500"> · F:{log.fiber_g}g</span>}
+                        </p>
+                      )}
                       {log.notes && (
                         <p className="text-xs text-gray-400 mt-0.5">{log.notes}</p>
                       )}

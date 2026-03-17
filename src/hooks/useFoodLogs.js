@@ -38,10 +38,10 @@ export function useFoodLogs(profileId) {
 
   const todayCalories = todayLogs.reduce((sum, log) => sum + (log.calories_estimated || 0), 0)
 
-  const addFoodLog = async ({ meal_type, description, calories_estimated, image_url, notes }) => {
+  const addFoodLog = async ({ meal_type, description, calories_estimated, image_url, notes, protein_g, carbs_g, fat_g, fiber_g }) => {
     const { data, error: err } = await supabase
       .from('food_logs')
-      .insert([{ profile_id: profileId, meal_type, description, calories_estimated, image_url, notes }])
+      .insert([{ profile_id: profileId, meal_type, description, calories_estimated, image_url, notes, protein_g: protein_g ?? null, carbs_g: carbs_g ?? null, fat_g: fat_g ?? null, fiber_g: fiber_g ?? null }])
       .select()
       .single()
     if (err) throw err

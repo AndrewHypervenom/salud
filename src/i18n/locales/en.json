@@ -336,7 +336,13 @@
     "recalculate_calories": "Recalculate calories",
     "recalculating": "Recalculating...",
     "calculate_calories": "Calculate calories with AI",
-    "calculating": "Calculating..."
+    "calculating": "Calculating...",
+    "protein": "Protein",
+    "carbs": "Carbs",
+    "fat": "Fat",
+    "fiber": "Fiber",
+    "macros": "Macronutrients",
+    "incorrect": "That's incorrect"
   },
   "whatsapp": {
     "title": "WhatsApp Alerts",

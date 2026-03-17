@@ -28,13 +28,13 @@ Deno.serve(async (req: Request) => {
           { type: 'image_url', image_url: { url: imageUrl } },
           {
             type: 'text',
-            text: 'Analiza esta comida y responde SOLO con JSON válido sin texto adicional ni markdown: {"foods":["nombre del alimento"],"description":"descripción breve de la comida","calories_estimated":número_entero}',
+            text: 'Eres un nutricionista experto. Analiza esta imagen de comida y responde SOLO con JSON válido sin texto adicional ni markdown, usando este formato exacto:\n{"foods":["nombre principal del plato"],"description":"descripción detallada con ingredientes y sus pesos estimados en gramos, ej: Pollo a la plancha (150g) con arroz blanco (100g) y ensalada de lechuga (50g) y tomate (30g)","calories_estimated":344,"macros":{"protein_g":43,"carbs_g":33,"fat_g":4,"fiber_g":3}}\nTodos los valores numéricos deben ser enteros realistas para una porción normal.',
           },
         ]
       : [
           {
             type: 'text',
-            text: `Eres un nutricionista experto. Estima las calorías de una porción típica de esta comida: "${textDescription}". Responde SOLO con JSON válido sin texto adicional ni markdown, usando este formato exacto: {"foods":["nombre"],"description":"${textDescription}","calories_estimated":NUMERO}. El campo calories_estimated debe ser un número entero realista basado en una porción normal.`,
+            text: `Eres un nutricionista experto. Analiza esta comida: "${textDescription}". Responde SOLO con JSON válido sin texto adicional ni markdown, usando este formato exacto: {"foods":["nombre principal del plato"],"description":"descripción detallada con ingredientes y sus pesos estimados en gramos","calories_estimated":NUMERO,"macros":{"protein_g":NUMERO,"carbs_g":NUMERO,"fat_g":NUMERO,"fiber_g":NUMERO}}. Todos los valores numéricos deben ser enteros realistas para una porción normal.`,
           },
         ]
 
@@ -52,7 +52,7 @@ Deno.serve(async (req: Request) => {
             content: messageContent,
           },
         ],
-        max_tokens: 256,
+        max_tokens: 512,
         temperature: 0,
       }),
     })
@@ -66,7 +66,7 @@ Deno.serve(async (req: Request) => {
     const content: string = groqData.choices?.[0]?.message?.content ?? ''
 
     // Parse JSON from response
-    let result = { foods: [], description: '', calories_estimated: 0 }
+    let result = { foods: [], description: '', calories_estimated: 0, macros: null }
     try {
       const jsonMatch = content.match(/\{[\s\S]*\}/)
       if (jsonMatch) {

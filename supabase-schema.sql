@@ -163,6 +163,16 @@ create policy "allow_delete_attempts" on login_attempts
   for delete to anon using (true);
 
 -- -------------------------------------------------------------
+-- Migración: macronutrientes en food_logs
+-- Ejecutar en Supabase SQL Editor
+-- -------------------------------------------------------------
+-- ALTER TABLE food_logs
+--   ADD COLUMN IF NOT EXISTS protein_g integer,
+--   ADD COLUMN IF NOT EXISTS carbs_g   integer,
+--   ADD COLUMN IF NOT EXISTS fat_g     integer,
+--   ADD COLUMN IF NOT EXISTS fiber_g   integer;
+
+-- -------------------------------------------------------------
 -- Row Level Security (desactivado para uso familiar sin auth)
 -- Activar si en el futuro se agrega autenticación real.
 -- -------------------------------------------------------------

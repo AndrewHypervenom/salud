@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { Spinner } from '../../components/ui/Spinner'
 import { FoodAnalyzingOverlay } from '../../components/ui/FoodAnalyzingOverlay'
+import { MacroResultCard } from '../../components/ui/MacroResultCard'
 
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack']
 
@@ -21,6 +22,8 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
   const [aiUsed, setAiUsed] = useState(false)
   const [aiDescription, setAiDescription] = useState('')
   const [aiCalories, setAiCalories] = useState('')
+  const [aiMacros, setAiMacros] = useState(null)
+  const [showResultCard, setShowResultCard] = useState(false)
   const [recalculating, setRecalculating] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
@@ -68,6 +71,8 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
         setCalories(cal)
         setAiCalories(cal)
       }
+      setAiMacros(data?.macros ?? null)
+      setShowResultCard(true)
       setAiUsed(true)
     } catch (e) {
       setError(e.message)
@@ -90,6 +95,8 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
         setCalories(cal)
         setAiCalories(cal)
         setAiDescription(description.trim())
+        setAiMacros(data?.macros ?? null)
+        setShowResultCard(true)
         setAiUsed(true)
       }
     } catch (e) {
@@ -111,6 +118,10 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
         calories_estimated: calories ? parseInt(calories) : null,
         image_url: imageUrl || null,
         notes: notes.trim() || null,
+        protein_g: aiMacros?.protein_g ?? null,
+        carbs_g: aiMacros?.carbs_g ?? null,
+        fat_g: aiMacros?.fat_g ?? null,
+        fiber_g: aiMacros?.fiber_g ?? null,
       })
     } catch (e) {
       setError(e.message)
@@ -186,7 +197,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
           </div>
         )}
 
-        {aiUsed && (
+        {aiUsed && !showResultCard && (
           <div className="flex items-center gap-2 animate-success-pop">
             <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 rounded-full text-xs font-semibold">
               <span className="text-base">✓</span>
@@ -196,75 +207,87 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
         )}
       </div>
 
-      {/* Description */}
-      <div className={`flex flex-col gap-1 ${aiUsed ? 'animate-fade-in-up' : ''}`}>
-        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('food.description')}</label>
-        <input
-          type="text"
-          value={description}
-          onChange={e => {
-            setDescription(e.target.value)
-            if (aiUsed && e.target.value.trim() === aiDescription.trim() && aiCalories) {
-              setCalories(aiCalories)
-            }
-          }}
-          placeholder={t('food.description_placeholder')}
-          required
-          className="px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-primary-500"
+      {showResultCard ? (
+        <MacroResultCard
+          imagePreview={imagePreview}
+          description={description}
+          calories={calories ? parseInt(calories) : null}
+          macros={aiMacros}
+          onEdit={() => setShowResultCard(false)}
         />
-      </div>
+      ) : (
+        <>
+          {/* Description */}
+          <div className={`flex flex-col gap-1 ${aiUsed ? 'animate-fade-in-up' : ''}`}>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('food.description')}</label>
+            <input
+              type="text"
+              value={description}
+              onChange={e => {
+                setDescription(e.target.value)
+                if (aiUsed && e.target.value.trim() === aiDescription.trim() && aiCalories) {
+                  setCalories(aiCalories)
+                }
+              }}
+              placeholder={t('food.description_placeholder')}
+              required
+              className="px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-primary-500"
+            />
+          </div>
 
-      {!aiUsed && description.trim() && (
-        <button
-          type="button"
-          onClick={handleRecalculate}
-          disabled={recalculating}
-          className="w-full py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-semibold text-sm shadow-md shadow-blue-500/20 hover:scale-[1.02] transition-all disabled:opacity-40 disabled:scale-100 flex items-center justify-center gap-2"
-        >
-          {recalculating
-            ? <><Spinner size="sm" /> {t('food.calculating')}</>
-            : `🤖 ${t('food.calculate_calories')}`}
-        </button>
+          {!aiUsed && description.trim() && (
+            <button
+              type="button"
+              onClick={handleRecalculate}
+              disabled={recalculating}
+              className="w-full py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-semibold text-sm shadow-md shadow-blue-500/20 hover:scale-[1.02] transition-all disabled:opacity-40 disabled:scale-100 flex items-center justify-center gap-2"
+            >
+              {recalculating
+                ? <><Spinner size="sm" /> {t('food.calculating')}</>
+                : `🤖 ${t('food.calculate_calories')}`}
+            </button>
+          )}
+
+          {descriptionChanged && (
+            <button
+              type="button"
+              onClick={handleRecalculate}
+              disabled={recalculating}
+              className="w-full py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-semibold text-sm shadow-md shadow-orange-500/20 hover:scale-[1.02] transition-all disabled:opacity-40 disabled:scale-100 flex items-center justify-center gap-2"
+            >
+              {recalculating
+                ? <><Spinner size="sm" /> {t('food.recalculating')}</>
+                : `🔄 ${t('food.recalculate_calories')}`}
+            </button>
+          )}
+
+          {/* Calories */}
+          <div className={`flex flex-col gap-1 ${aiUsed ? 'animate-fade-in-up' : ''}`}>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('food.calories')}</label>
+            <input
+              type="number"
+              value={calories}
+              onChange={e => setCalories(e.target.value)}
+              min="0"
+              max="5000"
+              placeholder="350"
+              className="px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-primary-500"
+            />
+          </div>
+
+          {/* Notes */}
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('food.notes')}</label>
+            <input
+              type="text"
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              placeholder="..."
+              className="px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-primary-500"
+            />
+          </div>
+        </>
       )}
-
-      {descriptionChanged && (
-        <button
-          type="button"
-          onClick={handleRecalculate}
-          disabled={recalculating}
-          className="w-full py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-semibold text-sm shadow-md shadow-orange-500/20 hover:scale-[1.02] transition-all disabled:opacity-40 disabled:scale-100 flex items-center justify-center gap-2"
-        >
-          {recalculating
-            ? <><Spinner size="sm" /> {t('food.recalculating')}</>
-            : `🔄 ${t('food.recalculate_calories')}`}
-        </button>
-      )}
-
-      {/* Calories */}
-      <div className={`flex flex-col gap-1 ${aiUsed ? 'animate-fade-in-up' : ''}`}>
-        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('food.calories')}</label>
-        <input
-          type="number"
-          value={calories}
-          onChange={e => setCalories(e.target.value)}
-          min="0"
-          max="5000"
-          placeholder="350"
-          className="px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-primary-500"
-        />
-      </div>
-
-      {/* Notes */}
-      <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t('food.notes')}</label>
-        <input
-          type="text"
-          value={notes}
-          onChange={e => setNotes(e.target.value)}
-          placeholder="..."
-          className="px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-primary-500"
-        />
-      </div>
 
       {error && (
         <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950/30 rounded-xl px-4 py-3">{error}</p>
