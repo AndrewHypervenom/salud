@@ -173,6 +173,13 @@ create policy "allow_delete_attempts" on login_attempts
 --   ADD COLUMN IF NOT EXISTS fiber_g   integer;
 
 -- -------------------------------------------------------------
+-- Migración: preferencias de dashboard por perfil (cross-device)
+-- Ejecutar en Supabase SQL Editor
+-- -------------------------------------------------------------
+-- ALTER TABLE profiles
+--   ADD COLUMN IF NOT EXISTS preferences JSONB NOT NULL DEFAULT '{}';
+
+-- -------------------------------------------------------------
 -- Row Level Security (desactivado para uso familiar sin auth)
 -- Activar si en el futuro se agrega autenticación real.
 -- -------------------------------------------------------------

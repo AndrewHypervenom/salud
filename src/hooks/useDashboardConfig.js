@@ -1,4 +1,6 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
+import { supabase } from '../lib/supabase'
+import { useProfileContext } from '../context/ProfileContext'
 
 // ── Catálogo completo de widgets disponibles ──────────────────────────────────
 export const WIDGET_CATALOG = [
@@ -40,16 +42,16 @@ const DEFAULT_SHORTCUTS = ['habits', 'food', 'blood-pressure']
 const STORAGE_W = 'dashboard_widget_order_v2'
 const STORAGE_N = 'nav_shortcuts_v2'
 
+function mergeWithCatalog(raw) {
+  const known = new Set(raw.visible.concat(raw.hidden))
+  const newWidgets = WIDGET_CATALOG.map(w => w.id).filter(id => !known.has(id))
+  return { visible: raw.visible, hidden: [...raw.hidden, ...newWidgets] }
+}
+
 function loadWidgets() {
   try {
     const raw = localStorage.getItem(STORAGE_W)
-    if (raw) {
-      const parsed = JSON.parse(raw)
-      // Ensure any new widgets are appended as hidden if not present
-      const known = new Set(parsed.visible.concat(parsed.hidden))
-      const newWidgets = WIDGET_CATALOG.map(w => w.id).filter(id => !known.has(id))
-      return { visible: parsed.visible, hidden: [...parsed.hidden, ...newWidgets] }
-    }
+    if (raw) return mergeWithCatalog(JSON.parse(raw))
   } catch {}
   const allIds = WIDGET_CATALOG.map(w => w.id)
   return {
@@ -66,11 +68,21 @@ function loadShortcuts() {
   return DEFAULT_SHORTCUTS
 }
 
+async function saveToSupabase(profileId, config, shortcuts) {
+  await supabase
+    .from('profiles')
+    .update({ preferences: { widgetOrder: config, navShortcuts: shortcuts } })
+    .eq('id', profileId)
+}
+
 export function useDashboardConfig() {
+  const { activeProfileId } = useProfileContext()
   const [config, setConfig] = useState(() => loadWidgets())
   const [shortcuts, setShortcutsState] = useState(() => loadShortcuts())
+  const [configLoading, setConfigLoading] = useState(false)
+  const saveTimerRef = useRef(null)
 
-  // Persist on every change
+  // Persist to localStorage on every change
   useEffect(() => {
     localStorage.setItem(STORAGE_W, JSON.stringify(config))
   }, [config])
@@ -78,6 +90,43 @@ export function useDashboardConfig() {
   useEffect(() => {
     localStorage.setItem(STORAGE_N, JSON.stringify(shortcuts))
   }, [shortcuts])
+
+  // Load from Supabase when profile changes
+  useEffect(() => {
+    if (!activeProfileId) return
+    setConfigLoading(true)
+    supabase
+      .from('profiles')
+      .select('preferences')
+      .eq('id', activeProfileId)
+      .single()
+      .then(({ data }) => {
+        const prefs = data?.preferences || {}
+        if (prefs.widgetOrder) {
+          const merged = mergeWithCatalog(prefs.widgetOrder)
+          setConfig(merged)
+          localStorage.setItem(STORAGE_W, JSON.stringify(merged))
+        } else {
+          // Primera vez: subir config local a Supabase
+          saveToSupabase(activeProfileId, config, shortcuts)
+        }
+        if (prefs.navShortcuts) {
+          setShortcutsState(prefs.navShortcuts)
+          localStorage.setItem(STORAGE_N, JSON.stringify(prefs.navShortcuts))
+        }
+        setConfigLoading(false)
+      })
+  }, [activeProfileId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Debounced write to Supabase (1 second after last change)
+  useEffect(() => {
+    if (!activeProfileId || configLoading) return
+    clearTimeout(saveTimerRef.current)
+    saveTimerRef.current = setTimeout(() => {
+      saveToSupabase(activeProfileId, config, shortcuts)
+    }, 1000)
+    return () => clearTimeout(saveTimerRef.current)
+  }, [config, shortcuts, activeProfileId, configLoading])
 
   // Move widget up or down
   const moveWidget = useCallback((id, dir) => {
@@ -149,6 +198,7 @@ export function useDashboardConfig() {
     visibleWidgets: config.visible,
     hiddenWidgets: config.hidden,
     shortcuts,
+    configLoading,
     moveWidget,
     reorderWidgets,
     hideWidget,
