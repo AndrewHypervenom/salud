@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useProfileContext } from '../context/ProfileContext'
@@ -475,52 +476,55 @@ function EditableWidget({ id, children, onHide, onMoveUp, onMoveDown, isFirst, i
   return (
     <div
       data-widget-id={id}
-      className={`relative transition-all duration-200 select-none ${
+      className={`relative rounded-2xl transition-all duration-200 select-none ${
         isDragging
-          ? 'opacity-40 scale-[0.97] z-0'
+          ? 'opacity-0 pointer-events-none'
           : isOver
-          ? 'ring-2 ring-primary-400 ring-offset-2 dark:ring-offset-gray-900 rounded-2xl z-10'
-          : 'opacity-100'
+          ? 'scale-[1.015] ring-[2.5px] ring-primary-500 ring-offset-2 dark:ring-offset-gray-950 shadow-lg shadow-primary-500/20'
+          : ''
       }`}
     >
-      {/* Edit overlay bar */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between bg-gray-900/85 backdrop-blur-sm rounded-t-2xl px-3 py-1.5">
-        <div className="flex items-center gap-2">
-          {/* Drag handle — pointer events only on this element */}
-          <div
-            onPointerDown={(e) => onPointerDown(e, id)}
-            className="cursor-grab active:cursor-grabbing touch-none text-gray-400 hover:text-white transition-colors p-0.5 -m-0.5"
-            style={{ touchAction: 'none' }}
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-              <circle cx="5" cy="4" r="1.5"/><circle cx="11" cy="4" r="1.5"/>
-              <circle cx="5" cy="8" r="1.5"/><circle cx="11" cy="8" r="1.5"/>
-              <circle cx="5" cy="12" r="1.5"/><circle cx="11" cy="12" r="1.5"/>
-            </svg>
-          </div>
-          <span className="text-white text-xs font-semibold">{meta?.label}</span>
-        </div>
+      {/* iOS-style floating controls — don't obscure content */}
+      {/* Remove button — top-right corner */}
+      <button
+        onClick={() => onHide(id)}
+        className="absolute -top-2.5 -right-2.5 z-30 w-6 h-6 rounded-full bg-gray-600 dark:bg-gray-500 text-white flex items-center justify-center shadow-md hover:bg-red-500 transition-colors"
+        style={{ fontSize: 13, lineHeight: 1 }}
+      >✕</button>
 
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => onMoveUp(id)}
-            disabled={isFirst}
-            className="w-6 h-6 flex items-center justify-center text-gray-300 hover:text-white disabled:opacity-30 text-xs transition-colors"
-          >▲</button>
-          <button
-            onClick={() => onMoveDown(id)}
-            disabled={isLast}
-            className="w-6 h-6 flex items-center justify-center text-gray-300 hover:text-white disabled:opacity-30 text-xs transition-colors"
-          >▼</button>
-          <button
-            onClick={() => onHide(id)}
-            className="w-6 h-6 flex items-center justify-center text-red-400 hover:text-red-300 font-bold text-sm ml-0.5 transition-colors"
-          >✕</button>
-        </div>
+      {/* Drag handle — top-left corner pill */}
+      <div
+        onPointerDown={(e) => onPointerDown(e, id)}
+        className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 px-2.5 py-1 bg-gray-700 dark:bg-gray-600 rounded-full shadow-md cursor-grab active:cursor-grabbing select-none"
+        style={{ touchAction: 'none' }}
+      >
+        <svg width="12" height="8" viewBox="0 0 12 8" fill="white" opacity="0.8">
+          <rect x="0" y="0" width="12" height="1.5" rx="0.75"/>
+          <rect x="0" y="3.25" width="12" height="1.5" rx="0.75"/>
+          <rect x="0" y="6.5" width="12" height="1.5" rx="0.75"/>
+        </svg>
+        <span className="text-white text-[10px] font-semibold opacity-80 leading-none">{meta?.label}</span>
       </div>
 
-      {/* Widget content (with top padding for the bar) */}
-      <div className="pt-8">{children}</div>
+      {/* Up/Down reorder — bottom bar, subtle */}
+      <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 z-30 flex items-center gap-0.5 bg-gray-700 dark:bg-gray-600 rounded-full px-1 py-0.5 shadow-md">
+        <button
+          onClick={() => onMoveUp(id)}
+          disabled={isFirst}
+          className="w-6 h-5 flex items-center justify-center text-white disabled:opacity-25 text-[10px] hover:text-primary-300 transition-colors rounded-full"
+        >▲</button>
+        <div className="w-px h-3 bg-gray-500"/>
+        <button
+          onClick={() => onMoveDown(id)}
+          disabled={isLast}
+          className="w-6 h-5 flex items-center justify-center text-white disabled:opacity-25 text-[10px] hover:text-primary-300 transition-colors rounded-full"
+        >▼</button>
+      </div>
+
+      {/* Widget content with padding for floating controls */}
+      <div className={`rounded-2xl overflow-hidden ${isOver ? '' : ''}`}>
+        {children}
+      </div>
     </div>
   )
 }
@@ -543,9 +547,10 @@ export default function Dashboard() {
   } = useDashboardConfig()
 
   const [editMode, setEditMode] = useState(false)
-  const dragRef = useRef({ fromId: null, overId: null })
+  const dragRef = useRef({ fromId: null, overId: null, offsetX: 0, offsetY: 0, ghostW: 0, ghostH: 0 })
   const [dragFromId, setDragFromId] = useState(null)
   const [dragOverId, setDragOverId] = useState(null)
+  const [dragPointer, setDragPointer] = useState(null) // { x, y } — follows pointer for ghost
 
   const profile = profiles.find(p => p.id === activeProfileId)
 
@@ -555,21 +560,37 @@ export default function Dashboard() {
   const calTarget = profile ? calcCalorieTarget(tdee, profile.health_goal) : 0
   const lastBP = readings[0]
 
-  // ── Pointer-based drag (works on mouse + touch) ─────────
+  // ── Pointer-based drag (mouse + touch) ──────────────────
   const handlePointerDown = useCallback((e, id) => {
     e.preventDefault()
-    dragRef.current = { fromId: id, overId: id }
+    const el = document.querySelector(`[data-widget-id="${id}"]`)
+    const rect = el?.getBoundingClientRect() ?? { left: 0, top: 0, width: 300, height: 120 }
+    dragRef.current = {
+      fromId: id,
+      overId: id,
+      offsetX: e.clientX - rect.left,
+      offsetY: e.clientY - rect.top,
+      ghostW: rect.width,
+      ghostH: rect.height,
+    }
     setDragFromId(id)
     setDragOverId(id)
+    setDragPointer({ x: e.clientX, y: e.clientY })
   }, [])
 
   useEffect(() => {
     if (!dragFromId) return
 
+    // Prevent page scroll on touch while dragging
+    const preventScroll = (e) => e.preventDefault()
+    document.addEventListener('touchmove', preventScroll, { passive: false })
+
     const onMove = (e) => {
+      setDragPointer({ x: e.clientX, y: e.clientY })
+      // Walk up from element under pointer to find data-widget-id
       let el = document.elementFromPoint(e.clientX, e.clientY)
       while (el && !el.dataset.widgetId) el = el.parentElement
-      if (el?.dataset.widgetId) {
+      if (el?.dataset.widgetId && el.dataset.widgetId !== dragRef.current.fromId) {
         const overId = el.dataset.widgetId
         if (dragRef.current.overId !== overId) {
           dragRef.current.overId = overId
@@ -581,9 +602,11 @@ export default function Dashboard() {
     const onUp = () => {
       const { fromId, overId } = dragRef.current
       if (fromId && overId && fromId !== overId) reorderWidgets(fromId, overId)
-      dragRef.current = { fromId: null, overId: null }
+      dragRef.current = { fromId: null, overId: null, offsetX: 0, offsetY: 0, ghostW: 0, ghostH: 0 }
       setDragFromId(null)
       setDragOverId(null)
+      setDragPointer(null)
+      document.removeEventListener('touchmove', preventScroll)
     }
 
     document.addEventListener('pointermove', onMove)
@@ -593,6 +616,7 @@ export default function Dashboard() {
       document.removeEventListener('pointermove', onMove)
       document.removeEventListener('pointerup', onUp)
       document.removeEventListener('pointercancel', onUp)
+      document.removeEventListener('touchmove', preventScroll)
     }
   }, [dragFromId, reorderWidgets])
 
@@ -674,7 +698,7 @@ export default function Dashboard() {
   const groups = groupWidgets(visibleWidgets)
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className={`flex flex-col transition-all duration-300 ${editMode ? 'gap-8' : 'gap-4'}`}>
 
       {/* ── HEADER ─────────────────────────────────────────── */}
       <div className="flex items-center gap-3">
@@ -717,7 +741,7 @@ export default function Dashboard() {
           <span className="text-lg">✏️</span>
           <div className="flex-1">
             <p className="text-xs font-semibold text-primary-700 dark:text-primary-300">Modo edición</p>
-            <p className="text-[11px] text-primary-600/70 dark:text-primary-400/70">Arrastra, reordena u oculta widgets</p>
+            <p className="text-[11px] text-primary-600/70 dark:text-primary-400/70">Mantén el handle ≡ y arrastra para reordenar</p>
           </div>
           <button
             onClick={resetAll}
@@ -804,6 +828,31 @@ export default function Dashboard() {
             })}
           </div>
         </div>
+      )}
+
+      {/* ── DRAG GHOST — floats under finger/cursor ─────────── */}
+      {dragFromId && dragPointer && createPortal(
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'fixed',
+            left: dragPointer.x - dragRef.current.offsetX,
+            top: dragPointer.y - dragRef.current.offsetY,
+            width: dragRef.current.ghostW,
+            pointerEvents: 'none',
+            zIndex: 9999,
+            transform: 'scale(1.05) rotate(-1.5deg)',
+            transformOrigin: 'center top',
+            opacity: 0.92,
+            filter: 'drop-shadow(0 24px 40px rgba(0,0,0,0.35))',
+            borderRadius: 16,
+            overflow: 'hidden',
+            willChange: 'transform',
+          }}
+        >
+          {renderWidget(dragFromId)}
+        </div>,
+        document.body
       )}
 
     </div>
