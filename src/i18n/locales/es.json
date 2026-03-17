@@ -18,7 +18,9 @@
     "fasting": "Ayuno",
     "recipes": "Recetas",
     "food_search": "Buscar Alimento",
-    "badges": "Logros"
+    "badges": "Logros",
+    "customize_title": "Personalizar barra",
+    "customize_hint": "Elige los 3 íconos centrales"
   },
   "profile": {
     "select": "Seleccionar perfil",

@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom'
+import { useState, useRef, useCallback } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useProfileContext } from '../context/ProfileContext'
 import { useProfiles } from '../hooks/useProfiles'
@@ -6,19 +7,520 @@ import { useBloodPressure } from '../hooks/useBloodPressure'
 import { useDoctorQuestions } from '../hooks/useDoctorQuestions'
 import { useHabits } from '../hooks/useHabits'
 import { useFoodLogs } from '../hooks/useFoodLogs'
-import { calcBMR, calcTDEE, calcCalorieTarget, getCalorieStatus, CALORIE_COLORS } from '../lib/formulas'
+import { useWaterLogs } from '../hooks/useWaterLogs'
+import { useFasting } from '../hooks/useFasting'
+import { useWeightLogs } from '../hooks/useWeightLogs'
+import { useDashboardConfig, WIDGET_CATALOG } from '../hooks/useDashboardConfig'
+import { calcBMR, calcTDEE, calcCalorieTarget, calcMacros, getCalorieStatus, CALORIE_COLORS } from '../lib/formulas'
 import { classifyBP } from '../lib/bpStatus'
 import { Card } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
-import { Button } from '../components/ui/Button'
 import { Spinner } from '../components/ui/Spinner'
+import { ProgressRing } from '../components/ui/ProgressRing'
+import { ElapsedTimer } from '../components/ui/CountdownTimer'
 import { HealthCoach } from '../components/shared/HealthCoach'
-import { MacroDashboardCard } from '../components/shared/MacroDashboardCard'
-import { WaterWidget } from '../components/shared/WaterWidget'
-import { FastingWidget } from '../components/shared/FastingWidget'
 
-const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack']
-const MEAL_ICONS = { breakfast: '🌅', lunch: '☀️', dinner: '🌙', snack: '🍎' }
+// ─────────────────────────────────────────────────────────
+//  WIDGET COMPONENTS
+// ─────────────────────────────────────────────────────────
+
+function CaloriesWidget({ todayCalories, calTarget, profile }) {
+  const { t } = useTranslation()
+  const pct = calTarget > 0 ? Math.min((todayCalories / calTarget) * 100, 100) : 0
+  const status = getCalorieStatus(todayCalories, calTarget)
+  const colors = CALORIE_COLORS[status]
+  const left = calTarget - todayCalories
+
+  const ringColor = status === 'over' ? '#ef4444' : status === 'warn' ? '#f59e0b' : '#16a34a'
+
+  const goalLabel = profile.health_goal === 'lose_weight'
+    ? t('dashboard.goal_lose_weight')
+    : profile.health_goal === 'gain_muscle'
+    ? t('dashboard.goal_gain_muscle')
+    : t('dashboard.goal_maintain')
+
+  const goalColor = profile.health_goal === 'lose_weight'
+    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+    : profile.health_goal === 'gain_muscle'
+    ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
+    : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+
+  const motivationKey = todayCalories === 0
+    ? 'dashboard.motivation_empty'
+    : status === 'over' ? 'dashboard.motivation_over'
+    : status === 'warn' ? 'dashboard.motivation_warn'
+    : 'dashboard.motivation_ok'
+
+  return (
+    <Card className="overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t('dashboard.calories_today')}</p>
+          <p className="text-xs text-gray-500 mt-0.5">{t(motivationKey)}</p>
+        </div>
+        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${goalColor}`}>
+          {goalLabel}
+        </span>
+      </div>
+
+      {/* Ring + stats */}
+      <div className="flex items-center gap-6">
+        <ProgressRing percent={pct} size={96} strokeWidth={9} color={ringColor}>
+          <div className="text-center">
+            <p className={`text-xl font-bold leading-none ${colors.text}`}>{Math.round(pct)}%</p>
+          </div>
+        </ProgressRing>
+
+        <div className="flex-1">
+          <p className={`text-4xl font-bold tabular-nums ${colors.text}`}>{todayCalories}</p>
+          <p className="text-sm text-gray-400">
+            de <span className="font-semibold text-gray-600 dark:text-gray-300">{calTarget}</span> kcal
+          </p>
+          <div className="mt-2 h-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+            <div
+              className={`h-2 rounded-full transition-all duration-700 ${colors.bar}`}
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <p className="text-xs text-gray-400 mt-1">
+            {status === 'over'
+              ? t('dashboard.calories_over', { n: Math.abs(left) })
+              : t('dashboard.calories_remaining', { n: left })}
+          </p>
+        </div>
+      </div>
+    </Card>
+  )
+}
+
+function QuickActionsWidget() {
+  const navigate = useNavigate()
+  const actions = [
+    { icon: '🍽️', label: 'Comida',    to: '/food',    color: 'from-primary-500 to-primary-600' },
+    { icon: '💧', label: 'Agua',      to: '/water',   color: 'from-blue-400 to-blue-500' },
+    { icon: '⚖️', label: 'Peso',      to: '/weight',  color: 'from-violet-500 to-violet-600' },
+    { icon: '⚡', label: 'Ayuno',     to: '/fasting', color: 'from-amber-400 to-amber-500' },
+    { icon: '🔍', label: 'Buscar',    to: '/food-search', color: 'from-teal-400 to-teal-500' },
+  ]
+  return (
+    <div className="flex gap-2">
+      {actions.map(a => (
+        <button
+          key={a.to}
+          onClick={() => navigate(a.to)}
+          className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-2xl bg-gradient-to-b ${a.color} text-white shadow-sm active:scale-95 transition-transform`}
+        >
+          <span className="text-xl">{a.icon}</span>
+          <span className="text-[10px] font-semibold">{a.label}</span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function MealsWidget({ todayLogs, calTarget }) {
+  const { t } = useTranslation()
+  const MEAL_ICONS = { breakfast: '🌅', lunch: '☀️', dinner: '🌙', snack: '🍎' }
+  const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack']
+
+  const mealCal = (type) => todayLogs.filter(l => l.meal_type === type).reduce((s, l) => s + (l.calories_estimated || 0), 0)
+  const hasLogs = (type) => todayLogs.some(l => l.meal_type === type)
+
+  return (
+    <div className="grid grid-cols-2 gap-2.5">
+      {MEAL_TYPES.map(meal => {
+        const has = hasLogs(meal)
+        const kcal = mealCal(meal)
+        const pct = calTarget > 0 ? Math.min((kcal / (calTarget / 4)) * 100, 100) : 0
+        return (
+          <Link key={meal} to="/food">
+            <div className={`rounded-2xl p-3.5 transition-all active:scale-95 ${
+              has
+                ? 'bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800'
+                : 'bg-gray-50 dark:bg-gray-800/50 border border-dashed border-gray-200 dark:border-gray-700'
+            }`}>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-lg">{MEAL_ICONS[meal]}</span>
+                  <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">{t(`food.${meal}`)}</span>
+                </div>
+                {has && <span className="w-2 h-2 rounded-full bg-primary-400 flex-shrink-0" />}
+              </div>
+              {has ? (
+                <>
+                  <p className="text-base font-bold text-primary-600 dark:text-primary-400">{kcal}<span className="text-xs font-normal ml-0.5">kcal</span></p>
+                  <div className="mt-1.5 h-1 w-full bg-primary-100 dark:bg-primary-900/40 rounded-full">
+                    <div className="h-1 bg-primary-400 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
+                  </div>
+                </>
+              ) : (
+                <p className="text-xs text-gray-400 mt-1">{t('dashboard.meal_missing')}</p>
+              )}
+            </div>
+          </Link>
+        )
+      })}
+    </div>
+  )
+}
+
+function MacrosWidget({ todayLogs, calTarget }) {
+  const macroGoals = calTarget ? calcMacros(calTarget) : null
+  const hasMacros = todayLogs.some(l => l.protein_g || l.carbs_g || l.fat_g)
+  if (!hasMacros || !macroGoals) return null
+
+  const totals = todayLogs.reduce(
+    (acc, l) => ({ p: acc.p + (l.protein_g || 0), c: acc.c + (l.carbs_g || 0), f: acc.f + (l.fat_g || 0) }),
+    { p: 0, c: 0, f: 0 }
+  )
+
+  const bars = [
+    { label: 'Proteína', value: Math.round(totals.p), max: macroGoals.protein_g, color: '#3b82f6', bg: 'bg-blue-500', track: 'bg-blue-100 dark:bg-blue-900/30' },
+    { label: 'Carbohidratos', value: Math.round(totals.c), max: macroGoals.carbs_g, color: '#22c55e', bg: 'bg-green-500', track: 'bg-green-100 dark:bg-green-900/30' },
+    { label: 'Grasas', value: Math.round(totals.f), max: macroGoals.fat_g, color: '#f59e0b', bg: 'bg-amber-400', track: 'bg-amber-100 dark:bg-amber-900/30' },
+  ]
+
+  return (
+    <Card>
+      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Macronutrientes</p>
+      <div className="flex gap-4 mb-4">
+        {bars.map(b => {
+          const pct = b.max > 0 ? Math.min((b.value / b.max) * 100, 100) : 0
+          return (
+            <div key={b.label} className="flex-1 flex flex-col items-center gap-1">
+              <ProgressRing percent={pct} size={52} strokeWidth={5} color={b.color}>
+                <span className="text-[10px] font-bold text-gray-700 dark:text-gray-200">{Math.round(pct)}%</span>
+              </ProgressRing>
+              <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">{b.value}g</p>
+              <p className="text-[10px] text-gray-400 text-center leading-tight">{b.label}</p>
+            </div>
+          )
+        })}
+      </div>
+      <div className="flex flex-col gap-2">
+        {bars.map(b => {
+          const pct = b.max > 0 ? Math.min((b.value / b.max) * 100, 100) : 0
+          const over = b.value > b.max
+          return (
+            <div key={b.label} className="flex items-center gap-2">
+              <span className="text-xs text-gray-500 w-20 flex-shrink-0">{b.label}</span>
+              <div className={`flex-1 h-2 rounded-full ${b.track}`}>
+                <div className={`h-2 rounded-full transition-all duration-700 ${over ? 'bg-red-400' : b.bg}`} style={{ width: `${pct}%` }} />
+              </div>
+              <span className={`text-xs font-semibold tabular-nums w-14 text-right ${over ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'}`}>
+                {b.value}/{b.max}g
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </Card>
+  )
+}
+
+function WaterDashWidget({ profileId, waterGoalMl }) {
+  const { todayTotal, todayPercent, addWater } = useWaterLogs(profileId, waterGoalMl)
+  const ringColor = todayPercent >= 100 ? '#22c55e' : '#3b82f6'
+
+  const handleAdd = async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    try { await addWater(250) } catch {}
+  }
+
+  return (
+    <Link to="/water">
+      <Card className="h-full hover:shadow-md transition-shadow">
+        <div className="flex items-center gap-3">
+          <ProgressRing percent={todayPercent} size={48} strokeWidth={5} color={ringColor}>
+            <span className="text-sm">💧</span>
+          </ProgressRing>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-gray-400 font-medium">Agua</p>
+            <p className="text-base font-bold text-blue-600 tabular-nums">{todayTotal}<span className="text-xs font-normal text-gray-400 ml-0.5">/{waterGoalMl}ml</span></p>
+          </div>
+          <button
+            onClick={handleAdd}
+            className="w-7 h-7 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm font-bold hover:bg-blue-600 active:scale-90 transition-all flex-shrink-0"
+          >
+            +
+          </button>
+        </div>
+      </Card>
+    </Link>
+  )
+}
+
+function FastingDashWidget({ profileId }) {
+  const { activeSession, startFast } = useFasting(profileId)
+
+  const handleStart = async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    try { await startFast(16) } catch {}
+  }
+
+  if (!activeSession) {
+    return (
+      <Card className="h-full">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-xl flex-shrink-0">⚡</div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-gray-400 font-medium">Ayuno</p>
+            <p className="text-xs text-gray-500">Sin ayuno activo</p>
+          </div>
+          <button
+            onClick={handleStart}
+            className="px-2.5 py-1.5 bg-violet-600 text-white rounded-xl text-xs font-semibold hover:bg-violet-700 active:scale-95 transition-all flex-shrink-0"
+          >
+            16h
+          </button>
+        </div>
+      </Card>
+    )
+  }
+
+  const elapsed = Date.now() - new Date(activeSession.start_time).getTime()
+  const pct = Math.min((elapsed / (activeSession.target_hours * 3600000)) * 100, 100)
+
+  return (
+    <Link to="/fasting">
+      <Card className="h-full hover:shadow-md transition-shadow">
+        <div className="flex items-center gap-3">
+          <ProgressRing percent={pct} size={48} strokeWidth={5} color="#7c3aed">
+            <span className="text-sm">⚡</span>
+          </ProgressRing>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-gray-400 font-medium">Ayuno activo</p>
+            <ElapsedTimer startTime={activeSession.start_time} className="text-sm font-bold text-violet-600" />
+          </div>
+        </div>
+      </Card>
+    </Link>
+  )
+}
+
+function HabitsWidget({ habits, habitLogs }) {
+  const { t } = useTranslation()
+  const done = habits.filter(h => habitLogs.some(l => l.habit_id === h.id)).length
+  const pct = habits.length > 0 ? (done / habits.length) * 100 : 0
+  const allDone = habits.length > 0 && done === habits.length
+
+  return (
+    <Link to="/habits">
+      <Card className="hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t('dashboard.habits_today')}</p>
+          <div className="flex items-center gap-1.5">
+            {allDone && <span className="text-sm">🎉</span>}
+            <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{done}</span>
+            <span className="text-sm text-gray-400">/ {habits.length}</span>
+          </div>
+        </div>
+
+        {habits.length > 0 && (
+          <>
+            <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-3">
+              <div
+                className={`h-2 rounded-full transition-all duration-700 ${allDone ? 'bg-green-500' : pct > 0 ? 'bg-amber-400' : 'bg-gray-300'}`}
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {habits.slice(0, 6).map(h => {
+                const isDone = habitLogs.some(l => l.habit_id === h.id)
+                return (
+                  <span
+                    key={h.id}
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-all ${
+                      isDone
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                        : 'bg-gray-100 text-gray-400 dark:bg-gray-800'
+                    }`}
+                  >
+                    {h.emoji} {h.name}
+                  </span>
+                )
+              })}
+            </div>
+          </>
+        )}
+      </Card>
+    </Link>
+  )
+}
+
+function BPWidget({ readings }) {
+  const { t } = useTranslation()
+  const last = readings[0]
+  const bpClass = last ? classifyBP(last.systolic, last.diastolic) : null
+
+  return (
+    <Link to="/blood-pressure">
+      <Card className="h-full hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs text-gray-400 font-medium">Presión</p>
+          <span className="text-base">❤️</span>
+        </div>
+        {last ? (
+          <>
+            <p className="text-xl font-bold text-gray-900 dark:text-gray-100 tabular-nums">{last.systolic}<span className="text-gray-400">/{last.diastolic}</span></p>
+            <p className="text-[10px] text-gray-400 mb-1.5">mmHg</p>
+            {bpClass && <Badge className={`${bpClass.badgeClass} text-[10px]`}>{t(`bp.status_${bpClass.status}`)}</Badge>}
+          </>
+        ) : (
+          <p className="text-sm text-gray-400">{t('dashboard.no_bp')}</p>
+        )}
+      </Card>
+    </Link>
+  )
+}
+
+function WeightDashWidget({ profileId, targetWeight }) {
+  const { latestWeight, logs } = useWeightLogs(profileId)
+  const diff = latestWeight && targetWeight ? Math.round((latestWeight - targetWeight) * 10) / 10 : null
+  const trend = logs.length >= 2 ? Math.round((logs[0].weight_kg - logs[1].weight_kg) * 10) / 10 : null
+
+  return (
+    <Link to="/weight">
+      <Card className="h-full hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs text-gray-400 font-medium">Peso</p>
+          <span className="text-base">⚖️</span>
+        </div>
+        <p className="text-xl font-bold text-gray-900 dark:text-gray-100 tabular-nums">
+          {latestWeight ?? '—'}<span className="text-xs font-normal text-gray-400 ml-0.5">kg</span>
+        </p>
+        {diff !== null && (
+          <p className={`text-xs font-semibold mt-0.5 ${diff === 0 ? 'text-green-500' : diff > 0 ? 'text-amber-500' : 'text-blue-500'}`}>
+            {diff > 0 ? `+${diff}` : diff} kg vs meta
+          </p>
+        )}
+        {trend !== null && (
+          <p className="text-[10px] text-gray-400 mt-0.5">
+            {trend < 0 ? '📉' : '📈'} {Math.abs(trend)} kg vs ayer
+          </p>
+        )}
+      </Card>
+    </Link>
+  )
+}
+
+function DoctorWidget({ questions }) {
+  const { t } = useTranslation()
+  const pending = questions.filter(q => !q.is_checked).length
+  const total = questions.length
+
+  return (
+    <Link to="/doctor-questions">
+      <Card className="h-full hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs text-gray-400 font-medium">Médico</p>
+          <span className="text-base">👨‍⚕️</span>
+        </div>
+        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{pending}</p>
+        <p className="text-[10px] text-gray-400">{t('dashboard.questions_pending')}</p>
+        {total > 0 && (
+          <div className="mt-1.5 h-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full">
+            <div
+              className="h-1 bg-green-400 rounded-full"
+              style={{ width: `${((total - pending) / total) * 100}%` }}
+            />
+          </div>
+        )}
+      </Card>
+    </Link>
+  )
+}
+
+function StreakWidget({ habits, habitLogs }) {
+  const done = habits.filter(h => habitLogs.some(l => l.habit_id === h.id)).length
+  const pct = habits.length > 0 ? Math.round((done / habits.length) * 100) : 0
+
+  return (
+    <Card className="h-full">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-xs text-gray-400 font-medium">Completado hoy</p>
+        <span className="text-base">🔥</span>
+      </div>
+      <p className="text-2xl font-bold text-orange-500">{pct}%</p>
+      <p className="text-[10px] text-gray-400">{done} de {habits.length} hábitos</p>
+    </Card>
+  )
+}
+
+function CoachWidget({ profileId, profile, calTarget, todayCalories, todayLogs, habits, habitLogs, lastBP }) {
+  return (
+    <HealthCoach
+      profileId={profileId}
+      profile={profile}
+      calTarget={calTarget}
+      todayCalories={todayCalories}
+      foodLogs={todayLogs}
+      habits={habits}
+      habitLogs={habitLogs}
+      lastBP={lastBP}
+    />
+  )
+}
+
+// ─────────────────────────────────────────────────────────
+//  EDIT MODE — Widget Card wrapper
+// ─────────────────────────────────────────────────────────
+
+function EditableWidget({ id, children, onHide, onMoveUp, onMoveDown, isFirst, isLast, onDragStart, onDragOver, onDrop, isDragging }) {
+  const meta = WIDGET_CATALOG.find(w => w.id === id)
+
+  return (
+    <div
+      draggable
+      onDragStart={() => onDragStart(id)}
+      onDragOver={e => { e.preventDefault(); onDragOver(id) }}
+      onDrop={e => { e.preventDefault(); onDrop(id) }}
+      className={`relative transition-all duration-150 ${isDragging ? 'opacity-40 scale-[0.98]' : 'opacity-100'}`}
+    >
+      {/* Edit overlay bar */}
+      <div className="absolute -top-0 left-0 right-0 z-20 flex items-center justify-between bg-gray-900/80 backdrop-blur-sm rounded-t-2xl px-3 py-1.5">
+        <div className="flex items-center gap-2">
+          {/* Drag handle */}
+          <div className="cursor-grab active:cursor-grabbing touch-none text-gray-400 hover:text-white transition-colors">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <circle cx="5" cy="4" r="1.5"/><circle cx="11" cy="4" r="1.5"/>
+              <circle cx="5" cy="8" r="1.5"/><circle cx="11" cy="8" r="1.5"/>
+              <circle cx="5" cy="12" r="1.5"/><circle cx="11" cy="12" r="1.5"/>
+            </svg>
+          </div>
+          <span className="text-white text-xs font-semibold">{meta?.label}</span>
+        </div>
+
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => onMoveUp(id)}
+            disabled={isFirst}
+            className="w-6 h-6 flex items-center justify-center text-gray-300 hover:text-white disabled:opacity-30 text-xs transition-colors"
+          >▲</button>
+          <button
+            onClick={() => onMoveDown(id)}
+            disabled={isLast}
+            className="w-6 h-6 flex items-center justify-center text-gray-300 hover:text-white disabled:opacity-30 text-xs transition-colors"
+          >▼</button>
+          <button
+            onClick={() => onHide(id)}
+            className="w-6 h-6 flex items-center justify-center text-red-400 hover:text-red-300 font-bold text-sm ml-0.5 transition-colors"
+          >✕</button>
+        </div>
+      </div>
+
+      {/* Widget content (with top padding for the bar) */}
+      <div className="pt-8">{children}</div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────
+//  DASHBOARD PAGE
+// ─────────────────────────────────────────────────────────
 
 export default function Dashboard() {
   const { t } = useTranslation()
@@ -28,219 +530,237 @@ export default function Dashboard() {
   const { questions } = useDoctorQuestions(activeProfileId)
   const { habits, todayLogs: habitLogs } = useHabits(activeProfileId)
   const { todayCalories, todayLogs } = useFoodLogs(activeProfileId)
+  const {
+    visibleWidgets, hiddenWidgets,
+    moveWidget, hideWidget, showWidget, reorderWidgets, resetAll,
+  } = useDashboardConfig()
+
+  const [editMode, setEditMode] = useState(false)
+  const [dragFrom, setDragFrom] = useState(null)
 
   const profile = profiles.find(p => p.id === activeProfileId)
 
+  // ── Computed values ─────────────────────────────────────
+  const bmr = profile ? calcBMR(profile.weight_kg, profile.height_cm, profile.age, profile.sex) : 0
+  const tdee = profile ? calcTDEE(bmr, profile.activity) : 0
+  const calTarget = profile ? calcCalorieTarget(tdee, profile.health_goal) : 0
+  const lastBP = readings[0]
+
+  // ── Drag handlers ───────────────────────────────────────
+  const handleDragStart = useCallback((id) => setDragFrom(id), [])
+  const handleDragOver = useCallback(() => {}, [])
+  const handleDrop = useCallback((toId) => {
+    if (dragFrom && dragFrom !== toId) reorderWidgets(dragFrom, toId)
+    setDragFrom(null)
+  }, [dragFrom, reorderWidgets])
+
+  // ── Widget renderer ─────────────────────────────────────
+  const renderWidget = (id) => {
+    if (!profile) return null
+    const waterGoal = profile.water_goal_ml || 2000
+
+    switch (id) {
+      case 'calories':
+        return <CaloriesWidget todayCalories={todayCalories} calTarget={calTarget} profile={profile} />
+      case 'quick_actions':
+        return <QuickActionsWidget />
+      case 'meals':
+        return <MealsWidget todayLogs={todayLogs} calTarget={calTarget} />
+      case 'macros':
+        return <MacrosWidget todayLogs={todayLogs} calTarget={calTarget} />
+      case 'water':
+        return <WaterDashWidget profileId={activeProfileId} waterGoalMl={waterGoal} />
+      case 'fasting':
+        return <FastingDashWidget profileId={activeProfileId} />
+      case 'habits':
+        return <HabitsWidget habits={habits} habitLogs={habitLogs} />
+      case 'coach':
+        return <CoachWidget profileId={activeProfileId} profile={profile} calTarget={calTarget}
+          todayCalories={todayCalories} todayLogs={todayLogs} habits={habits} habitLogs={habitLogs} lastBP={lastBP} />
+      case 'bp':
+        return <BPWidget readings={readings} />
+      case 'weight':
+        return <WeightDashWidget profileId={activeProfileId} targetWeight={profile.target_weight_kg} />
+      case 'doctor':
+        return <DoctorWidget questions={questions} />
+      case 'streak':
+        return <StreakWidget habits={habits} habitLogs={habitLogs} />
+      default:
+        return null
+    }
+  }
+
+  // ── Group half-width widgets into pairs ─────────────────
+  const groupWidgets = (ids) => {
+    const result = []
+    let i = 0
+    while (i < ids.length) {
+      const meta = WIDGET_CATALOG.find(w => w.id === ids[i])
+      if (meta?.size === 'half') {
+        // Look for next half-width widget
+        const nextMeta = i + 1 < ids.length ? WIDGET_CATALOG.find(w => w.id === ids[i + 1]) : null
+        if (nextMeta?.size === 'half') {
+          result.push({ type: 'pair', ids: [ids[i], ids[i + 1]] })
+          i += 2
+        } else {
+          result.push({ type: 'single', id: ids[i] })
+          i++
+        }
+      } else {
+        result.push({ type: 'single', id: ids[i] })
+        i++
+      }
+    }
+    return result
+  }
+
+  // ── Loading / empty states ──────────────────────────────
   if (loading) return <div className="flex justify-center py-12"><Spinner /></div>
 
   if (!profile) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center gap-4">
-        <span className="text-6xl">💚</span>
-        <h1 className="text-2xl font-bold text-gray-900">{t('app_title')}</h1>
-        <p className="text-gray-500 max-w-xs">{t('dashboard.select_profile')}</p>
+      <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
+        <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-5xl shadow-lg shadow-primary-500/30">
+          💚
+        </div>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('app_title')}</h1>
+        <p className="text-gray-500 max-w-xs text-sm">{t('dashboard.select_profile')}</p>
       </div>
     )
   }
 
-  const bmr = calcBMR(profile.weight_kg, profile.height_cm, profile.age, profile.sex)
-  const tdee = calcTDEE(bmr, profile.activity)
-  const calTarget = calcCalorieTarget(tdee, profile.health_goal)
-
-  const lastBP = readings[0]
-  const bpClass = lastBP ? classifyBP(lastBP.systolic, lastBP.diastolic) : null
-  const bpStatusKey = bpClass ? `bp.status_${bpClass.status}` : null
-
-  const pendingQuestions = questions.filter(q => !q.is_checked).length
-  const completedHabits = habits.filter(h => habitLogs.some(l => l.habit_id === h.id)).length
-  const habitProgress = habits.length > 0 ? (completedHabits / habits.length) * 100 : 0
-
-  const calorieStatus = getCalorieStatus(todayCalories, calTarget)
-  const calColors = CALORIE_COLORS[calorieStatus]
-  const caloriePercent = calTarget > 0 ? Math.min((todayCalories / calTarget) * 100, 100) : 0
-  const caloriesLeft = calTarget - todayCalories
-
-  const loggedMeals = new Set(todayLogs.map(l => l.meal_type))
-  const mealCalories = (mealType) => todayLogs
-    .filter(l => l.meal_type === mealType)
-    .reduce((sum, l) => sum + (l.calories_estimated || 0), 0)
-
-  const motivationKey = todayCalories === 0
-    ? 'dashboard.motivation_empty'
-    : calorieStatus === 'over' ? 'dashboard.motivation_over'
-    : calorieStatus === 'warn' ? 'dashboard.motivation_warn'
-    : 'dashboard.motivation_ok'
-
-  const goalKey = profile.health_goal === 'lose_weight'
-    ? 'dashboard.goal_lose_weight'
-    : profile.health_goal === 'gain_muscle'
-    ? 'dashboard.goal_gain_muscle'
-    : 'dashboard.goal_maintain'
-
-  const goalBadgeClass = profile.health_goal === 'lose_weight'
-    ? 'bg-blue-100 text-blue-700'
-    : profile.health_goal === 'gain_muscle'
-    ? 'bg-purple-100 text-purple-700'
-    : 'bg-green-100 text-green-700'
+  const groups = groupWidgets(visibleWidgets)
 
   return (
     <div className="flex flex-col gap-4">
 
-      {/* Bloque 1 — Header */}
+      {/* ── HEADER ─────────────────────────────────────────── */}
       <div className="flex items-center gap-3">
         <Link to={`/profiles/${profile.id}/edit`}>
-          <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-xl hover:ring-2 hover:ring-primary-400 transition-all">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-primary-500/20 hover:scale-105 active:scale-95 transition-transform">
             {profile.name[0].toUpperCase()}
           </div>
         </Link>
-        <div>
-          <p className="text-sm text-gray-500">{t('dashboard.welcome')}</p>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">{profile.name}</h1>
+        <div className="flex-1">
+          <p className="text-xs text-gray-400">{t('dashboard.welcome')}</p>
+          <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100 leading-tight">{profile.name}</h1>
         </div>
-      </div>
-
-      {/* Bloque 2 — Tarjeta principal de calorías */}
-      <Card>
-        <div className="flex items-start justify-between mb-3">
-          <div>
-            <p className="text-sm text-gray-500 font-medium mb-1">{t('dashboard.calories_today')}</p>
-            <p className={`text-4xl font-bold ${calColors.text}`}>
-              {todayCalories}
-              <span className="text-lg font-normal text-gray-400"> / {calTarget} kcal</span>
-              {calorieStatus === 'over' && <span className="ml-1 text-lg">⚠️</span>}
-            </p>
-            <p className="text-sm text-gray-500 mt-1">{t(motivationKey)}</p>
-          </div>
-          <Badge className={goalBadgeClass}>{t(goalKey)}</Badge>
-        </div>
-        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-2">
-          <div
-            className={`h-3 rounded-full transition-all duration-500 ${calColors.bar}`}
-            style={{ width: `${caloriePercent}%` }}
-          />
-        </div>
-        <p className="text-xs text-gray-400">
-          {calorieStatus === 'over'
-            ? t('dashboard.calories_over', { n: Math.abs(caloriesLeft) })
-            : t('dashboard.calories_remaining', { n: caloriesLeft })}
-        </p>
-      </Card>
-
-      {/* Bloque 3 — Botón de acción rápida */}
-      <Link to="/food">
-        <Button className="w-full py-4 text-base">🍽️ {t('dashboard.log_food_btn')}</Button>
-      </Link>
-
-      {/* Bloque 4 — Grid 2x2 de comidas */}
-      <div className="grid grid-cols-2 gap-3">
-        {MEAL_TYPES.map(meal => {
-          const hasLogs = loggedMeals.has(meal)
-          const kcal = mealCalories(meal)
-          return (
-            <Link key={meal} to="/food">
-              <Card className={`hover:shadow-lg transition-shadow ${hasLogs ? 'border-2 border-primary-400' : 'border-2 border-dashed border-gray-200 dark:border-gray-600'}`}>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xl">{MEAL_ICONS[meal]}</span>
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-200">{t(`food.${meal}`)}</p>
-                </div>
-                {hasLogs ? (
-                  <p className="text-sm font-bold text-primary-600">{kcal} kcal</p>
-                ) : (
-                  <p className="text-xs text-gray-400">{t('dashboard.meal_missing')}</p>
-                )}
-              </Card>
-            </Link>
-          )
-        })}
-      </div>
-
-      {/* Bloque 4b — Macros del día */}
-      <MacroDashboardCard calTarget={calTarget} todayLogs={todayLogs} />
-
-      {/* Bloque 4c — Agua y Ayuno widgets */}
-      <WaterWidget profileId={activeProfileId} waterGoalMl={profile.water_goal_ml || 2000} />
-      <FastingWidget profileId={activeProfileId} />
-
-      {/* Bloque 5 — Coach IA */}
-      <HealthCoach
-        profileId={activeProfileId}
-        profile={profile}
-        calTarget={calTarget}
-        todayCalories={todayCalories}
-        foodLogs={todayLogs}
-        habits={habits}
-        habitLogs={habitLogs}
-        lastBP={lastBP}
-      />
-
-      {/* Bloque 6 — Habits */}
-      <Link to="/habits">
-        <Card className="hover:shadow-lg transition-shadow">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-gray-500 font-medium">{t('dashboard.habits_today')}</p>
-            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-              {completedHabits}<span className="text-gray-400"> / {habits.length}</span>
-            </p>
-          </div>
-          {habits.length > 0 && (
+        <button
+          onClick={() => setEditMode(e => !e)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            editMode
+              ? 'bg-primary-600 text-white shadow-md shadow-primary-500/30'
+              : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+          }`}
+        >
+          {editMode ? (
             <>
-              <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-2">
-                <div
-                  className={`h-2 rounded-full transition-all ${habitProgress >= 100 ? 'bg-green-500' : habitProgress > 0 ? 'bg-amber-500' : 'bg-gray-300'}`}
-                  style={{ width: `${habitProgress}%` }}
-                />
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {habits.slice(0, 5).map(h => {
-                  const done = habitLogs.some(l => l.habit_id === h.id)
-                  return (
-                    <span
-                      key={h.id}
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-                        done ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-400'
-                      }`}
-                    >
-                      {h.emoji} {h.name}
-                    </span>
-                  )
-                })}
-              </div>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><path d="M10 2L5 9l-3-3" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              Listo
+            </>
+          ) : (
+            <>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8.5 1.5l2 2L3 11H1V9l7.5-7.5z"/>
+              </svg>
+              Editar
             </>
           )}
-        </Card>
-      </Link>
-
-      {/* Bloque 7 — Métricas secundarias */}
-      <div className="grid grid-cols-2 gap-3">
-        <Link to="/blood-pressure">
-          <Card className="hover:shadow-lg transition-shadow h-full">
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-xs text-gray-500 font-medium">{t('dashboard.last_bp')}</p>
-              <span className="text-lg">❤️</span>
-            </div>
-            {lastBP ? (
-              <>
-                <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{lastBP.systolic}/{lastBP.diastolic}</p>
-                <p className="text-xs text-gray-400 mb-1">{t('bp.mmhg')}</p>
-                {bpClass && <Badge className={bpClass.badgeClass}>{t(bpStatusKey)}</Badge>}
-              </>
-            ) : (
-              <p className="text-sm text-gray-400">{t('dashboard.no_bp')}</p>
-            )}
-          </Card>
-        </Link>
-
-        <Link to="/doctor-questions">
-          <Card className="hover:shadow-lg transition-shadow h-full">
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-xs text-gray-500 font-medium">{t('dashboard.doctor_questions')}</p>
-              <span className="text-lg">👨‍⚕️</span>
-            </div>
-            <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{pendingQuestions}</p>
-            <p className="text-xs text-gray-400">{t('dashboard.questions_pending')}</p>
-          </Card>
-        </Link>
+        </button>
       </div>
+
+      {/* ── EDIT MODE BANNER ───────────────────────────────── */}
+      {editMode && (
+        <div className="flex items-center gap-3 px-4 py-3 bg-primary-50 dark:bg-primary-900/20 rounded-2xl border border-primary-100 dark:border-primary-800">
+          <span className="text-lg">✏️</span>
+          <div className="flex-1">
+            <p className="text-xs font-semibold text-primary-700 dark:text-primary-300">Modo edición</p>
+            <p className="text-[11px] text-primary-600/70 dark:text-primary-400/70">Arrastra, reordena u oculta widgets</p>
+          </div>
+          <button
+            onClick={resetAll}
+            className="text-[11px] font-semibold text-primary-600 dark:text-primary-400 border border-primary-200 dark:border-primary-700 px-2.5 py-1 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/40 transition-colors"
+          >
+            Restablecer
+          </button>
+        </div>
+      )}
+
+      {/* ── VISIBLE WIDGETS ────────────────────────────────── */}
+      {groups.map((group, gi) => {
+        if (group.type === 'pair') {
+          return (
+            <div key={group.ids.join('-')} className="grid grid-cols-2 gap-3">
+              {group.ids.map((id, ii) => {
+                const absIndex = visibleWidgets.indexOf(id)
+                const content = renderWidget(id)
+                if (!content) return null
+                return editMode ? (
+                  <EditableWidget
+                    key={id} id={id}
+                    onHide={hideWidget}
+                    onMoveUp={moveWidget} onMoveDown={moveWidget}
+                    isFirst={absIndex === 0} isLast={absIndex === visibleWidgets.length - 1}
+                    onDragStart={handleDragStart} onDragOver={handleDragOver} onDrop={handleDrop}
+                    isDragging={dragFrom === id}
+                  >
+                    {content}
+                  </EditableWidget>
+                ) : (
+                  <div key={id}>{content}</div>
+                )
+              })}
+            </div>
+          )
+        }
+
+        const { id } = group
+        const absIndex = visibleWidgets.indexOf(id)
+        const content = renderWidget(id)
+        if (!content) return null
+
+        return editMode ? (
+          <EditableWidget
+            key={id} id={id}
+            onHide={hideWidget}
+            onMoveUp={(wid) => moveWidget(wid, 'up')}
+            onMoveDown={(wid) => moveWidget(wid, 'down')}
+            isFirst={absIndex === 0} isLast={absIndex === visibleWidgets.length - 1}
+            onDragStart={handleDragStart} onDragOver={handleDragOver} onDrop={handleDrop}
+            isDragging={dragFrom === id}
+          >
+            {content}
+          </EditableWidget>
+        ) : (
+          <div key={id}>{content}</div>
+        )
+      })}
+
+      {/* ── ADD HIDDEN WIDGETS (edit mode) ─────────────────── */}
+      {editMode && hiddenWidgets.length > 0 && (
+        <div>
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3 px-1">Agregar widgets</p>
+          <div className="grid grid-cols-2 gap-2.5">
+            {hiddenWidgets.map(id => {
+              const meta = WIDGET_CATALOG.find(w => w.id === id)
+              if (!meta) return null
+              return (
+                <button
+                  key={id}
+                  onClick={() => showWidget(id)}
+                  className="flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 text-left hover:border-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 dark:hover:border-primary-700 transition-all group"
+                >
+                  <span className="text-2xl">{meta.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 leading-tight">{meta.label}</p>
+                  </div>
+                  <span className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 group-hover:bg-primary-500 text-gray-500 group-hover:text-white flex items-center justify-center text-sm font-bold transition-all">+</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
     </div>
   )

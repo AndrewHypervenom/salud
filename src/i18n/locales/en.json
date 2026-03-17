@@ -18,7 +18,9 @@
     "fasting": "Fasting",
     "recipes": "Recipes",
     "food_search": "Search Food",
-    "badges": "Achievements"
+    "badges": "Achievements",
+    "customize_title": "Customize bar",
+    "customize_hint": "Choose the 3 center icons"
   },
   "profile": {
     "select": "Select profile",

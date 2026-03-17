@@ -1,0 +1,160 @@
+import { useState, useCallback, useEffect } from 'react'
+
+// ── Catálogo completo de widgets disponibles ──────────────────────────────────
+export const WIDGET_CATALOG = [
+  { id: 'calories',      label: 'Calorías',         icon: '🔥', size: 'full' },
+  { id: 'quick_actions', label: 'Acciones rápidas',  icon: '⚡', size: 'full' },
+  { id: 'meals',         label: 'Comidas del día',   icon: '🍽️', size: 'full' },
+  { id: 'macros',        label: 'Macronutrientes',   icon: '📊', size: 'full' },
+  { id: 'water',         label: 'Hidratación',       icon: '💧', size: 'half' },
+  { id: 'fasting',       label: 'Ayuno',             icon: '⚡', size: 'half' },
+  { id: 'habits',        label: 'Hábitos',           icon: '✅', size: 'full' },
+  { id: 'coach',         label: 'Coach IA',          icon: '🤖', size: 'full' },
+  { id: 'bp',            label: 'Presión arterial',  icon: '❤️', size: 'half' },
+  { id: 'weight',        label: 'Peso',              icon: '⚖️', size: 'half' },
+  { id: 'doctor',        label: 'Preguntas médico',  icon: '👨‍⚕️', size: 'half' },
+  { id: 'streak',        label: 'Racha de hábitos',  icon: '🔥', size: 'half' },
+]
+
+// ── Catálogo completo de rutas personalizables en nav ─────────────────────────
+export const NAV_CATALOG = [
+  { key: 'food',             to: '/food',             label: 'nav.food',             icon: '🍽️' },
+  { key: 'habits',           to: '/habits',           label: 'nav.habits',           icon: '✅' },
+  { key: 'blood-pressure',   to: '/blood-pressure',   label: 'nav.blood_pressure',   icon: '❤️' },
+  { key: 'progress',         to: '/progress',         label: 'nav.progress',         icon: '📈' },
+  { key: 'water',            to: '/water',            label: 'nav.water',            icon: '💧' },
+  { key: 'weight',           to: '/weight',           label: 'nav.weight',           icon: '⚖️' },
+  { key: 'fasting',          to: '/fasting',          label: 'nav.fasting',          icon: '⚡' },
+  { key: 'recipes',          to: '/recipes',          label: 'nav.recipes',          icon: '👨‍🍳' },
+  { key: 'food-search',      to: '/food-search',      label: 'nav.food_search',      icon: '🔍' },
+  { key: 'badges',           to: '/badges',           label: 'nav.badges',           icon: '🏆' },
+  { key: 'calories',         to: '/calories',         label: 'nav.calories',         icon: '🔥' },
+  { key: 'diet',             to: '/diet',             label: 'nav.diet',             icon: '🥗' },
+  { key: 'exercise',         to: '/exercise',         label: 'nav.exercise',         icon: '🏃' },
+  { key: 'doctor-questions', to: '/doctor-questions', label: 'nav.doctor_questions', icon: '👨‍⚕️' },
+  { key: 'profiles',         to: '/profiles',         label: 'nav.profiles',         icon: '👥' },
+]
+
+const DEFAULT_WIDGETS  = ['calories', 'quick_actions', 'meals', 'macros', 'water', 'fasting', 'habits', 'coach', 'bp', 'weight', 'doctor']
+const DEFAULT_SHORTCUTS = ['habits', 'food', 'blood-pressure']
+const STORAGE_W = 'dashboard_widget_order_v2'
+const STORAGE_N = 'nav_shortcuts_v2'
+
+function loadWidgets() {
+  try {
+    const raw = localStorage.getItem(STORAGE_W)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      // Ensure any new widgets are appended as hidden if not present
+      const known = new Set(parsed.visible.concat(parsed.hidden))
+      const newWidgets = WIDGET_CATALOG.map(w => w.id).filter(id => !known.has(id))
+      return { visible: parsed.visible, hidden: [...parsed.hidden, ...newWidgets] }
+    }
+  } catch {}
+  const allIds = WIDGET_CATALOG.map(w => w.id)
+  return {
+    visible: DEFAULT_WIDGETS.filter(id => allIds.includes(id)),
+    hidden: allIds.filter(id => !DEFAULT_WIDGETS.includes(id)),
+  }
+}
+
+function loadShortcuts() {
+  try {
+    const raw = localStorage.getItem(STORAGE_N)
+    if (raw) return JSON.parse(raw)
+  } catch {}
+  return DEFAULT_SHORTCUTS
+}
+
+export function useDashboardConfig() {
+  const [config, setConfig] = useState(() => loadWidgets())
+  const [shortcuts, setShortcutsState] = useState(() => loadShortcuts())
+
+  // Persist on every change
+  useEffect(() => {
+    localStorage.setItem(STORAGE_W, JSON.stringify(config))
+  }, [config])
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_N, JSON.stringify(shortcuts))
+  }, [shortcuts])
+
+  // Move widget up or down
+  const moveWidget = useCallback((id, dir) => {
+    setConfig(prev => {
+      const arr = [...prev.visible]
+      const i = arr.indexOf(id)
+      if (i === -1) return prev
+      if (dir === 'up' && i === 0) return prev
+      if (dir === 'down' && i === arr.length - 1) return prev
+      const swap = dir === 'up' ? i - 1 : i + 1
+      ;[arr[i], arr[swap]] = [arr[swap], arr[i]]
+      return { ...prev, visible: arr }
+    })
+  }, [])
+
+  // Drag & drop reorder
+  const reorderWidgets = useCallback((fromId, toId) => {
+    if (fromId === toId) return
+    setConfig(prev => {
+      const arr = [...prev.visible]
+      const from = arr.indexOf(fromId)
+      const to = arr.indexOf(toId)
+      if (from === -1 || to === -1) return prev
+      arr.splice(from, 1)
+      arr.splice(to, 0, fromId)
+      return { ...prev, visible: arr }
+    })
+  }, [])
+
+  // Hide widget (move to hidden)
+  const hideWidget = useCallback((id) => {
+    setConfig(prev => ({
+      visible: prev.visible.filter(w => w !== id),
+      hidden: [...prev.hidden, id],
+    }))
+  }, [])
+
+  // Show widget (move to visible, append at end)
+  const showWidget = useCallback((id) => {
+    setConfig(prev => ({
+      visible: [...prev.visible, id],
+      hidden: prev.hidden.filter(w => w !== id),
+    }))
+  }, [])
+
+  // Update nav shortcuts (3-slot array)
+  const setShortcuts = useCallback((newShortcuts) => {
+    setShortcutsState(newShortcuts.slice(0, 3))
+  }, [])
+
+  const setShortcutAt = useCallback((index, key) => {
+    setShortcutsState(prev => {
+      const next = [...prev]
+      next[index] = key
+      return next
+    })
+  }, [])
+
+  const resetAll = useCallback(() => {
+    const allIds = WIDGET_CATALOG.map(w => w.id)
+    setConfig({
+      visible: DEFAULT_WIDGETS.filter(id => allIds.includes(id)),
+      hidden: allIds.filter(id => !DEFAULT_WIDGETS.includes(id)),
+    })
+    setShortcutsState(DEFAULT_SHORTCUTS)
+  }, [])
+
+  return {
+    visibleWidgets: config.visible,
+    hiddenWidgets: config.hidden,
+    shortcuts,
+    moveWidget,
+    reorderWidgets,
+    hideWidget,
+    showWidget,
+    setShortcuts,
+    setShortcutAt,
+    resetAll,
+  }
+}
