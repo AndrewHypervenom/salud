@@ -12,6 +12,7 @@ import { Card } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
 import { Button } from '../components/ui/Button'
 import { Spinner } from '../components/ui/Spinner'
+import { HealthCoach } from '../components/shared/HealthCoach'
 
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack']
 const MEAL_ICONS = { breakfast: '🌅', lunch: '☀️', dinner: '🌙', snack: '🍎' }
@@ -150,7 +151,18 @@ export default function Dashboard() {
         })}
       </div>
 
-      {/* Bloque 5 — Hábitos */}
+      {/* Bloque 5 — Coach IA */}
+      <HealthCoach
+        profile={profile}
+        calTarget={calTarget}
+        todayCalories={todayCalories}
+        foodLogs={todayLogs}
+        habits={habits}
+        habitLogs={habitLogs}
+        lastBP={lastBP}
+      />
+
+      {/* Bloque 6 — Habits */}
       <Link to="/habits">
         <Card className="hover:shadow-lg transition-shadow">
           <div className="flex items-center justify-between mb-2">
@@ -187,7 +199,7 @@ export default function Dashboard() {
         </Card>
       </Link>
 
-      {/* Bloque 6 — Métricas secundarias */}
+      {/* Bloque 7 — Métricas secundarias */}
       <div className="grid grid-cols-2 gap-3">
         <Link to="/blood-pressure">
           <Card className="hover:shadow-lg transition-shadow h-full">
