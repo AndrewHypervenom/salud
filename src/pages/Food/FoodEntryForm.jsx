@@ -19,6 +19,8 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
   const [imageUrl, setImageUrl] = useState(null)
   const [analyzing, setAnalyzing] = useState(false)
   const [aiUsed, setAiUsed] = useState(false)
+  const [aiDescription, setAiDescription] = useState('')
+  const [recalculating, setRecalculating] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
 
@@ -56,13 +58,36 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
       })
       if (fnErr) throw new Error(fnErr.message)
 
-      if (data?.description) setDescription(data.description)
+      if (data?.description) {
+        setDescription(data.description)
+        setAiDescription(data.description)
+      }
       if (data?.calories_estimated) setCalories(String(data.calories_estimated))
       setAiUsed(true)
     } catch (e) {
       setError(e.message)
     } finally {
       setAnalyzing(false)
+    }
+  }
+
+  const handleRecalculate = async () => {
+    if (!description.trim()) return
+    setRecalculating(true)
+    setError(null)
+    try {
+      const { data, error: fnErr } = await supabase.functions.invoke('analyze-food', {
+        body: { description: description.trim() },
+      })
+      if (fnErr) throw new Error(fnErr.message)
+      if (data?.calories_estimated) {
+        setCalories(String(data.calories_estimated))
+        setAiDescription(description.trim())
+      }
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setRecalculating(false)
     }
   }
 
@@ -84,6 +109,8 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
       setSaving(false)
     }
   }
+
+  const descriptionChanged = aiUsed && description.trim() !== aiDescription.trim()
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -173,6 +200,19 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
           className="px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-primary-500"
         />
       </div>
+
+      {descriptionChanged && (
+        <button
+          type="button"
+          onClick={handleRecalculate}
+          disabled={recalculating}
+          className="w-full py-2.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-semibold text-sm shadow-md shadow-orange-500/20 hover:scale-[1.02] transition-all disabled:opacity-40 disabled:scale-100 flex items-center justify-center gap-2"
+        >
+          {recalculating
+            ? <><Spinner size="sm" /> {t('food.recalculating')}</>
+            : `🔄 ${t('food.recalculate_calories')}`}
+        </button>
+      )}
 
       {/* Calories */}
       <div className={`flex flex-col gap-1 ${aiUsed ? 'animate-fade-in-up' : ''}`}>

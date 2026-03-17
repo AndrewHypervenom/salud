@@ -298,7 +298,9 @@
     "step_reading": "Reading image...",
     "step_identifying": "Identifying foods...",
     "step_calculating": "Calculating nutrition...",
-    "step_preparing": "Preparing results..."
+    "step_preparing": "Preparing results...",
+    "recalculate_calories": "Recalculate calories",
+    "recalculating": "Recalculating..."
   },
   "whatsapp": {
     "title": "WhatsApp Alerts",

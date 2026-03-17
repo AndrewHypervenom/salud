@@ -12,14 +12,29 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { imageUrl } = await req.json()
+    const { imageUrl, description: textDescription } = await req.json()
 
-    if (!imageUrl) {
+    if (!imageUrl && !textDescription) {
       return new Response(
-        JSON.stringify({ error: 'imageUrl is required' }),
+        JSON.stringify({ error: 'imageUrl or description is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
       )
     }
+
+    const messageContent = imageUrl
+      ? [
+          { type: 'image_url', image_url: { url: imageUrl } },
+          {
+            type: 'text',
+            text: 'Analiza esta comida y responde SOLO con JSON válido sin texto adicional ni markdown: {"foods":["nombre del alimento"],"description":"descripción breve de la comida","calories_estimated":número_entero}',
+          },
+        ]
+      : [
+          {
+            type: 'text',
+            text: `Estima las calorías de esta comida y responde SOLO con JSON válido sin texto adicional ni markdown: {"foods":["nombre del alimento"],"description":"${textDescription}","calories_estimated":número_entero}. La comida es: ${textDescription}`,
+          },
+        ]
 
     const groqRes = await fetch(GROQ_API_URL, {
       method: 'POST',
@@ -32,13 +47,7 @@ Deno.serve(async (req: Request) => {
         messages: [
           {
             role: 'user',
-            content: [
-              { type: 'image_url', image_url: { url: imageUrl } },
-              {
-                type: 'text',
-                text: 'Analiza esta comida y responde SOLO con JSON válido sin texto adicional ni markdown: {"foods":["nombre del alimento"],"description":"descripción breve de la comida","calories_estimated":número_entero}',
-              },
-            ],
+            content: messageContent,
           },
         ],
         max_tokens: 256,
