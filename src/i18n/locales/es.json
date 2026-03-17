@@ -347,6 +347,11 @@
     "add": "Agregar",
     "no_habits": "Sin hábitos configurados",
     "seed_defaults": "Crear hábitos predeterminados",
+    "default_medication": "Tomar medicamento",
+    "default_water": "Beber 8 vasos de agua",
+    "default_walk": "Caminar 30 minutos",
+    "default_sleep": "Dormir 7-8 horas",
+    "default_log_meals": "Registrar comidas",
     "delete_confirm": "¿Eliminar este hábito?",
     "all_done": "¡Todos los hábitos completados! 🎉",
     "no_profile": "Selecciona un perfil para ver tus hábitos."

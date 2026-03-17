@@ -1,14 +1,15 @@
 import { useState, useEffect, useCallback } from 'react'
+import i18next from 'i18next'
 import { supabase } from '../lib/supabase'
 
 const todayDate = () => new Date().toLocaleDateString('en-CA')
 
-const DEFAULT_HABITS = [
-  { name: 'Tomar medicamento', emoji: '💊', sort_order: 0 },
-  { name: 'Beber 8 vasos de agua', emoji: '💧', sort_order: 1 },
-  { name: 'Caminar 30 minutos', emoji: '🚶', sort_order: 2 },
-  { name: 'Dormir 7-8 horas', emoji: '😴', sort_order: 3 },
-  { name: 'Registrar comidas', emoji: '🍽️', sort_order: 4 },
+const DEFAULT_HABIT_KEYS = [
+  { nameKey: 'habits.default_medication', emoji: '💊', sort_order: 0 },
+  { nameKey: 'habits.default_water',      emoji: '💧', sort_order: 1 },
+  { nameKey: 'habits.default_walk',       emoji: '🚶', sort_order: 2 },
+  { nameKey: 'habits.default_sleep',      emoji: '😴', sort_order: 3 },
+  { nameKey: 'habits.default_log_meals',  emoji: '🍽️', sort_order: 4 },
 ]
 
 export function useHabits(profileId) {
@@ -95,9 +96,15 @@ export function useHabits(profileId) {
 
   const seedDefaultHabits = async (pid) => {
     const targetId = pid || profileId
+    const habits = DEFAULT_HABIT_KEYS.map(h => ({
+      name: i18next.t(h.nameKey),
+      emoji: h.emoji,
+      sort_order: h.sort_order,
+      profile_id: targetId,
+    }))
     const { data, error: err } = await supabase
       .from('habits')
-      .insert(DEFAULT_HABITS.map(h => ({ ...h, profile_id: targetId })))
+      .insert(habits)
       .select()
     if (err) throw err
     if (pid === profileId || !pid) setHabits(data || [])

@@ -347,6 +347,11 @@
     "add": "Add",
     "no_habits": "No habits configured",
     "seed_defaults": "Create default habits",
+    "default_medication": "Take medication",
+    "default_water": "Drink 8 glasses of water",
+    "default_walk": "Walk 30 minutes",
+    "default_sleep": "Sleep 7-8 hours",
+    "default_log_meals": "Log meals",
     "delete_confirm": "Delete this habit?",
     "all_done": "All habits completed! 🎉",
     "no_profile": "Select a profile to see your habits."
