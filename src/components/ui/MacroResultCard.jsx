@@ -8,9 +8,10 @@ const MACRO_CONFIG = [
 ]
 
 const STATUS_COLOR = {
-  ok:      '#22c55e',
-  warning: '#f59e0b',
-  excess:  '#ef4444',
+  ok:      '#22c55e', // verde  — dentro del rango
+  warning: '#f59e0b', // ámbar  — límite
+  excess:  '#ef4444', // rojo   — demasiado
+  low:     '#a78bfa', // violeta — insuficiente
 }
 
 // Semáforo basado en % del objetivo diario del usuario consumido en esta comida
@@ -19,13 +20,20 @@ function getMacroStatus(key, mealGrams, dailyGrams) {
   const pct = (mealGrams / dailyGrams) * 100
 
   if (key === 'fiber_g') {
-    // Fibra: más es mejor — ≥20% del diario por comida = bien
+    // Fibra: más es mejor
     if (pct >= 20) return 'ok'
     if (pct >= 10) return 'warning'
-    return 'excess' // reutilizamos "excess" como "insuficiente"
+    return 'low' // insuficiente — violeta
   }
 
-  // Fat, protein, carbs: una comida debería usar ~25-40% del presupuesto diario
+  if (key === 'protein_g') {
+    // Proteínas: si muy bajas, es insuficiente (no exceso)
+    if (pct <= 45) return 'ok'
+    if (pct <= 65) return 'warning'
+    return 'excess'
+  }
+
+  // Fat, carbs: una comida debería usar ~25-45% del presupuesto diario
   if (pct <= 45) return 'ok'
   if (pct <= 65) return 'warning'
   return 'excess'
@@ -38,11 +46,11 @@ function getMacroStatusFromCalPct(key, calPct) {
     case 'fat_g':
       return calPct <= 35 ? 'ok' : calPct <= 45 ? 'warning' : 'excess'
     case 'protein_g':
-      return calPct >= 15 ? 'ok' : calPct >= 10 ? 'warning' : 'excess'
+      return calPct >= 15 ? 'ok' : calPct >= 10 ? 'warning' : 'low'
     case 'carbs_g':
       return calPct >= 40 && calPct <= 65 ? 'ok' : calPct > 75 ? 'excess' : 'warning'
     case 'fiber_g':
-      return null // sin datos diarios no podemos juzgar fibra por %
+      return null
     default:
       return null
   }
@@ -177,8 +185,8 @@ export function MacroResultCard({ imagePreview, description, calories, macros, d
       {/* Leyenda + recomendación */}
       {macros && (
         <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-3 justify-center">
-            {[['ok', 'OK'], ['warning', 'Límite'], ['excess', 'Exceso/bajo']].map(([s, label]) => (
+          <div className="flex items-center gap-3 justify-center flex-wrap">
+            {[['ok', 'OK'], ['warning', 'Límite'], ['excess', 'Exceso'], ['low', 'Insuficiente']].map(([s, label]) => (
               <div key={s} className="flex items-center gap-1">
                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: STATUS_COLOR[s] }} />
                 <span className="text-[10px] text-gray-400">{label}</span>
