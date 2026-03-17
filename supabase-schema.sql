@@ -64,12 +64,15 @@ create index bp_readings_measured_at_idx on blood_pressure_readings(measured_at 
 create index doctor_questions_profile_id_idx on doctor_questions(profile_id);
 
 -- -------------------------------------------------------------
--- WhatsApp (CallMeBot) — campos en profiles
+-- Migraciones — ejecutar en Supabase SQL Editor si la tabla ya existe
 -- -------------------------------------------------------------
 -- ALTER TABLE profiles
 --   ADD COLUMN IF NOT EXISTS phone_whatsapp    TEXT,
 --   ADD COLUMN IF NOT EXISTS callmebot_api_key TEXT;
--- (Ejecutar en Supabase SQL Editor si la tabla ya existe)
+
+-- ALTER TABLE profiles
+--   ADD COLUMN IF NOT EXISTS health_goal TEXT NOT NULL DEFAULT 'maintain'
+--   CHECK (health_goal IN ('lose_weight', 'maintain', 'gain_muscle'));
 
 -- -------------------------------------------------------------
 -- Hábitos diarios
