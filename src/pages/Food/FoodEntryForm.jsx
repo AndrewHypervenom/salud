@@ -211,6 +211,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
 
       {showResultCard ? (
         <MacroResultCard
+          imagePreview={imagePreview}
           description={description}
           calories={calories ? parseInt(calories) : null}
           macros={aiMacros}
