@@ -300,7 +300,9 @@
     "step_calculating": "Calculando nutrición...",
     "step_preparing": "Preparando resultados...",
     "recalculate_calories": "Recalcular calorías",
-    "recalculating": "Recalculando..."
+    "recalculating": "Recalculando...",
+    "calculate_calories": "Calcular calorías con IA",
+    "calculating": "Calculando..."
   },
   "whatsapp": {
     "title": "Alertas WhatsApp",

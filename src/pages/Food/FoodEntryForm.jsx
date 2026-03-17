@@ -90,6 +90,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
         setCalories(cal)
         setAiCalories(cal)
         setAiDescription(description.trim())
+        setAiUsed(true)
       }
     } catch (e) {
       setError(e.message)
@@ -212,6 +213,19 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
           className="px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-primary-500"
         />
       </div>
+
+      {!aiUsed && description.trim() && (
+        <button
+          type="button"
+          onClick={handleRecalculate}
+          disabled={recalculating}
+          className="w-full py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-semibold text-sm shadow-md shadow-blue-500/20 hover:scale-[1.02] transition-all disabled:opacity-40 disabled:scale-100 flex items-center justify-center gap-2"
+        >
+          {recalculating
+            ? <><Spinner size="sm" /> {t('food.calculating')}</>
+            : `🤖 ${t('food.calculate_calories')}`}
+        </button>
+      )}
 
       {descriptionChanged && (
         <button

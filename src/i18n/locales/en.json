@@ -300,7 +300,9 @@
     "step_calculating": "Calculating nutrition...",
     "step_preparing": "Preparing results...",
     "recalculate_calories": "Recalculate calories",
-    "recalculating": "Recalculating..."
+    "recalculating": "Recalculating...",
+    "calculate_calories": "Calculate calories with AI",
+    "calculating": "Calculating..."
   },
   "whatsapp": {
     "title": "WhatsApp Alerts",
