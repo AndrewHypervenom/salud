@@ -20,6 +20,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
   const [analyzing, setAnalyzing] = useState(false)
   const [aiUsed, setAiUsed] = useState(false)
   const [aiDescription, setAiDescription] = useState('')
+  const [aiCalories, setAiCalories] = useState('')
   const [recalculating, setRecalculating] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
@@ -62,7 +63,11 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
         setDescription(data.description)
         setAiDescription(data.description)
       }
-      if (data?.calories_estimated) setCalories(String(data.calories_estimated))
+      if (data?.calories_estimated) {
+        const cal = String(data.calories_estimated)
+        setCalories(cal)
+        setAiCalories(cal)
+      }
       setAiUsed(true)
     } catch (e) {
       setError(e.message)
@@ -81,7 +86,9 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
       })
       if (fnErr) throw new Error(fnErr.message)
       if (data?.calories_estimated) {
-        setCalories(String(data.calories_estimated))
+        const cal = String(data.calories_estimated)
+        setCalories(cal)
+        setAiCalories(cal)
         setAiDescription(description.trim())
       }
     } catch (e) {
@@ -194,7 +201,12 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, onSave
         <input
           type="text"
           value={description}
-          onChange={e => setDescription(e.target.value)}
+          onChange={e => {
+            setDescription(e.target.value)
+            if (aiUsed && e.target.value.trim() === aiDescription.trim() && aiCalories) {
+              setCalories(aiCalories)
+            }
+          }}
           placeholder={t('food.description_placeholder')}
           required
           className="px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-primary-500"
