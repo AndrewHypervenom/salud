@@ -54,9 +54,10 @@ function QtyUnitPicker({ qty, unit, portionGrams, onQty, onUnit, onPortionGrams 
           type="number"
           min="0"
           step="any"
+          size={3}
           value={qty}
           onChange={e => onQty(e.target.value)}
-          className="flex-1 min-w-0 text-4xl font-black text-gray-900 dark:text-gray-100 bg-transparent border-none outline-none tabular-nums text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          className="flex-1 min-w-0 text-3xl font-black text-gray-900 dark:text-gray-100 bg-transparent border-none outline-none tabular-nums text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
         <button
           type="button"
