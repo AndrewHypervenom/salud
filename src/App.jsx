@@ -26,6 +26,8 @@ import RecipeFormPage from './pages/Recipes/RecipeFormPage'
 import RecipeDetailPage from './pages/Recipes/RecipeDetailPage'
 import FoodSearchPage from './pages/FoodSearch/FoodSearchPage'
 import BadgesPage from './pages/Badges/BadgesPage'
+import FitnessOnboardingStandalone from './pages/Fitness/FitnessOnboardingStandalone'
+import FitnessProfilePage from './pages/Fitness/FitnessProfilePage'
 
 export default function App() {
   return (
@@ -38,6 +40,7 @@ export default function App() {
           <Route path="/login/pin" element={<PinEntryPage />} />
           <Route path="/profiles/:id/recover" element={<RecoveryPage />} />
           <Route path="/onboarding/new" element={<OnboardingPage />} />
+          <Route path="/onboarding/fitness" element={<FitnessOnboardingStandalone />} />
 
           {/* App routes with TopBar + Sidebar + BottomNav */}
           <Route element={<AppLayout />}>
@@ -61,6 +64,7 @@ export default function App() {
             <Route path="/recipes/:id" element={<RecipeDetailPage />} />
             <Route path="/food-search" element={<FoodSearchPage />} />
             <Route path="/badges" element={<BadgesPage />} />
+            <Route path="/fitness-profile" element={<FitnessProfilePage />} />
           </Route>
         </Routes>
       </ProfileProvider>

@@ -21,6 +21,7 @@ import { ProgressRing } from '../components/ui/ProgressRing'
 import { ElapsedTimer } from '../components/ui/CountdownTimer'
 import { HealthCoach } from '../components/shared/HealthCoach'
 import { getHabitDisplayName } from '../hooks/useHabits'
+import FitnessProfileBanner from '../components/shared/FitnessProfileBanner'
 
 // ─────────────────────────────────────────────────────────
 //  WIDGET COMPONENTS
@@ -39,12 +40,16 @@ function CaloriesWidget({ todayCalories, calTarget, profile }) {
     ? t('dashboard.goal_lose_weight')
     : profile.health_goal === 'gain_muscle'
     ? t('dashboard.goal_gain_muscle')
+    : profile.health_goal === 'improve_health'
+    ? t('dashboard.goal_improve_health')
     : t('dashboard.goal_maintain')
 
   const goalColor = profile.health_goal === 'lose_weight'
     ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
     : profile.health_goal === 'gain_muscle'
     ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
+    : profile.health_goal === 'improve_health'
+    ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300'
     : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
 
   const motivationKey = todayCalories === 0
@@ -554,8 +559,16 @@ export default function Dashboard() {
     moveWidget, hideWidget, showWidget, reorderWidgets, resetAll,
   } = useDashboardConfig()
 
+  const navigate = useNavigate()
   const [editMode, setEditMode] = useState(false)
   const dragRef = useRef({ fromId: null, overId: null, offsetX: 0, offsetY: 0, ghostW: 0, ghostH: 0 })
+
+  const [fitnessBannerDismissed, setFitnessBannerDismissed] = useState(() => {
+    if (!activeProfileId) return true
+    const ts = localStorage.getItem(`fitness_banner_dismissed_${activeProfileId}`)
+    if (!ts) return false
+    return Date.now() - parseInt(ts) < 7 * 24 * 60 * 60 * 1000
+  })
   const [dragFromId, setDragFromId] = useState(null)
   const [dragOverId, setDragOverId] = useState(null)
   const [dragPointer, setDragPointer] = useState(null) // { x, y } — follows pointer for ghost
@@ -704,6 +717,7 @@ export default function Dashboard() {
   }
 
   const groups = groupWidgets(visibleWidgets)
+  const showFitnessBanner = profile && !profile.fitness_profile?.completed && !fitnessBannerDismissed
 
   return (
     <div className={`flex flex-col transition-all duration-300 ${editMode ? 'gap-8' : 'gap-4'}`}>
@@ -742,6 +756,17 @@ export default function Dashboard() {
           )}
         </button>
       </div>
+
+      {/* ── FITNESS BANNER ─────────────────────────────────── */}
+      {showFitnessBanner && (
+        <FitnessProfileBanner
+          onStart={() => navigate('/onboarding/fitness')}
+          onDismiss={() => {
+            localStorage.setItem(`fitness_banner_dismissed_${activeProfileId}`, Date.now().toString())
+            setFitnessBannerDismissed(true)
+          }}
+        />
+      )}
 
       {/* ── EDIT MODE BANNER ───────────────────────────────── */}
       {editMode && (

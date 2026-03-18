@@ -82,9 +82,10 @@ export const CALORIE_COLORS = {
 }
 
 export const HEALTH_GOAL_ADJUSTMENTS = {
-  lose_weight:  -300,
-  maintain:        0,
-  gain_muscle:  +200,
+  lose_weight:     -300,
+  maintain:           0,
+  gain_muscle:     +200,
+  improve_health:     0,  // igual que maintain — foco en hábitos
 }
 
 export function calcCalorieTarget(tdee, healthGoal = 'maintain') {

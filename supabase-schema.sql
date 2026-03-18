@@ -180,6 +180,27 @@ create policy "allow_delete_attempts" on login_attempts
 --   ADD COLUMN IF NOT EXISTS preferences JSONB NOT NULL DEFAULT '{}';
 
 -- -------------------------------------------------------------
+-- Migración: Perfil Fitness (Fase 0 — ejecutar manualmente)
+-- -------------------------------------------------------------
+-- ALTER TABLE profiles
+--   ADD COLUMN IF NOT EXISTS fitness_profile JSONB NOT NULL DEFAULT '{}';
+--
+-- -- Ampliar CHECK para incluir el nuevo objetivo 'improve_health'
+-- ALTER TABLE profiles DROP CONSTRAINT IF EXISTS profiles_health_goal_check;
+-- ALTER TABLE profiles ADD CONSTRAINT profiles_health_goal_check
+--   CHECK (health_goal IN ('lose_weight', 'maintain', 'gain_muscle', 'improve_health'));
+--
+-- Esquema del JSONB fitness_profile:
+-- {
+--   "completed": true,
+--   "completed_at": "2026-03-17T14:30:00Z",
+--   "experience_level": "beginner | intermediate | advanced",
+--   "preferred_activities": ["walking", "gym", "yoga"],
+--   "workout_frequency": "1-2 | 3-4 | 5+",
+--   "sedentary_interest": "walking | cycling | yoga | swimming | other"
+-- }
+
+-- -------------------------------------------------------------
 -- Row Level Security (desactivado para uso familiar sin auth)
 -- Activar si en el futuro se agrega autenticación real.
 -- -------------------------------------------------------------

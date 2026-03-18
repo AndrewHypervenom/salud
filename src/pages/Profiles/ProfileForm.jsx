@@ -126,6 +126,31 @@ export default function ProfileForm() {
         <h1 className="text-2xl font-bold">{t('common.edit')}</h1>
       </div>
 
+      {/* Fitness Profile Card */}
+      {isEdit && (
+        <Card>
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="font-semibold text-gray-900 dark:text-gray-100">
+                🎯 {t('fitness.profile_section_title')}
+              </p>
+              <p className="text-sm text-gray-500 mt-0.5">
+                {profile?.fitness_profile?.completed
+                  ? t('fitness.profile_completed')
+                  : t('fitness.profile_incomplete')}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate('/fitness-profile')}
+              className="flex-shrink-0 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm"
+            >
+              {profile?.fitness_profile?.completed ? t('common.edit') : t('fitness.complete_now')}
+            </button>
+          </div>
+        </Card>
+      )}
+
       <Card>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
 
@@ -211,6 +236,7 @@ export default function ProfileForm() {
               <option value="lose_weight">{t('profile.health_goal_lose_weight')}</option>
               <option value="maintain">{t('profile.health_goal_maintain')}</option>
               <option value="gain_muscle">{t('profile.health_goal_gain_muscle')}</option>
+              <option value="improve_health">{t('fitness.goal_improve_health')}</option>
             </Select>
             {previewTarget !== null && (
               <div className="bg-primary-50 dark:bg-primary-900/20 rounded-xl p-3 flex flex-col gap-1">

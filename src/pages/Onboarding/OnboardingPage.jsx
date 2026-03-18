@@ -9,6 +9,7 @@ import { useHabits } from '../../hooks/useHabits'
 import { hashPin } from '../../lib/crypto'
 import { Spinner } from '../../components/ui/Spinner'
 import PinSetupStep from './PinSetupStep'
+import FitnessWizard from './FitnessWizard'
 
 // Normalize sex field — AI may return Spanish values
 const SEX_MAP = {
@@ -50,7 +51,7 @@ function validateProfile(data, t) {
 export default function OnboardingPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { createProfile } = useProfiles()
+  const { createProfile, updateProfile } = useProfiles()
   const { setActiveProfileId } = useProfileContext()
   const { unlockProfile } = useAuth()
   const { messages, loading, error, done, extracted, sendMessage } = useGroqOnboarding()
@@ -62,6 +63,7 @@ export default function OnboardingPage() {
   const [phoneError, setPhoneError] = useState('')
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
+  const [newProfileId, setNewProfileId] = useState(null)
   const bottomRef = useRef(null)
   const started = useRef(false)
 
@@ -111,14 +113,37 @@ export default function OnboardingPage() {
       const profile = await createProfile({ ...normalized, access_code, recovery_code, phone_whatsapp: phoneNumber.replace(/\D/g, '') })
       setActiveProfileId(profile.id)
       unlockProfile(profile.id)
-      // Seed default habits silently — don't block navigation on failure
-      seedDefaultHabits(profile.id).catch(() => {})
-      navigate('/dashboard', { replace: true })
+      setNewProfileId(profile.id)
+      setSaving(false)
+      setPhase('fitness')
     } catch (err) {
       console.error('createProfile error:', err)
       setSaveError(t('onboarding.save_error_prefix', { msg: err.message || '?' }))
       setSaving(false)
     }
+  }
+
+  if (phase === 'fitness') {
+    return (
+      <FitnessWizard
+        profileData={normalizeExtracted(extracted)}
+        onComplete={async (fitnessData) => {
+          try {
+            await updateProfile(newProfileId, fitnessData)
+          } catch (err) {
+            console.error('fitness profile save failed:', err)
+          }
+          // Seed habits with fitness data now that we have it
+          seedDefaultHabits(newProfileId, fitnessData).catch(() => {})
+          navigate('/dashboard', { replace: true })
+        }}
+        onSkip={() => {
+          // Seed default habits without fitness data
+          seedDefaultHabits(newProfileId).catch(() => {})
+          navigate('/dashboard', { replace: true })
+        }}
+      />
+    )
   }
 
   if (phase === 'phone') {

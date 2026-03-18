@@ -22,11 +22,18 @@ const HABIT_NAME_TO_KEY = {
   'Dormir 7-8 horas':       'habits.default_sleep',
   'Registrar comidas':      'habits.default_log_meals',
   // EN
-  'Take medication':        'habits.default_medication',
+  'Take medication':          'habits.default_medication',
   'Drink 8 glasses of water': 'habits.default_water',
-  'Walk 30 minutes':        'habits.default_walk',
-  'Sleep 7-8 hours':        'habits.default_sleep',
-  'Log meals':              'habits.default_log_meals',
+  'Walk 30 minutes':          'habits.default_walk',
+  'Sleep 7-8 hours':          'habits.default_sleep',
+  'Log meals':                'habits.default_log_meals',
+  'Protein in every meal':    'habits.default_protein',
+  'Go to the gym':            'habits.default_gym',
+  'Walk 15 minutes':          'habits.default_walk_short',
+  // ES extra
+  'Proteína en cada comida':  'habits.default_protein',
+  'Ir al gimnasio':           'habits.default_gym',
+  'Caminar 15 minutos':       'habits.default_walk_short',
 }
 
 // Devuelve el nombre del hábito traducido al idioma activo si es un hábito por defecto;
@@ -118,17 +125,51 @@ export function useHabits(profileId) {
     setTodayLogs(prev => prev.filter(l => l.habit_id !== id))
   }
 
-  const seedDefaultHabits = async (pid) => {
+  const seedDefaultHabits = async (pid, fitnessData) => {
     const targetId = pid || profileId
-    const habits = DEFAULT_HABIT_KEYS.map(h => ({
+    // fitnessData can be the full fitnessData object (with health_goal at top level)
+    // or just the fitness_profile JSONB. Handle both.
+    const goal = fitnessData?.health_goal
+    const fp = fitnessData?.fitness_profile || fitnessData || {}
+    const preferred = fp.preferred_activities || []
+    const sedentaryInterest = fp.sedentary_interest
+
+    const extraHabits = []
+    if (goal === 'gain_muscle') {
+      extraHabits.push({ nameKey: 'habits.default_protein', emoji: '🥩', sort_order: 5 })
+    }
+    if (goal === 'lose_weight') {
+      extraHabits.push({ nameKey: 'habits.default_log_meals', emoji: '🍽️', sort_order: 4 })
+    }
+    if (preferred.includes('gym')) {
+      extraHabits.push({ nameKey: 'habits.default_gym', emoji: '🏋️', sort_order: 6 })
+    }
+    if (sedentaryInterest === 'walking' || preferred.includes('walking')) {
+      extraHabits.push({ nameKey: 'habits.default_walk_short', emoji: '🚶', sort_order: 7 })
+    }
+
+    const baseHabits = DEFAULT_HABIT_KEYS.map(h => ({
       name: i18next.t(h.nameKey),
       emoji: h.emoji,
       sort_order: h.sort_order,
       profile_id: targetId,
     }))
+
+    // Add extra habits that aren't already in base set
+    const baseKeys = new Set(DEFAULT_HABIT_KEYS.map(h => h.nameKey))
+    const extras = extraHabits
+      .filter(h => !baseKeys.has(h.nameKey))
+      .map(h => ({
+        name: i18next.t(h.nameKey),
+        emoji: h.emoji,
+        sort_order: h.sort_order,
+        profile_id: targetId,
+      }))
+
+    const allHabits = [...baseHabits, ...extras]
     const { data, error: err } = await supabase
       .from('habits')
-      .insert(habits)
+      .insert(allHabits)
       .select()
     if (err) throw err
     if (pid === profileId || !pid) setHabits(data || [])
