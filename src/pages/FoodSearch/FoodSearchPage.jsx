@@ -48,7 +48,7 @@ function QtyUnitPicker({ qty, unit, portionGrams, onQty, onUnit, onPortionGrams 
         <button
           type="button"
           onClick={() => onQty(String(Math.max(0, (parseFloat(qty) || 0) - step)))}
-          className="w-9 h-9 rounded-full bg-white dark:bg-gray-700 shadow-sm border border-gray-200 dark:border-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 text-xl font-bold hover:bg-gray-50 active:scale-90 transition-all select-none"
+          className="w-12 h-12 rounded-full bg-white dark:bg-gray-700 shadow-sm border border-gray-200 dark:border-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 text-2xl font-bold hover:bg-gray-50 active:scale-90 transition-all select-none"
         >−</button>
         <input
           type="number"
@@ -56,12 +56,12 @@ function QtyUnitPicker({ qty, unit, portionGrams, onQty, onUnit, onPortionGrams 
           step="any"
           value={qty}
           onChange={e => onQty(e.target.value)}
-          className="flex-1 text-3xl font-black text-gray-900 dark:text-gray-100 bg-transparent border-none outline-none tabular-nums text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          className="flex-1 text-4xl font-black text-gray-900 dark:text-gray-100 bg-transparent border-none outline-none tabular-nums text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
         <button
           type="button"
           onClick={() => onQty(String((parseFloat(qty) || 0) + step))}
-          className="w-9 h-9 rounded-full bg-white dark:bg-gray-700 shadow-sm border border-gray-200 dark:border-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 text-xl font-bold hover:bg-gray-50 active:scale-90 transition-all select-none"
+          className="w-12 h-12 rounded-full bg-white dark:bg-gray-700 shadow-sm border border-gray-200 dark:border-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 text-2xl font-bold hover:bg-gray-50 active:scale-90 transition-all select-none"
         >+</button>
       </div>
 
@@ -142,7 +142,6 @@ function TotalCard({ totalCal, protein, carbs, fat, gramsEq, unit }) {
 // ─── ResultItem ───────────────────────────────────────────────────────────────
 function ResultItem({ item, onAdd }) {
   const { t } = useTranslation()
-  const [expanded, setExpanded] = useState(false)
   const [qty, setQty] = useState('100')
   const [unit, setUnit] = useState('g')
   const [portionGrams, setPortionGrams] = useState('100')
@@ -167,13 +166,13 @@ function ResultItem({ item, onAdd }) {
 
   return (
     <Card className="flex flex-col gap-2">
-      <div className="flex items-start gap-3 cursor-pointer" onClick={() => setExpanded(e => !e)}>
+      <div className="flex items-start gap-3">
         {item.image_url && (
-          <img src={item.image_url} alt="" className="w-12 h-12 rounded-xl object-cover flex-shrink-0" />
+          <img src={item.image_url} alt="" className="w-16 h-16 rounded-2xl object-cover flex-shrink-0" />
         )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 leading-tight">{item.name}</p>
+            <p className="text-base font-bold text-gray-800 dark:text-gray-100 leading-tight">{item.name}</p>
             {item.source === 'local' && (
               <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-full text-[10px] font-bold">
                 {t('food_search.local_product_badge')}
@@ -181,40 +180,42 @@ function ResultItem({ item, onAdd }) {
             )}
           </div>
           {item.brand && <p className="text-xs text-gray-400">{item.brand}</p>}
-          <p className="text-xs text-primary-600 font-medium mt-0.5">{item.calories_per_100g} kcal/100g</p>
+          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+            <span className="text-xs text-primary-600 font-medium">{item.calories_per_100g} kcal</span>
+            <span className="px-1.5 py-0.5 bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-300 rounded-full text-[10px] font-bold">P {item.protein_g}g</span>
+            <span className="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 rounded-full text-[10px] font-bold">C {item.carbs_g}g</span>
+            <span className="px-1.5 py-0.5 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 rounded-full text-[10px] font-bold">G {item.fat_g}g</span>
+          </div>
         </div>
-        <span className="text-gray-400 text-xs flex-shrink-0 mt-0.5">{expanded ? '▲' : '▼'}</span>
       </div>
 
-      {expanded && (
-        <div className="border-t border-gray-100 dark:border-gray-700 pt-4 flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">
-              Cantidad
-            </label>
-            <QtyUnitPicker
-              qty={qty} unit={unit} portionGrams={portionGrams}
-              onQty={setQty} onUnit={setUnit} onPortionGrams={setPortionGrams}
-            />
-          </div>
-
-          <TotalCard
-            totalCal={totalCal}
-            protein={adj(item.protein_g)}
-            carbs={adj(item.carbs_g)}
-            fat={adj(item.fat_g)}
-            gramsEq={gramsEq}
-            unit={unit}
+      <div className="border-t border-gray-100 dark:border-gray-700 pt-4 flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">
+            Cantidad
+          </label>
+          <QtyUnitPicker
+            qty={qty} unit={unit} portionGrams={portionGrams}
+            onQty={setQty} onUnit={setUnit} onPortionGrams={setPortionGrams}
           />
-
-          <button
-            onClick={() => onAdd(adjustedItem)}
-            className="w-full py-3 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 active:scale-[0.98] transition-all"
-          >
-            + {t('food_search.manual_add')}
-          </button>
         </div>
-      )}
+
+        <TotalCard
+          totalCal={totalCal}
+          protein={adj(item.protein_g)}
+          carbs={adj(item.carbs_g)}
+          fat={adj(item.fat_g)}
+          gramsEq={gramsEq}
+          unit={unit}
+        />
+
+        <button
+          onClick={() => onAdd(adjustedItem)}
+          className="w-full py-3 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 active:scale-[0.98] transition-all"
+        >
+          + {t('food_search.manual_add')}
+        </button>
+      </div>
     </Card>
   )
 }
@@ -832,6 +833,32 @@ function ManualFoodEntry({ barcode, profileId, onAdd }) {
         </div>
       </div>
 
+      {/* Indicador de progreso */}
+      {(() => {
+        const steps = [
+          { label: 'Foto', done: phase !== 'idle', active: phase === 'idle' },
+          { label: 'Analizar', done: phase === 'review', active: phase === 'selected' || phase === 'analyzing' },
+          { label: 'Confirmar', done: false, active: phase === 'review' },
+        ]
+        return (
+          <div className="flex items-center gap-1">
+            {steps.map((step, i) => (
+              <div key={step.label} className="flex items-center gap-1 flex-1">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
+                  step.done ? 'bg-primary-100 text-primary-600' :
+                  step.active ? 'bg-primary-600 text-white' :
+                  'bg-gray-200 dark:bg-gray-700 text-gray-400'
+                }`}>{step.done ? '✓' : i + 1}</div>
+                <span className={`text-[10px] font-semibold ${step.active ? 'text-primary-600' : 'text-gray-400'}`}>
+                  {step.label}
+                </span>
+                {i < 2 && <div className={`flex-1 h-0.5 mx-1 ${step.done ? 'bg-primary-300' : 'bg-gray-200 dark:bg-gray-700'}`} />}
+              </div>
+            ))}
+          </div>
+        )
+      })()}
+
       {/* Captura de etiqueta nutricional */}
       <input ref={labelFileRef} type="file" accept="image/*" capture="environment" onChange={handleFile} className="hidden" />
       <button type="button" onClick={() => labelFileRef.current?.click()}
@@ -905,15 +932,22 @@ export default function FoodSearchPage() {
   const { profiles } = useProfiles()
   const profile = profiles.find(p => p.id === activeProfileId)
   const { results, loading, error, searchByName, searchByBarcode, clearResults, injectResults } = useFoodSearch()
-  const { searchByBarcode: searchLocal } = useCustomProducts()
+  const { searchByBarcode: searchLocal, listByProfile } = useCustomProducts()
   const { newBadge, clearNewBadge } = useBadges(activeProfileId)
 
   const [query, setQuery] = useState('')
   const [scanMode, setScanMode] = useState(searchParams.get('mode') === 'scan')
   const [scanned, setScanned] = useState(null)
   const [myProductsOpen, setMyProductsOpen] = useState(false)
+  const [scanProcessing, setScanProcessing] = useState(false)
+  const [recentProducts, setRecentProducts] = useState([])
   const searchRef = useRef(null)
   const scanLockRef = useRef(false)
+
+  useEffect(() => {
+    if (!activeProfileId) return
+    listByProfile(activeProfileId).then(data => setRecentProducts((data || []).slice(0, 6)))
+  }, [activeProfileId])
 
   const calTarget = profile
     ? calcCalorieTarget(
@@ -933,15 +967,18 @@ export default function FoodSearchPage() {
     setScanMode(false)
     setScanned(code)
     clearResults()
+    setScanProcessing(true)
 
     const localProduct = await searchLocal(code)
     if (localProduct) {
       injectResults([localProduct])
+      setScanProcessing(false)
       scanLockRef.current = false
       return
     }
 
     await searchByBarcode(code)
+    setScanProcessing(false)
     scanLockRef.current = false
   }
 
@@ -974,33 +1011,54 @@ export default function FoodSearchPage() {
         )}
       </div>
 
-      {/* Buscador */}
-      {!scanMode && (
-        <div className="flex gap-2">
-          <input
-            ref={searchRef}
-            type="text" value={query}
-            onChange={e => setQuery(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleSearch()}
-            placeholder={t('food_search.search_placeholder')}
-            className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary-500"
-          />
-          <button onClick={handleSearch} disabled={!query.trim() || loading}
-            className="px-4 py-3 bg-primary-600 text-white rounded-xl font-semibold text-sm disabled:opacity-40 hover:bg-primary-700 transition-colors">
-            {loading ? <Spinner size="sm" /> : '🔍'}
-          </button>
-          <button onClick={() => setScanMode(true)}
-            className="px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-            📷
+      {/* Chips de acceso rápido a Mis Productos */}
+      {recentProducts.length > 0 && (
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-4 px-4">
+          {recentProducts.map(p => (
+            <button key={p.id} onClick={() => injectResults([p])}
+              className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800
+                         rounded-2xl border border-gray-200 dark:border-gray-700
+                         shadow-sm flex-shrink-0 active:scale-95 transition-all">
+              {p.product_image_url
+                ? <img src={p.product_image_url} className="w-6 h-6 rounded-md object-cover flex-shrink-0" alt="" />
+                : <span className="text-base">📦</span>
+              }
+              <div className="flex flex-col items-start">
+                <span className="text-xs font-semibold text-gray-800 dark:text-gray-200 max-w-[72px] truncate">{p.name}</span>
+                <span className="text-[10px] text-gray-400">{p.calories_per_100g} kcal</span>
+              </div>
+            </button>
+          ))}
+          <button onClick={() => setMyProductsOpen(true)}
+            className="px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-2xl text-xs font-semibold text-gray-500 flex-shrink-0 active:scale-95 transition-all whitespace-nowrap">
+            Ver todos →
           </button>
         </div>
       )}
 
-      {/* Escáner */}
+      {/* Buscador */}
+      <div className="flex gap-2">
+        <input
+          ref={searchRef}
+          type="text" value={query}
+          onChange={e => setQuery(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleSearch()}
+          placeholder={t('food_search.search_placeholder')}
+          className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary-500"
+        />
+        <button onClick={handleSearch} disabled={!query.trim() || loading}
+          className="px-4 py-3 bg-primary-600 text-white rounded-xl font-semibold text-sm disabled:opacity-40 hover:bg-primary-700 transition-colors">
+          {loading ? <Spinner size="sm" /> : '🔍'}
+        </button>
+        <button onClick={() => setScanMode(true)}
+          className="px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+          📷
+        </button>
+      </div>
+
+      {/* Escáner fullscreen */}
       {scanMode && (
-        <Card>
-          <BarcodeScanner onScan={handleScan} onClose={() => setScanMode(false)} active={scanMode} />
-        </Card>
+        <BarcodeScanner onScan={handleScan} onClose={() => setScanMode(false)} active={scanMode} fullscreen />
       )}
 
       {/* Código escaneado */}
@@ -1010,20 +1068,50 @@ export default function FoodSearchPage() {
         </p>
       )}
 
-      {/* Error */}
-      {error && (
-        <p className="text-sm text-red-600 bg-red-50 dark:bg-red-950/30 rounded-xl px-4 py-3">
-          {scanned ? t('food_search.not_in_db') : error}
-        </p>
+      {/* Error (solo si NO es "no encontrado" por barcode) */}
+      {error && !(scanned && results.length === 0) && (
+        <p className="text-sm text-red-600 bg-red-50 dark:bg-red-950/30 rounded-xl px-4 py-3">{error}</p>
       )}
 
-      {/* Entrada manual */}
-      {scanned && !loading && results.length === 0 && error && (
-        <ManualFoodEntry barcode={scanned} profileId={activeProfileId} onAdd={handleAdd} />
+      {/* Estado intermedio post-escaneo */}
+      {scanProcessing && (
+        <div className="flex flex-col items-center gap-3 py-12">
+          <Spinner />
+          <p className="text-sm text-gray-500">Buscando código <span className="font-mono font-bold">{scanned}</span>…</p>
+        </div>
       )}
 
-      {/* Loading */}
-      {loading && <div className="flex justify-center py-8"><Spinner /></div>}
+      {/* ManualFoodEntry como bottom-sheet cuando barcode no encontrado */}
+      {scanned && !loading && !scanProcessing && results.length === 0 && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-end">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => { setScanned(null); clearResults() }} />
+          <div className="relative bg-white dark:bg-gray-900 rounded-t-3xl max-h-[92vh] flex flex-col">
+            <div className="flex items-center justify-center px-5 pt-4 pb-2">
+              <div className="w-10 h-1 bg-gray-300 rounded-full" />
+            </div>
+            <div className="flex items-center justify-between px-5 pb-3">
+              <div>
+                <p className="text-xs text-gray-400">Código: <span className="font-mono font-bold">{scanned}</span></p>
+                <p className="font-bold text-gray-900 dark:text-gray-100">Producto no encontrado</p>
+              </div>
+              <button onClick={() => { setScanned(null); clearResults() }}
+                className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 text-sm">✕</button>
+            </div>
+            <div className="overflow-y-auto flex-1 px-4 pb-8">
+              <ManualFoodEntry barcode={scanned} profileId={activeProfileId} onAdd={handleAdd} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Loading — skeletons */}
+      {loading && (
+        <div className="flex flex-col gap-3">
+          {[0, 1, 2].map(i => (
+            <div key={i} className="h-24 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />
+          ))}
+        </div>
+      )}
 
       {/* Resultados */}
       {!loading && results.length > 0 && (
@@ -1035,19 +1123,36 @@ export default function FoodSearchPage() {
         </div>
       )}
 
-      {/* Sin resultados */}
-      {!loading && !error && results.length === 0 && (query || scanned) && (
+      {/* Sin resultados por búsqueda de nombre */}
+      {!loading && !error && results.length === 0 && query && !scanned && (
         <div className="flex flex-col items-center py-12 text-center gap-3">
           <span className="text-5xl">🔍</span>
           <p className="text-gray-400 text-sm">{t('food_search.no_results')}</p>
         </div>
       )}
 
-      {/* Estado inicial */}
-      {!loading && results.length === 0 && !query && !scanned && (
-        <div className="flex flex-col items-center py-8 text-center gap-3">
-          <span className="text-5xl">🥗</span>
-          <p className="text-gray-400 text-sm">{t('food_search.hint')}</p>
+      {/* Estado inicial — hero CTAs */}
+      {!loading && results.length === 0 && !query && !scanned && !scanProcessing && (
+        <div className="flex flex-col gap-4 py-2">
+          <div className="flex gap-3">
+            <button onClick={() => setScanMode(true)}
+              className="flex-1 flex flex-col items-center justify-center gap-2 py-7 px-4
+                         bg-gray-900 dark:bg-gray-950 text-white rounded-3xl
+                         active:scale-[0.97] transition-all shadow-lg">
+              <span className="text-3xl">📷</span>
+              <span className="text-sm font-bold">Escanear</span>
+              <span className="text-[10px] text-gray-400 text-center leading-tight">Código de barras</span>
+            </button>
+            <button onClick={() => searchRef.current?.focus()}
+              className="flex-1 flex flex-col items-center justify-center gap-2 py-7 px-4
+                         bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700
+                         rounded-3xl active:scale-[0.97] transition-all shadow-sm">
+              <span className="text-3xl">🔍</span>
+              <span className="text-sm font-bold text-gray-900 dark:text-gray-100">Buscar</span>
+              <span className="text-[10px] text-gray-400 text-center leading-tight">Por nombre</span>
+            </button>
+          </div>
+          <p className="text-[11px] text-gray-400 text-center">+3 millones de productos en la base de datos</p>
         </div>
       )}
 
