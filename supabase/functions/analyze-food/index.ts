@@ -42,7 +42,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { imageUrl, description: textDescription, correction } = await req.json()
+    const { imageUrl, description: textDescription, correction, mode } = await req.json()
 
     if (!imageUrl && !textDescription) {
       return new Response(
@@ -52,31 +52,54 @@ Deno.serve(async (req: Request) => {
     }
 
     const correctionNote = correction
-      ? `\nCORRECCIÓN DEL USUARIO: "${correction}" — ajusta la descripción y los macros según esta corrección.`
+      ? `\nCORRECCIÓN DEL USUARIO: "${correction}" — ajusta los valores según esta corrección.`
       : ''
 
     let result = null
 
     if (imageUrl) {
-      // ── Con imagen: una sola llamada al modelo de visión que también calcula macros ──
-      const visionContent = await groqChat(MODEL_VISION, [{
-        role: 'user',
-        content: [
-          { type: 'image_url', image_url: { url: imageUrl } },
-          {
-            type: 'text',
-            text: `Eres un nutricionista experto. Analiza esta imagen de comida y responde SOLO con JSON válido sin markdown:
+      if (mode === 'label') {
+        // ── Modo etiqueta: leer tabla nutricional por 100g ──
+        const labelContent = await groqChat(MODEL_VISION, [{
+          role: 'user',
+          content: [
+            { type: 'image_url', image_url: { url: imageUrl } },
+            {
+              type: 'text',
+              text: `Eres un experto en nutrición. Lee la etiqueta o tabla nutricional de este producto y responde SOLO con JSON válido sin markdown:
+{"name":"nombre del producto","calories_per_100g":NUMERO,"protein_g":NUMERO,"carbs_g":NUMERO,"fat_g":NUMERO,"fiber_g":NUMERO}
+
+Reglas:
+- Extrae los valores POR 100g. Si la etiqueta solo muestra "por porción", conviértelos a por 100g usando el peso de porción indicado
+- name: nombre del producto tal como aparece en el envase
+- Todos los valores deben ser números enteros
+- Si no puedes leer un valor con certeza, usa 0${correctionNote}`,
+            },
+          ],
+        }], 512, 25000)
+
+        result = parseJson(labelContent)
+      } else {
+        // ── Con imagen: una sola llamada al modelo de visión que también calcula macros ──
+        const visionContent = await groqChat(MODEL_VISION, [{
+          role: 'user',
+          content: [
+            { type: 'image_url', image_url: { url: imageUrl } },
+            {
+              type: 'text',
+              text: `Eres un nutricionista experto. Analiza esta imagen de comida y responde SOLO con JSON válido sin markdown:
 {"description":"describe los ingredientes con su peso estimado en gramos","calories_estimated":NUMERO,"macros":{"protein_g":NUMERO,"carbs_g":NUMERO,"fat_g":NUMERO,"fiber_g":NUMERO}}
 
 Reglas:
 - Todos los valores numéricos deben ser números enteros
 - Usa valores realistas según las cantidades visibles
 - Asume porción normal para una persona adulta si no hay referencia${correctionNote}`,
-          },
-        ],
-      }], 512, 25000)
+            },
+          ],
+        }], 512, 25000)
 
-      result = parseJson(visionContent)
+        result = parseJson(visionContent)
+      }
     } else {
       // ── Solo texto: modelo de texto para calcular macros ──
       const nutritionPrompt = `Eres un nutricionista clínico experto en composición nutricional de alimentos.
