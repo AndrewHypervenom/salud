@@ -48,7 +48,7 @@ function QtyUnitPicker({ qty, unit, portionGrams, onQty, onUnit, onPortionGrams 
         <button
           type="button"
           onClick={() => onQty(String(Math.max(0, (parseFloat(qty) || 0) - step)))}
-          className="w-12 h-12 rounded-full bg-white dark:bg-gray-700 shadow-sm border border-gray-200 dark:border-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 text-2xl font-bold hover:bg-gray-50 active:scale-90 transition-all select-none"
+          className="w-10 h-10 flex-shrink-0 rounded-full bg-white dark:bg-gray-700 shadow-sm border border-gray-200 dark:border-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 text-xl font-bold hover:bg-gray-50 active:scale-90 transition-all select-none"
         >−</button>
         <input
           type="number"
@@ -57,17 +57,17 @@ function QtyUnitPicker({ qty, unit, portionGrams, onQty, onUnit, onPortionGrams 
           size={3}
           value={qty}
           onChange={e => onQty(e.target.value)}
-          className="flex-1 min-w-0 text-3xl font-black text-gray-900 dark:text-gray-100 bg-transparent border-none outline-none tabular-nums text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          className="flex-1 min-w-0 w-0 text-3xl font-black text-gray-900 dark:text-gray-100 bg-transparent border-none outline-none tabular-nums text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
         <button
           type="button"
           onClick={() => onQty(String((parseFloat(qty) || 0) + step))}
-          className="w-12 h-12 rounded-full bg-white dark:bg-gray-700 shadow-sm border border-gray-200 dark:border-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 text-2xl font-bold hover:bg-gray-50 active:scale-90 transition-all select-none"
+          className="w-10 h-10 flex-shrink-0 rounded-full bg-white dark:bg-gray-700 shadow-sm border border-gray-200 dark:border-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 text-xl font-bold hover:bg-gray-50 active:scale-90 transition-all select-none"
         >+</button>
       </div>
 
       {/* Unit pills */}
-      <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-hide">
+      <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-hide min-w-0 w-full">
         {UNITS.map(u => (
           <button
             key={u.key}
