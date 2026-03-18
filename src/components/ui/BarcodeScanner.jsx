@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Html5Qrcode } from 'html5-qrcode'
 
 /**
  * BarcodeScanner — wrapper de html5-qrcode para escanear códigos de barras
@@ -20,7 +21,6 @@ export function BarcodeScanner({ onScan, onClose, active = true }) {
 
     const init = async () => {
       try {
-        const { Html5Qrcode } = await import('html5-qrcode')
         if (stopped) return
 
         scanner = new Html5Qrcode('barcode-scanner-container')
