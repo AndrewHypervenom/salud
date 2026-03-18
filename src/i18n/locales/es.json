@@ -527,7 +527,10 @@
     "prot_short": "Prot",
     "carbs_short": "Carb",
     "fat_short": "Grasas",
-    "total_label": "Total"
+    "total_label": "Total",
+    "product_photo_btn": "Agregar foto del envase",
+    "product_photo_hint": "Se guardará para futuros escaneos",
+    "local_product_badge": "✓ Guardado localmente"
   },
   "badges": {
     "title": "Mis Logros",

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useFoodSearch } from '../../hooks/useFoodSearch'
+import { useCustomProducts } from '../../hooks/useCustomProducts'
 import { useBadges } from '../../hooks/useBadges'
 import { BarcodeScanner } from '../../components/ui/BarcodeScanner'
 import { NutritionTable } from '../../components/ui/NutritionTable'
@@ -37,7 +38,14 @@ function ResultItem({ item, onAdd }) {
           <img src={item.image_url} alt="" className="w-12 h-12 rounded-xl object-cover flex-shrink-0" />
         )}
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 leading-tight">{item.name}</p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 leading-tight">{item.name}</p>
+            {item.source === 'local' && (
+              <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-full text-[10px] font-bold">
+                ✓ Guardado localmente
+              </span>
+            )}
+          </div>
           {item.brand && <p className="text-xs text-gray-400">{item.brand}</p>}
           <p className="text-xs text-primary-600 font-medium mt-0.5">{item.calories_per_100g} kcal/100g</p>
         </div>
@@ -81,6 +89,8 @@ const MACRO_TILES = [
 function ManualFoodEntry({ barcode, profileId, onAdd }) {
   const { t } = useTranslation()
   const fileRef = useRef(null)
+  const productFileRef = useRef(null)
+  const { saveProduct } = useCustomProducts()
 
   // phase: 'idle' | 'selected' | 'analyzing' | 'review'
   const [phase, setPhase] = useState('idle')
@@ -91,6 +101,8 @@ function ManualFoodEntry({ barcode, profileId, onAdd }) {
   const [correction, setCorrection] = useState('')
   const [recalculating, setRecalculating] = useState(false)
   const [form, setForm] = useState({ name: '', calories: '', protein: '', carbs: '', fat: '', qty: '100' })
+  const [productImageFile, setProductImageFile] = useState(null)
+  const [productImagePreview, setProductImagePreview] = useState(null)
 
   const sf = (key) => (e) => setForm(f => ({ ...f, [key]: e.target.value }))
 
@@ -175,10 +187,10 @@ function ManualFoodEntry({ barcode, profileId, onAdd }) {
     }
   }
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     const q = parseInt(form.qty) || 100
     const c100 = parseFloat(form.calories) || 0
-    onAdd({
+    const item = {
       name: form.name || `Producto ${barcode}`,
       brand: '',
       serving_size: `${q}g`,
@@ -187,7 +199,25 @@ function ManualFoodEntry({ barcode, profileId, onAdd }) {
       protein_g: Math.round((parseFloat(form.protein) || 0) * q / 100 * 10) / 10,
       carbs_g:   Math.round((parseFloat(form.carbs)   || 0) * q / 100 * 10) / 10,
       fat_g:     Math.round((parseFloat(form.fat)     || 0) * q / 100 * 10) / 10,
-    })
+    }
+    if (barcode) {
+      try {
+        await saveProduct({
+          barcode,
+          name: item.name,
+          brand: '',
+          calories_per_100g: c100,
+          protein_g: parseFloat(form.protein) || 0,
+          carbs_g: parseFloat(form.carbs) || 0,
+          fat_g: parseFloat(form.fat) || 0,
+          productImageFile,
+          contributedBy: profileId,
+        })
+      } catch (_) {
+        // falla silenciosamente
+      }
+    }
+    onAdd(item)
   }
 
   const inputBase = "w-full px-4 py-3.5 text-sm border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/60 text-gray-900 dark:text-gray-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"
@@ -359,6 +389,52 @@ function ManualFoodEntry({ barcode, profileId, onAdd }) {
           </div>
         )}
 
+        {/* Foto del envase/producto */}
+        {barcode && (
+          <>
+            <input
+              ref={productFileRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={e => {
+                const file = e.target.files[0]
+                if (!file) return
+                setProductImageFile(file)
+                setProductImagePreview(URL.createObjectURL(file))
+              }}
+              className="hidden"
+            />
+            {productImagePreview
+              ? (
+                <div className="relative rounded-2xl overflow-hidden">
+                  <img src={productImagePreview} alt="" className="w-full h-36 object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => { setProductImageFile(null); setProductImagePreview(null) }}
+                    className="absolute top-2 right-2 w-7 h-7 bg-black/50 text-white rounded-full text-sm flex items-center justify-center hover:bg-black/70 transition-colors"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )
+              : (
+                <button
+                  type="button"
+                  onClick={() => productFileRef.current?.click()}
+                  className="flex items-center gap-3 w-full px-4 py-3.5 border border-dashed border-gray-300 dark:border-gray-600 rounded-2xl hover:border-primary-400 dark:hover:border-primary-500 hover:bg-primary-50 dark:hover:bg-primary-950/20 active:scale-[0.98] transition-all"
+                >
+                  <span className="text-2xl">📸</span>
+                  <div className="text-left">
+                    <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">{t('food_search.product_photo_btn')}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">{t('food_search.product_photo_hint')}</p>
+                  </div>
+                </button>
+              )
+            }
+          </>
+        )}
+
         <button
           type="button"
           onClick={handleAdd}
@@ -452,7 +528,8 @@ export default function FoodSearchPage() {
   const { activeProfileId } = useProfileContext()
   const { profiles } = useProfiles()
   const profile = profiles.find(p => p.id === activeProfileId)
-  const { results, loading, error, searchByName, searchByBarcode, clearResults } = useFoodSearch()
+  const { results, loading, error, searchByName, searchByBarcode, clearResults, injectResults } = useFoodSearch()
+  const { searchByBarcode: searchLocal } = useCustomProducts()
   const { newBadge, clearNewBadge } = useBadges(activeProfileId)
 
   const [query, setQuery] = useState('')
@@ -479,6 +556,14 @@ export default function FoodSearchPage() {
     setScanMode(false)
     setScanned(code)
     clearResults()
+
+    const localProduct = await searchLocal(code)
+    if (localProduct) {
+      injectResults([localProduct])
+      scanLockRef.current = false
+      return
+    }
+
     await searchByBarcode(code)
     scanLockRef.current = false
   }

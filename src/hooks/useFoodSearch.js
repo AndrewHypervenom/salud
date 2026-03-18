@@ -75,5 +75,10 @@ export function useFoodSearch() {
 
   const clearResults = () => { setResults([]); setError(null) }
 
-  return { results, loading, error, searchByName, searchByBarcode, clearResults }
+  const injectResults = useCallback((items) => {
+    setResults(items)
+    setError(null)
+  }, [])
+
+  return { results, loading, error, searchByName, searchByBarcode, clearResults, injectResults }
 }

@@ -527,7 +527,10 @@
     "prot_short": "Prot",
     "carbs_short": "Carb",
     "fat_short": "Fat",
-    "total_label": "Total"
+    "total_label": "Total",
+    "product_photo_btn": "Add product photo",
+    "product_photo_hint": "Will be saved for future scans",
+    "local_product_badge": "✓ Saved locally"
   },
   "badges": {
     "title": "My Achievements",

@@ -207,3 +207,26 @@ create policy "allow_delete_attempts" on login_attempts
 -- alter table profiles               enable row level security;
 -- alter table blood_pressure_readings enable row level security;
 -- alter table doctor_questions        enable row level security;
+
+-- -------------------------------------------------------------
+-- Productos personalizados (base de datos local de la familia)
+-- Almacena productos escaneados manualmente con sus macros y foto
+-- -------------------------------------------------------------
+create table if not exists custom_products (
+  id                 uuid         primary key default gen_random_uuid(),
+  barcode            text         not null unique,
+  name               text         not null,
+  brand              text,
+  serving_size       text         not null default '100g',
+  calories_per_100g  numeric(7,2) not null default 0,
+  protein_g          numeric(6,2) not null default 0,
+  carbs_g            numeric(6,2) not null default 0,
+  fat_g              numeric(6,2) not null default 0,
+  fiber_g            numeric(6,2),
+  product_image_url  text,
+  contributed_by     uuid references profiles(id) on delete set null,
+  created_at         timestamptz  not null default now(),
+  updated_at         timestamptz  not null default now()
+);
+create index if not exists custom_products_barcode_idx on custom_products(barcode);
+-- Fotos del envase en Storage: food-images/products/{barcode}/{timestamp}.ext
