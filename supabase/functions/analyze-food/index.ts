@@ -78,7 +78,20 @@ Reglas:
           ],
         }], 512, 25000)
 
-        result = parseJson(labelContent)
+        const raw = parseJson(labelContent)
+        if (raw) {
+          // Normalizar a campos canónicos independientemente de lo que devolvió el modelo
+          const g = (a: string, b: string, c: string) =>
+            (raw[a] ?? raw[b] ?? raw[c] ?? 0) as number
+          result = {
+            name:              String(raw.name || raw.product_name || raw.product || ''),
+            calories_per_100g: g('calories_per_100g', 'calories', 'energy_kcal'),
+            protein_g:         g('protein_g', 'proteins_g', 'protein'),
+            carbs_g:           g('carbs_g', 'carbohydrates_g', 'carbs'),
+            fat_g:             g('fat_g', 'fats_g', 'fat'),
+            fiber_g:           g('fiber_g', 'fibre_g', 'fiber'),
+          }
+        }
       } else {
         // ── Con imagen: una sola llamada al modelo de visión que también calcula macros ──
         const visionContent = await groqChat(MODEL_VISION, [{

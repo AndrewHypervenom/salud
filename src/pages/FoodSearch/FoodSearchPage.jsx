@@ -125,16 +125,24 @@ function ManualFoodEntry({ barcode, profileId, onAdd }) {
       const { data, error: fnErr } = await supabase.functions.invoke('analyze-food', {
         body: { imageUrl: urlData.publicUrl, mode: 'label' },
       })
-      if (fnErr || data?.error) throw new Error(fnErr?.message || data?.error)
+      console.log('[ManualFoodEntry] AI label response:', JSON.stringify(data), 'error:', fnErr)
+      if (fnErr) throw new Error(fnErr.message)
+      if (!data) throw new Error('La IA no devolvió datos. Revisa la consola del navegador.')
+      if (data?.error) throw new Error(data.error)
 
-      setForm({
-        name: data.name || '',
-        calories: String(data.calories_per_100g ?? ''),
-        protein: String(data.protein_g ?? ''),
-        carbs: String(data.carbs_g ?? ''),
-        fat: String(data.fat_g ?? ''),
-        qty: '100',
-      })
+      // Normalizar nombres de campo — la IA puede devolver variantes distintas
+      const n = (a, b, c, d) => a ?? b ?? c ?? d ?? ''
+      const num = (v) => (v != null && v !== '' ? String(v) : '')
+      const normalized = {
+        name:     String(n(data.name, data.product_name, data.product, '') || ''),
+        calories: num(n(data.calories_per_100g, data.calories, data.energy_kcal, data['energy-kcal'])),
+        protein:  num(n(data.protein_g, data.proteins_g, data.protein, data.proteins)),
+        carbs:    num(n(data.carbs_g, data.carbohydrates_g, data.carbs, data.carbohydrates)),
+        fat:      num(n(data.fat_g, data.fats_g, data.fat, data.fats)),
+      }
+      console.log('[ManualFoodEntry] normalized:', normalized)
+
+      setForm({ ...normalized, qty: '100' })
       setPhase('review')
     } catch (e) {
       setError(e.message)
