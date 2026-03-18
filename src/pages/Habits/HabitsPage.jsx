@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useHabits, getHabitDisplayName } from '../../hooks/useHabits'
+import { useBadges } from '../../hooks/useBadges'
 import { Card } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
 import { WhatsAppAlerts } from '../../components/shared/WhatsAppAlerts'
@@ -13,6 +14,7 @@ export default function HabitsPage() {
   const { activeProfileId } = useProfileContext()
   const { profiles } = useProfiles()
   const { habits, todayLogs, loading, error, toggleHabit, addHabit, deleteHabit, seedDefaultHabits } = useHabits(activeProfileId)
+  const { checkAndUnlock } = useBadges(activeProfileId)
 
   const [newName, setNewName] = useState('')
   const [newEmoji, setNewEmoji] = useState('✅')
@@ -30,7 +32,16 @@ export default function HabitsPage() {
 
   const handleToggle = async (habitId) => {
     setToggling(habitId)
-    try { await toggleHabit(habitId) } catch (e) { console.error(e) }
+    try {
+      await toggleHabit(habitId)
+      const wasCompleted = todayLogs.some(l => l.habit_id === habitId)
+      if (!wasCompleted) {
+        // just toggled ON
+        await checkAndUnlock('habit_first', true)
+        const newCompletedCount = completedCount + 1
+        await checkAndUnlock('habit_all_day', newCompletedCount >= total && total > 0)
+      }
+    } catch (e) { console.error(e) }
     setToggling(null)
   }
 
@@ -40,6 +51,7 @@ export default function HabitsPage() {
     setAdding(true)
     try {
       await addHabit(newName.trim(), newEmoji)
+      await checkAndUnlock('habit_custom', true)
       setNewName('')
       setNewEmoji('✅')
     } catch (e) { console.error(e) }

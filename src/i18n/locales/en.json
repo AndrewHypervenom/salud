@@ -536,7 +536,25 @@
     "title": "My Achievements",
     "unlocked": "Unlocked",
     "locked": "Locked",
-    "unlock_title": "Achievement unlocked!"
+    "unlock_title": "Achievement unlocked!",
+    "total_progress": "{{n}} of {{total}} achievements",
+    "categories": {
+      "nutricion":  "Nutrition",
+      "agua":       "Hydration",
+      "peso":       "Weight",
+      "presion":    "Blood Pressure",
+      "ayuno":      "Fasting",
+      "habitos":    "Habits",
+      "constancia": "Consistency",
+      "explorador": "Explorer",
+      "elite":      "Elite"
+    },
+    "difficulty": {
+      "easy":   "Easy",
+      "medium": "Medium",
+      "hard":   "Hard",
+      "elite":  "Elite"
+    }
   },
   "whatsapp": {
     "title": "WhatsApp Alerts",

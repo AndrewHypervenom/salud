@@ -536,7 +536,25 @@
     "title": "Mis Logros",
     "unlocked": "Desbloqueados",
     "locked": "Bloqueados",
-    "unlock_title": "¡Logro desbloqueado!"
+    "unlock_title": "¡Logro desbloqueado!",
+    "total_progress": "{{n}} de {{total}} logros",
+    "categories": {
+      "nutricion":  "Nutrición",
+      "agua":       "Hidratación",
+      "peso":       "Peso",
+      "presion":    "Presión arterial",
+      "ayuno":      "Ayuno",
+      "habitos":    "Hábitos",
+      "constancia": "Constancia",
+      "explorador": "Explorador",
+      "elite":      "Élite"
+    },
+    "difficulty": {
+      "easy":   "Fácil",
+      "medium": "Medio",
+      "hard":   "Difícil",
+      "elite":  "Élite"
+    }
   },
   "whatsapp": {
     "title": "Alertas WhatsApp",

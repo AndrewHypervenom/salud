@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useBloodPressure } from '../../hooks/useBloodPressure'
+import { useBadges } from '../../hooks/useBadges'
 import { classifyBP } from '../../lib/bpStatus'
 import { BPForm } from './BPForm'
 import { BPHistory } from './BPHistory'
@@ -13,6 +14,7 @@ export default function BPPage() {
   const { t } = useTranslation()
   const { activeProfileId } = useProfileContext()
   const { readings, loading, addReading, deleteReading } = useBloodPressure(activeProfileId)
+  const { checkAndUnlock } = useBadges(activeProfileId)
   const [showForm, setShowForm] = useState(false)
 
   if (!activeProfileId) {
@@ -27,6 +29,9 @@ export default function BPPage() {
   const handleSubmit = async (data) => {
     await addReading(data)
     setShowForm(false)
+    const hour = new Date().getHours()
+    await checkAndUnlock('first_bp', true)
+    await checkAndUnlock('bp_morning', hour < 9)
   }
 
   const lastBP = readings[0]

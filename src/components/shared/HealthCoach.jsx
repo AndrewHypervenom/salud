@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHealthCoach } from '../../hooks/useHealthCoach'
+import { useBadges } from '../../hooks/useBadges'
 import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { Spinner } from '../ui/Spinner'
@@ -8,6 +9,7 @@ import { Spinner } from '../ui/Spinner'
 export function HealthCoach({ profileId, profile, calTarget, todayCalories, foodLogs, habits, habitLogs, lastBP }) {
   const { t } = useTranslation()
   const { todayAnalysis, loading, initialLoading, error, analyze } = useHealthCoach(profileId)
+  const { checkAndUnlock } = useBadges(profileId)
   const autoTriggered = useRef(false)
 
   const hasDinner = foodLogs.some(l => l.meal_type === 'dinner')
@@ -28,10 +30,12 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
 
     autoTriggered.current = true
     analyze({ profile, calTarget, todayCalories, foodLogs, habits, habitLogs, lastBP })
+      .then(() => checkAndUnlock('first_coach', true))
   }, [initialLoading, hasDinner, todayAnalysis, loading])
 
-  const handleAnalyze = () => {
-    analyze({ profile, calTarget, todayCalories, foodLogs, habits, habitLogs, lastBP })
+  const handleAnalyze = async () => {
+    await analyze({ profile, calTarget, todayCalories, foodLogs, habits, habitLogs, lastBP })
+    await checkAndUnlock('first_coach', true)
   }
 
   // Loading initial check from DB

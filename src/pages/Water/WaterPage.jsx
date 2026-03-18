@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useWaterLogs } from '../../hooks/useWaterLogs'
+import { useBadges } from '../../hooks/useBadges'
 import { ProgressRing } from '../../components/ui/ProgressRing'
 import { Card } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
@@ -21,6 +22,7 @@ export default function WaterPage() {
   const waterGoal = profile?.water_goal_ml || 2000
 
   const { todayEntries, todayTotal, todayPercent, loading, addWater, deleteWater } = useWaterLogs(activeProfileId, waterGoal)
+  const { checkAndUnlock } = useBadges(activeProfileId)
   const [customMl, setCustomMl] = useState('')
   const [adding, setAdding] = useState(false)
   const [deleting, setDeleting] = useState(null)
@@ -28,7 +30,12 @@ export default function WaterPage() {
   const handleAdd = async (ml) => {
     if (!ml || ml <= 0) return
     setAdding(true)
-    try { await addWater(ml) } catch (e) { console.error(e) }
+    try {
+      await addWater(ml)
+      const newTotal = todayTotal + ml
+      await checkAndUnlock('first_water', true)
+      await checkAndUnlock('hydrated_1', newTotal >= waterGoal)
+    } catch (e) { console.error(e) }
     setAdding(false)
   }
 

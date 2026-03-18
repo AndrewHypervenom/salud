@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useRecipes } from '../../hooks/useRecipes'
+import { useBadges } from '../../hooks/useBadges'
 import { supabase } from '../../lib/supabase'
 import { Card } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
@@ -22,6 +23,7 @@ export default function RecipeFormPage() {
   const isEdit = !!id
   const { activeProfileId } = useProfileContext()
   const { recipes, addRecipe, updateRecipe } = useRecipes(activeProfileId)
+  const { checkAndUnlock } = useBadges(activeProfileId)
 
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -106,6 +108,7 @@ export default function RecipeFormPage() {
         await updateRecipe(id, payload)
       } else {
         const created = await addRecipe(payload)
+        await checkAndUnlock('first_recipe', true)
         navigate(`/recipes/${created.id}`, { replace: true })
         return
       }
