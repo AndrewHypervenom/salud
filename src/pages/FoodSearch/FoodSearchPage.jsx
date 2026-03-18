@@ -84,6 +84,7 @@ export default function FoodSearchPage() {
   const [scanMode, setScanMode] = useState(searchParams.get('mode') === 'scan')
   const [scanned, setScanned] = useState(null)
   const searchRef = useRef(null)
+  const scanLockRef = useRef(false)
 
   const calTarget = profile
     ? calcCalorieTarget(
@@ -98,10 +99,13 @@ export default function FoodSearchPage() {
   }
 
   const handleScan = async (code) => {
+    if (scanLockRef.current) return
+    scanLockRef.current = true
     setScanMode(false)
     setScanned(code)
     clearResults()
     await searchByBarcode(code)
+    scanLockRef.current = false
   }
 
   const handleAdd = (item) => {
@@ -197,7 +201,7 @@ export default function FoodSearchPage() {
       )}
 
       {/* Sin resultados */}
-      {!loading && !error && results.length === 0 && query && (
+      {!loading && !error && results.length === 0 && (query || scanned) && (
         <div className="flex flex-col items-center py-12 text-center gap-3">
           <span className="text-5xl">🔍</span>
           <p className="text-gray-400 text-sm">{t('food_search.no_results')}</p>
