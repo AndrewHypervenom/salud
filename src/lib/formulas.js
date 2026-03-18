@@ -92,3 +92,10 @@ export function calcCalorieTarget(tdee, healthGoal = 'maintain') {
   const adjustment = HEALTH_GOAL_ADJUSTMENTS[healthGoal] ?? 0
   return Math.max(1200, tdee + adjustment)
 }
+
+export function calcCalorieTargetMulti(tdee, goals = []) {
+  if (!goals || goals.length === 0) return Math.max(1200, tdee)
+  if (goals.length === 1) return calcCalorieTarget(tdee, goals[0])
+  const total = goals.reduce((sum, g) => sum + (HEALTH_GOAL_ADJUSTMENTS[g] ?? 0), 0)
+  return Math.max(1200, tdee + Math.round(total / goals.length))
+}

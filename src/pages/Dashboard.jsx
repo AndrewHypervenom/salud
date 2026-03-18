@@ -12,7 +12,7 @@ import { useWaterLogs } from '../hooks/useWaterLogs'
 import { useFasting } from '../hooks/useFasting'
 import { useWeightLogs } from '../hooks/useWeightLogs'
 import { useDashboardConfig, WIDGET_CATALOG } from '../hooks/useDashboardConfig'
-import { calcBMR, calcTDEE, calcCalorieTarget, calcMacros, getCalorieStatus, CALORIE_COLORS } from '../lib/formulas'
+import { calcBMR, calcTDEE, calcCalorieTarget, calcCalorieTargetMulti, calcMacros, getCalorieStatus, CALORIE_COLORS } from '../lib/formulas'
 import { classifyBP } from '../lib/bpStatus'
 import { Card } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
@@ -27,7 +27,14 @@ import FitnessProfileBanner from '../components/shared/FitnessProfileBanner'
 //  WIDGET COMPONENTS
 // ─────────────────────────────────────────────────────────
 
-function CaloriesWidget({ todayCalories, calTarget, profile }) {
+const GOAL_COLORS = {
+  lose_weight:    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  gain_muscle:    'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+  improve_health: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
+  maintain:       'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+}
+
+function CaloriesWidget({ todayCalories, calTarget, profile, activeGoals }) {
   const { t } = useTranslation()
   const pct = calTarget > 0 ? Math.min((todayCalories / calTarget) * 100, 100) : 0
   const status = getCalorieStatus(todayCalories, calTarget)
@@ -36,7 +43,10 @@ function CaloriesWidget({ todayCalories, calTarget, profile }) {
 
   const ringColor = status === 'over' ? '#ef4444' : status === 'warn' ? '#f59e0b' : '#16a34a'
 
-  const goalLabel = profile.health_goal === 'lose_weight'
+  const isMulti = activeGoals && activeGoals.length > 1
+  const goalLabel = isMulti
+    ? t('dashboard.multi_goal', { n: activeGoals.length })
+    : profile.health_goal === 'lose_weight'
     ? t('dashboard.goal_lose_weight')
     : profile.health_goal === 'gain_muscle'
     ? t('dashboard.goal_gain_muscle')
@@ -44,13 +54,9 @@ function CaloriesWidget({ todayCalories, calTarget, profile }) {
     ? t('dashboard.goal_improve_health')
     : t('dashboard.goal_maintain')
 
-  const goalColor = profile.health_goal === 'lose_weight'
-    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-    : profile.health_goal === 'gain_muscle'
-    ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
-    : profile.health_goal === 'improve_health'
-    ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300'
-    : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+  const goalColor = isMulti
+    ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300'
+    : GOAL_COLORS[profile.health_goal] ?? GOAL_COLORS.maintain
 
   const motivationKey = todayCalories === 0
     ? 'dashboard.motivation_empty'
@@ -578,7 +584,12 @@ export default function Dashboard() {
   // ── Computed values ─────────────────────────────────────
   const bmr = profile ? calcBMR(profile.weight_kg, profile.height_cm, profile.age, profile.sex) : 0
   const tdee = profile ? calcTDEE(bmr, profile.activity) : 0
-  const calTarget = profile ? calcCalorieTarget(tdee, profile.health_goal) : 0
+  const activeGoals = profile?.fitness_profile?.goals
+  const calTarget = profile
+    ? (activeGoals?.length > 0
+        ? calcCalorieTargetMulti(tdee, activeGoals)
+        : calcCalorieTarget(tdee, profile.health_goal))
+    : 0
   const lastBP = readings[0]
 
   // ── Pointer-based drag (mouse + touch) ──────────────────
@@ -648,7 +659,7 @@ export default function Dashboard() {
 
     switch (id) {
       case 'calories':
-        return <CaloriesWidget todayCalories={todayCalories} calTarget={calTarget} profile={profile} />
+        return <CaloriesWidget todayCalories={todayCalories} calTarget={calTarget} profile={profile} activeGoals={activeGoals} />
       case 'quick_actions':
         return <QuickActionsWidget />
       case 'meals':

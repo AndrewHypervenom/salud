@@ -90,6 +90,7 @@
     "goal_maintain": "Mantener",
     "goal_gain_muscle": "Ganar músculo",
     "goal_improve_health": "Mejorar salud",
+    "multi_goal": "{{n}} objetivos",
     "meal_missing": "Sin registrar",
     "calories_remaining": "Te quedan {{n}} kcal",
     "calories_over": "Superaste por {{n}} kcal",
@@ -277,7 +278,8 @@
     "new": "Nuevo",
     "select_profile_first": "Primero selecciona un perfil",
     "no_data": "Sin datos",
-    "optional": "(opcional)"
+    "optional": "(opcional)",
+    "continue": "Continuar"
   },
   "welcome": {
     "subtitle": "Tu salud familiar, siempre a mano",
@@ -599,7 +601,8 @@
     "wizard_title": "Tu Perfil Fitness",
     "wizard_subtitle": "Personalicemos tu experiencia",
     "skip": "Omitir",
-    "step_goal": "¿Cuál es tu objetivo principal?",
+    "step_goal": "¿Cuáles son tus objetivos?",
+    "goal_select_hint": "Puedes seleccionar más de uno",
     "goal_lose_weight": "Bajar de peso",
     "goal_lose_weight_desc": "Quiero reducir mi peso corporal",
     "goal_gain_muscle": "Ganar músculo",

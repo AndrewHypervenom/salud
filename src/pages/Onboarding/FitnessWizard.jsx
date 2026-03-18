@@ -6,24 +6,23 @@ import ActivitiesStep from './FitnessWizardSteps/ActivitiesStep'
 import ExperienceStep from './FitnessWizardSteps/ExperienceStep'
 import WaterStep from './FitnessWizardSteps/WaterStep'
 
-const STEPS = ['goal', 'target_weight', 'activities', 'experience', 'water']
-
-function getStepFlow(goal) {
-  if (goal === 'lose_weight' || goal === 'gain_muscle') {
+function getStepFlow(goals) {
+  const needsTarget = goals.includes('lose_weight') || goals.includes('gain_muscle')
+  if (needsTarget) {
     return ['goal', 'target_weight', 'activities', 'experience', 'water']
   }
   return ['goal', 'activities', 'experience', 'water']
 }
 
-function getProgress(step, goal) {
-  const flow = getStepFlow(goal)
+function getProgress(step, goals) {
+  const flow = getStepFlow(goals)
   const current = flow.indexOf(step) + 1
   const total = flow.length
   return { current, total }
 }
 
-function getNextStep(step, goal) {
-  const flow = getStepFlow(goal)
+function getNextStep(step, goals) {
+  const flow = getStepFlow(goals)
   const idx = flow.indexOf(step)
   return idx < flow.length - 1 ? flow[idx + 1] : null
 }
@@ -32,7 +31,7 @@ export default function FitnessWizard({ profileData, onComplete, onSkip }) {
   const { t } = useTranslation()
 
   const [step, setStep] = useState('goal')
-  const [goal, setGoal] = useState(null)
+  const [goals, setGoals] = useState([])
   const [targetWeight, setTargetWeight] = useState('')
   const [goalSpeed, setGoalSpeed] = useState('moderate')
   const [activities, setActivities] = useState([])
@@ -41,36 +40,22 @@ export default function FitnessWizard({ profileData, onComplete, onSkip }) {
   const [experienceLevel, setExperienceLevel] = useState(null)
   const [waterGoal, setWaterGoal] = useState(null)
 
-  const { current, total } = getProgress(step, goal)
+  const { current, total } = getProgress(step, goals)
   const pct = (current / total) * 100
 
   const goNext = () => {
-    const next = getNextStep(step, goal)
+    const next = getNextStep(step, goals)
     if (next) setStep(next)
   }
 
-  const handleGoalChange = (val) => {
-    setGoal(val)
-    // Auto-avanzar al siguiente paso
-    const flow = getStepFlow(val)
+  const handleGoalsContinue = () => {
+    const flow = getStepFlow(goals)
     setStep(flow[1])
-  }
-
-  const handleExperienceChange = (val) => {
-    setExperienceLevel(val)
-    // Auto-avanzar
-    goNextFromExperience()
-  }
-
-  const goNextFromExperience = () => {
-    const flow = getStepFlow(goal)
-    const idx = flow.indexOf('experience')
-    if (idx < flow.length - 1) setStep(flow[idx + 1])
   }
 
   const handleWaterComplete = (ml) => {
     const fitnessData = {
-      health_goal: goal,
+      health_goal: goals[0] ?? 'maintain',
       target_weight_kg: targetWeight ? parseFloat(targetWeight) : null,
       weight_goal_speed: goalSpeed,
       water_goal_ml: ml,
@@ -81,6 +66,7 @@ export default function FitnessWizard({ profileData, onComplete, onSkip }) {
         preferred_activities: activities,
         workout_frequency: frequency,
         sedentary_interest: sedentaryInterest || null,
+        goals,
       },
     }
     onComplete(fitnessData)
@@ -119,7 +105,7 @@ export default function FitnessWizard({ profileData, onComplete, onSkip }) {
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-4 py-6">
         {step === 'goal' && (
-          <GoalStep value={goal} onChange={handleGoalChange} />
+          <GoalStep values={goals} onChange={setGoals} onContinue={handleGoalsContinue} />
         )}
         {step === 'target_weight' && (
           <TargetWeightStep
@@ -148,7 +134,7 @@ export default function FitnessWizard({ profileData, onComplete, onSkip }) {
             value={experienceLevel}
             onChange={(val) => {
               setExperienceLevel(val)
-              const flow = getStepFlow(goal)
+              const flow = getStepFlow(goals)
               const idx = flow.indexOf('experience')
               if (idx < flow.length - 1) setStep(flow[idx + 1])
             }}

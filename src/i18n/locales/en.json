@@ -90,6 +90,7 @@
     "goal_maintain": "Maintain",
     "goal_gain_muscle": "Gain muscle",
     "goal_improve_health": "Improve health",
+    "multi_goal": "{{n}} goals",
     "meal_missing": "Not logged",
     "calories_remaining": "{{n}} kcal remaining",
     "calories_over": "Exceeded by {{n}} kcal",
@@ -277,7 +278,8 @@
     "new": "New",
     "select_profile_first": "Select a profile first",
     "no_data": "No data",
-    "optional": "(optional)"
+    "optional": "(optional)",
+    "continue": "Continue"
   },
   "welcome": {
     "subtitle": "Your family health, always at hand",
@@ -599,7 +601,8 @@
     "wizard_title": "Your Fitness Profile",
     "wizard_subtitle": "Let's personalize your experience",
     "skip": "Skip",
-    "step_goal": "What is your main goal?",
+    "step_goal": "What are your goals?",
+    "goal_select_hint": "You can select more than one",
     "goal_lose_weight": "Lose weight",
     "goal_lose_weight_desc": "I want to reduce my body weight",
     "goal_gain_muscle": "Gain muscle",

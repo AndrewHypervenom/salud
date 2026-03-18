@@ -35,21 +35,30 @@ const GOALS = [
   },
 ]
 
-export default function GoalStep({ value, onChange }) {
+export default function GoalStep({ values, onChange, onContinue }) {
   const { t } = useTranslation()
+
+  const toggle = (id) => {
+    if (values.includes(id)) {
+      onChange(values.filter(v => v !== id))
+    } else {
+      onChange([...values, id])
+    }
+  }
 
   return (
     <div className="flex flex-col gap-4">
       <div className="text-center">
         <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('fitness.step_goal')}</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{t('fitness.goal_select_hint')}</p>
       </div>
       <div className="grid grid-cols-2 gap-3">
         {GOALS.map(g => {
-          const isSelected = value === g.id
+          const isSelected = values.includes(g.id)
           return (
             <button
               key={g.id}
-              onClick={() => onChange(g.id)}
+              onClick={() => toggle(g.id)}
               className={`flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all active:scale-95 ${
                 isSelected
                   ? g.selected
@@ -71,6 +80,13 @@ export default function GoalStep({ value, onChange }) {
           )
         })}
       </div>
+      <button
+        onClick={onContinue}
+        disabled={values.length === 0}
+        className="w-full py-4 bg-primary-600 text-white font-bold rounded-xl hover:bg-primary-700 disabled:opacity-40 active:scale-95 transition-all shadow-md"
+      >
+        {t('common.continue')}
+      </button>
     </div>
   )
 }

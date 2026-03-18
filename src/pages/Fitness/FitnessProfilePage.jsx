@@ -36,7 +36,7 @@ export default function FitnessProfilePage() {
   const profile = profiles.find(p => p.id === activeProfileId)
   const fp = profile?.fitness_profile || {}
 
-  const [goal, setGoal] = useState('maintain')
+  const [goals, setGoals] = useState(['maintain'])
   const [targetWeight, setTargetWeight] = useState('')
   const [goalSpeed, setGoalSpeed] = useState('moderate')
   const [activities, setActivities] = useState([])
@@ -45,9 +45,13 @@ export default function FitnessProfilePage() {
   const [waterGoal, setWaterGoal] = useState(2000)
   const [saving, setSaving] = useState(false)
 
+  const toggleGoal = (id) => {
+    setGoals(prev => prev.includes(id) ? prev.filter(g => g !== id) : [...prev, id])
+  }
+
   useEffect(() => {
     if (profile) {
-      setGoal(profile.health_goal || 'maintain')
+      setGoals(fp.goals ?? (profile.health_goal ? [profile.health_goal] : ['maintain']))
       setTargetWeight(profile.target_weight_kg || '')
       setGoalSpeed(profile.weight_goal_speed || 'moderate')
       setActivities(fp.preferred_activities || [])
@@ -63,10 +67,11 @@ export default function FitnessProfilePage() {
   }
 
   const handleSave = async () => {
+    if (goals.length === 0) return
     setSaving(true)
     try {
       await updateProfile(activeProfileId, {
-        health_goal: goal,
+        health_goal: goals[0],
         target_weight_kg: targetWeight ? parseFloat(targetWeight) : null,
         weight_goal_speed: goalSpeed,
         water_goal_ml: waterGoal ? parseInt(waterGoal) : 2000,
@@ -77,6 +82,7 @@ export default function FitnessProfilePage() {
           experience_level: experienceLevel,
           preferred_activities: activities,
           workout_frequency: frequency,
+          goals,
         },
       })
       navigate(-1)
@@ -89,7 +95,7 @@ export default function FitnessProfilePage() {
 
   if (loading) return <div className="flex justify-center py-12"><Spinner /></div>
 
-  const needsTarget = goal === 'lose_weight' || goal === 'gain_muscle'
+  const needsTarget = goals.includes('lose_weight') || goals.includes('gain_muscle')
 
   return (
     <div className="flex flex-col gap-4">
@@ -110,11 +116,11 @@ export default function FitnessProfilePage() {
         </p>
         <div className="grid grid-cols-2 gap-2">
           {GOALS.map(g => {
-            const isSelected = goal === g.id
+            const isSelected = goals.includes(g.id)
             return (
               <button
                 key={g.id}
-                onClick={() => setGoal(g.id)}
+                onClick={() => toggleGoal(g.id)}
                 className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 transition-all active:scale-95 text-left ${
                   isSelected ? g.color : g.base
                 }`}
