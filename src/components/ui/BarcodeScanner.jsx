@@ -62,25 +62,29 @@ export function BarcodeScanner({ onScan, onClose, active = true, fullscreen = fa
           <button type="button" onClick={onClose}
             className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-white text-sm">✕</button>
         </div>
-        <div className="flex-1 flex items-center justify-center">
-          {loading && !error && (
-            <p className="text-sm text-gray-300 animate-pulse absolute">{t('scanner.starting')}</p>
-          )}
-          {error && (
-            <div className="text-sm text-red-400 bg-red-950/30 rounded-xl px-4 py-3 text-center mx-6">
-              {error}
-              <p className="text-xs text-gray-500 mt-1">{t('scanner.permission_hint')}</p>
-            </div>
-          )}
-          <div className="relative">
-            <div className="absolute -top-4 -left-4 w-10 h-10 border-t-2 border-l-2 border-white rounded-tl-lg pointer-events-none" />
-            <div className="absolute -top-4 -right-4 w-10 h-10 border-t-2 border-r-2 border-white rounded-tr-lg pointer-events-none" />
-            <div className="absolute -bottom-4 -left-4 w-10 h-10 border-b-2 border-l-2 border-white rounded-bl-lg pointer-events-none" />
-            <div className="absolute -bottom-4 -right-4 w-10 h-10 border-b-2 border-r-2 border-white rounded-br-lg pointer-events-none" />
+        <div className="flex-1 flex items-center justify-center px-6">
+          <div className="relative w-full">
+            {loading && !error && (
+              <p className="absolute inset-0 flex items-center justify-center text-sm text-gray-300 animate-pulse z-10 pointer-events-none">
+                {t('scanner.starting')}
+              </p>
+            )}
+            {error && (
+              <div className="absolute inset-0 flex items-center justify-center z-10 p-4">
+                <div className="text-sm text-red-400 bg-red-950/30 rounded-xl px-4 py-3 text-center">
+                  {error}
+                  <p className="text-xs text-gray-500 mt-1">{t('scanner.permission_hint')}</p>
+                </div>
+              </div>
+            )}
+            <div className="absolute -top-4 -left-4 w-10 h-10 border-t-2 border-l-2 border-white rounded-tl-lg pointer-events-none z-20" />
+            <div className="absolute -top-4 -right-4 w-10 h-10 border-t-2 border-r-2 border-white rounded-tr-lg pointer-events-none z-20" />
+            <div className="absolute -bottom-4 -left-4 w-10 h-10 border-b-2 border-l-2 border-white rounded-bl-lg pointer-events-none z-20" />
+            <div className="absolute -bottom-4 -right-4 w-10 h-10 border-b-2 border-r-2 border-white rounded-br-lg pointer-events-none z-20" />
             <div
               id="barcode-scanner-container"
               ref={containerRef}
-              className="w-full max-w-sm rounded-2xl overflow-hidden"
+              className="w-full rounded-2xl overflow-hidden"
             />
           </div>
         </div>
