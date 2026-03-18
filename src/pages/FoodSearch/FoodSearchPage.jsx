@@ -42,7 +42,7 @@ function stepFor(unit) {
 function QtyUnitPicker({ qty, unit, portionGrams, onQty, onUnit, onPortionGrams }) {
   const step = stepFor(unit)
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 min-w-0">
       {/* Stepper */}
       <div className="flex items-center gap-3 bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 rounded-2xl px-4 py-3">
         <button
@@ -56,7 +56,7 @@ function QtyUnitPicker({ qty, unit, portionGrams, onQty, onUnit, onPortionGrams 
           step="any"
           value={qty}
           onChange={e => onQty(e.target.value)}
-          className="flex-1 text-4xl font-black text-gray-900 dark:text-gray-100 bg-transparent border-none outline-none tabular-nums text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          className="flex-1 min-w-0 text-4xl font-black text-gray-900 dark:text-gray-100 bg-transparent border-none outline-none tabular-nums text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
         <button
           type="button"
@@ -165,7 +165,7 @@ function ResultItem({ item, onAdd }) {
   }
 
   return (
-    <Card className="flex flex-col gap-2">
+    <Card className="flex flex-col gap-2 overflow-hidden">
       <div className="flex items-start gap-3">
         {item.image_url && (
           <img src={item.image_url} alt="" className="w-16 h-16 rounded-2xl object-cover flex-shrink-0" />
