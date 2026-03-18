@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 function normalizeRow(row) {
   if (!row) return null
   return {
+    id: row.id,
     barcode: row.barcode,
     name: row.name,
     brand: row.brand || '',
@@ -16,6 +17,17 @@ function normalizeRow(row) {
     fiber_g: row.fiber_g != null ? Number(row.fiber_g) : null,
     source: 'local',
   }
+}
+
+async function uploadProductImage(barcode, file) {
+  const ext = file.name.split('.').pop() || 'jpg'
+  const path = `products/${barcode}/${Date.now()}.${ext}`
+  const { error } = await supabase.storage
+    .from('food-images')
+    .upload(path, file, { contentType: file.type, upsert: true })
+  if (error) return null
+  const { data } = supabase.storage.from('food-images').getPublicUrl(path)
+  return data.publicUrl
 }
 
 export function useCustomProducts() {
@@ -46,17 +58,8 @@ export function useCustomProducts() {
     fiber_g, serving_size, productImageFile, contributedBy,
   }) => {
     let productImageUrl = null
-
     if (productImageFile && barcode) {
-      const ext = productImageFile.name.split('.').pop() || 'jpg'
-      const path = `products/${barcode}/${Date.now()}.${ext}`
-      const { error: uploadErr } = await supabase.storage
-        .from('food-images')
-        .upload(path, productImageFile, { contentType: productImageFile.type, upsert: true })
-      if (!uploadErr) {
-        const { data: urlData } = supabase.storage.from('food-images').getPublicUrl(path)
-        productImageUrl = urlData.publicUrl
-      }
+      productImageUrl = await uploadProductImage(barcode, productImageFile)
     }
 
     const record = {
@@ -82,5 +85,49 @@ export function useCustomProducts() {
     return record
   }, [])
 
-  return { searchByBarcode, searchByName, saveProduct }
+  const listByProfile = useCallback(async (profileId) => {
+    if (!profileId) return []
+    const { data, error } = await supabase
+      .from('custom_products')
+      .select('*')
+      .eq('contributed_by', profileId)
+      .order('updated_at', { ascending: false })
+    if (error || !data) return []
+    return data.map(normalizeRow)
+  }, [])
+
+  const updateProduct = useCallback(async (id, barcode, updates, productImageFile) => {
+    let productImageUrl
+    if (productImageFile && barcode) {
+      productImageUrl = await uploadProductImage(barcode, productImageFile)
+    }
+
+    const record = {
+      name: updates.name,
+      brand: updates.brand || null,
+      calories_per_100g: Number(updates.calories_per_100g) || 0,
+      protein_g: Number(updates.protein_g) || 0,
+      carbs_g: Number(updates.carbs_g) || 0,
+      fat_g: Number(updates.fat_g) || 0,
+      updated_at: new Date().toISOString(),
+      ...(productImageUrl && { product_image_url: productImageUrl }),
+    }
+
+    const { error } = await supabase
+      .from('custom_products')
+      .update(record)
+      .eq('id', id)
+
+    if (error) throw error
+  }, [])
+
+  const deleteProduct = useCallback(async (id) => {
+    const { error } = await supabase
+      .from('custom_products')
+      .delete()
+      .eq('id', id)
+    if (error) throw error
+  }, [])
+
+  return { searchByBarcode, searchByName, saveProduct, listByProfile, updateProduct, deleteProduct }
 }
