@@ -33,13 +33,56 @@ Responde ÚNICAMENTE con JSON válido, sin texto adicional, sin markdown:
   "motivation": "Frase motivacional corta y honesta. Máx 1 oración."
 }`
 
+const RECIPE_IDEAS_PROMPT = `Eres un chef nutricionista experto. El usuario te dará ingredientes o alimentos disponibles y debes sugerir 3 recetas saludables y fáciles de preparar con ellos.
+
+Para cada receta incluye:
+- Nombre de la receta
+- Ingredientes principales (los que mencionó + básicos de cocina)
+- Preparación en 3-4 pasos cortos
+- Calorías aproximadas por porción
+
+Responde en español, de forma clara y directa. Usa texto plano sin JSON.`
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    const { profile, calTarget, todayCalories, foodLogs, habitsCompleted, habitsTotal, habitNames, lastBP } = await req.json()
+    const body = await req.json()
+
+    // Modo ideas de recetas
+    if (body.mode === 'recipe_ideas') {
+      const { ingredients } = body
+      const groqRes = await fetch(GROQ_API_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${Deno.env.get('GROQ_API_KEY')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          messages: [
+            { role: 'system', content: RECIPE_IDEAS_PROMPT },
+            { role: 'user', content: `Tengo estos ingredientes: ${ingredients}. Sugiere 3 recetas saludables.` },
+          ],
+          temperature: 0.7,
+          max_tokens: 1024,
+        }),
+      })
+      if (!groqRes.ok) {
+        const errText = await groqRes.text()
+        throw new Error(`Groq API error: ${errText}`)
+      }
+      const groqData = await groqRes.json()
+      const analysis = groqData.choices?.[0]?.message?.content ?? 'No se pudieron generar ideas.'
+      return new Response(
+        JSON.stringify({ analysis }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
+
+    const { profile, calTarget, todayCalories, foodLogs, habitsCompleted, habitsTotal, habitNames, lastBP } = body
 
     const mealSummary = foodLogs.length === 0
       ? 'No registró ninguna comida hoy.'

@@ -50,11 +50,11 @@ export default function CaloriesPage() {
       </div>
 
       {/* Main TDEE */}
-      <Card className="text-center bg-primary-600 text-white">
+      <div className="text-center bg-primary-600 text-white rounded-2xl shadow-md p-4">
         <p className="text-sm font-medium opacity-80 mb-1">{t('calories.tdee')}</p>
         <p className="text-5xl font-bold">{tdee}</p>
         <p className="text-sm opacity-80 mt-1">{t('calories.kcal')}</p>
-      </Card>
+      </div>
 
       {/* BMR + Activity */}
       <Card>
