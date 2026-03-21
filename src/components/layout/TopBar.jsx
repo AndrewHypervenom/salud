@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
 import { LanguageToggle } from './LanguageToggle'
-import { Sun, Moon, Lock } from 'lucide-react'
+import { Sun, Moon, LogOut } from 'lucide-react'
 
 export function TopBar() {
   const { t } = useTranslation()
@@ -42,7 +42,7 @@ export function TopBar() {
           className="w-8 h-8 flex items-center justify-center rounded-xl text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           aria-label={t('pin.lock_all')}
         >
-          <Lock size={17} strokeWidth={1.75} />
+          <LogOut size={17} strokeWidth={1.75} />
         </button>
       </div>
     </header>
