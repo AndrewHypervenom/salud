@@ -202,6 +202,7 @@ export default function OnboardingPage() {
       setPhase('pin')
     }
     return (
+      <>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center px-6 py-12">
         <div className="w-full max-w-xs flex flex-col gap-8">
           <button onClick={() => setPhase('chat')} className="self-start text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
@@ -238,11 +239,13 @@ export default function OnboardingPage() {
         </div>
       </div>
       {showExitDialog && <ExitConfirmDialog t={t} onConfirm={handleExitConfirm} onCancel={handleExitCancel} />}
+      </>
     )
   }
 
   if (phase === 'pin') {
     return (
+      <>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center px-4 py-12">
         <div className="w-full max-w-xs flex flex-col gap-6">
 
@@ -275,6 +278,7 @@ export default function OnboardingPage() {
         </div>
       </div>
       {showExitDialog && <ExitConfirmDialog t={t} onConfirm={handleExitConfirm} onCancel={handleExitCancel} />}
+      </>
     )
   }
 
