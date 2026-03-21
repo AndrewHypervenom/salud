@@ -15,7 +15,7 @@ import { useDashboardConfig, WIDGET_CATALOG } from '../hooks/useDashboardConfig'
 import { calcBMR, calcTDEE, calcCalorieTarget, calcCalorieTargetMulti, calcMacros, getCalorieStatus, CALORIE_COLORS } from '../lib/formulas'
 import { classifyBP } from '../lib/bpStatus'
 import { NavIcon, WidgetIcon } from '../lib/navIcons'
-import { Sunrise, Sun, Moon, Apple, Droplets, Zap, Heart, Scale, TrendingDown, TrendingUp, Stethoscope, Flame, X, Pencil, PartyPopper, ChevronUp, ChevronDown } from 'lucide-react'
+import { Sunrise, Sun, Moon, Apple, Droplets, Zap, Heart, Scale, TrendingDown, TrendingUp, Stethoscope, Flame, X, Pencil, PartyPopper, ChevronUp, ChevronDown, CheckCircle } from 'lucide-react'
 import { Card } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
 import { Spinner } from '../components/ui/Spinner'
@@ -69,38 +69,43 @@ function CaloriesWidget({ todayCalories, calTarget, profile, activeGoals }) {
   const calTextColor = status === 'over' ? 'text-rose-500' : status === 'warn' ? 'text-amber-500' : 'text-emerald-500'
 
   return (
-    <Card variant="glass-amber" className="overflow-hidden">
+    <Card>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <div>
-          <p className="ios-section-label">{t('dashboard.calories_today')}</p>
-          <p className="text-xs text-ios-gray mt-0.5">{t(motivationKey)}</p>
+        <div className="flex items-center gap-2.5">
+          <div className="icon-dot bg-orange-50 dark:bg-orange-500/10">
+            <Flame size={16} strokeWidth={1.75} className="text-orange-500" />
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">{t('dashboard.calories_today')}</p>
+            <p className="text-xs text-zinc-400 dark:text-zinc-500">{t(motivationKey)}</p>
+          </div>
         </div>
-        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${goalColor}`}>
+        <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${goalColor}`}>
           {goalLabel}
         </span>
       </div>
 
       {/* Ring + stats */}
-      <div className="flex items-center gap-6">
-        <ProgressRing percent={pct} size={96} strokeWidth={8} color={ringColor} trackColor="rgba(0,0,0,0.06)">
+      <div className="flex items-center gap-5">
+        <ProgressRing percent={pct} size={88} strokeWidth={7} color={ringColor} trackColor="rgba(0,0,0,0.06)">
           <div className="text-center">
-            <p className={`text-xl font-bold leading-none ${calTextColor}`}>{Math.round(pct)}%</p>
+            <p className={`text-lg font-bold leading-none ${calTextColor}`}>{Math.round(pct)}%</p>
           </div>
         </ProgressRing>
 
         <div className="flex-1">
-          <p className={`text-4xl font-bold tabular-nums tracking-tight ${calTextColor}`}>{todayCalories}</p>
-          <p className="text-sm text-ios-gray">
+          <p className={`text-[38px] font-bold tabular-nums tracking-tight leading-none ${calTextColor}`}>{todayCalories}</p>
+          <p className="text-sm text-zinc-400 dark:text-zinc-500 mt-0.5">
             {t('dashboard.calories_of', { n: calTarget })}
           </p>
-          <div className="mt-2.5 h-1.5 w-full bg-black/6 dark:bg-white/8 rounded-full overflow-hidden">
+          <div className="mt-3 h-1.5 w-full bg-zinc-100 dark:bg-zinc-700/60 rounded-full overflow-hidden">
             <div
               className="h-1.5 rounded-full transition-all duration-700"
               style={{ width: `${pct}%`, backgroundColor: ringColor }}
             />
           </div>
-          <p className="text-xs text-ios-gray mt-1.5">
+          <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1.5">
             {status === 'over'
               ? t('dashboard.calories_over', { n: Math.abs(left) })
               : t('dashboard.calories_remaining', { n: left })}
@@ -115,82 +120,28 @@ function QuickActionsWidget() {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const actions = [
-    {
-      navKey: 'food',
-      labelKey: 'nav.food',
-      to: '/food',
-      gradient: 'linear-gradient(145deg, #4ADE80, #22C55E)',
-      gradientDark: 'linear-gradient(145deg, rgba(74,222,128,0.22), rgba(34,197,94,0.14))',
-      color: '#22C55E',
-      shadow: '0 6px 16px rgba(34,197,94,0.35)',
-      shadowDark: '0 4px 12px rgba(34,197,94,0.20)',
-    },
-    {
-      navKey: 'water',
-      labelKey: 'nav.water',
-      to: '/water',
-      gradient: 'linear-gradient(145deg, #38BDF8, #0EA5E9)',
-      gradientDark: 'linear-gradient(145deg, rgba(56,189,248,0.22), rgba(14,165,233,0.14))',
-      color: '#0EA5E9',
-      shadow: '0 6px 16px rgba(14,165,233,0.35)',
-      shadowDark: '0 4px 12px rgba(14,165,233,0.20)',
-    },
-    {
-      navKey: 'weight',
-      labelKey: 'nav.weight',
-      to: '/weight',
-      gradient: 'linear-gradient(145deg, #C4B5FD, #8B5CF6)',
-      gradientDark: 'linear-gradient(145deg, rgba(196,181,253,0.22), rgba(139,92,246,0.14))',
-      color: '#8B5CF6',
-      shadow: '0 6px 16px rgba(139,92,246,0.35)',
-      shadowDark: '0 4px 12px rgba(139,92,246,0.20)',
-    },
-    {
-      navKey: 'fasting',
-      labelKey: 'nav.fasting',
-      to: '/fasting',
-      gradient: 'linear-gradient(145deg, #818CF8, #4F46E5)',
-      gradientDark: 'linear-gradient(145deg, rgba(129,140,248,0.22), rgba(79,70,229,0.14))',
-      color: '#4F46E5',
-      shadow: '0 6px 16px rgba(79,70,229,0.35)',
-      shadowDark: '0 4px 12px rgba(79,70,229,0.20)',
-    },
-    {
-      navKey: 'food-search',
-      labelKey: 'nav.food_search',
-      to: '/food-search',
-      gradient: 'linear-gradient(145deg, #FCD34D, #F59E0B)',
-      gradientDark: 'linear-gradient(145deg, rgba(252,211,77,0.22), rgba(245,158,11,0.14))',
-      color: '#F59E0B',
-      shadow: '0 6px 16px rgba(245,158,11,0.35)',
-      shadowDark: '0 4px 12px rgba(245,158,11,0.20)',
-    },
+    { navKey: 'food',        labelKey: 'nav.food',        to: '/food',        iconBg: 'bg-green-50 dark:bg-green-500/10',   iconColor: 'text-green-600 dark:text-green-400' },
+    { navKey: 'water',       labelKey: 'nav.water',       to: '/water',       iconBg: 'bg-blue-50 dark:bg-blue-500/10',     iconColor: 'text-blue-600 dark:text-blue-400' },
+    { navKey: 'weight',      labelKey: 'nav.weight',      to: '/weight',      iconBg: 'bg-violet-50 dark:bg-violet-500/10', iconColor: 'text-violet-600 dark:text-violet-400' },
+    { navKey: 'fasting',     labelKey: 'nav.fasting',     to: '/fasting',     iconBg: 'bg-indigo-50 dark:bg-indigo-500/10', iconColor: 'text-indigo-600 dark:text-indigo-400' },
+    { navKey: 'food-search', labelKey: 'nav.food_search', to: '/food-search', iconBg: 'bg-amber-50 dark:bg-amber-500/10',   iconColor: 'text-amber-600 dark:text-amber-400' },
   ]
   return (
-    <div className="glass-card p-3">
-      <div className="flex gap-2">
-        {actions.map(a => (
-          <button
-            key={a.to}
-            onClick={() => navigate(a.to)}
-            className="flex-1 flex flex-col items-center gap-2 py-3.5 rounded-2xl active:scale-90 transition-all duration-150 quick-action-btn"
-            style={{
-              '--gradient': a.gradient,
-              '--gradient-dark': a.gradientDark,
-              '--icon-color': a.color,
-              '--shadow': a.shadow,
-              '--shadow-dark': a.shadowDark,
-            }}
-          >
-            <span>
-              <NavIcon navKey={a.navKey} size={22} strokeWidth={1.75} className="quick-action-icon" style={{ color: 'var(--icon-color)' }} />
-            </span>
-            <span className="text-[10px] font-semibold leading-tight text-center quick-action-label">
-              {t(a.labelKey)}
-            </span>
-          </button>
-        ))}
-      </div>
+    <div className="grid grid-cols-5 gap-2">
+      {actions.map(a => (
+        <button
+          key={a.to}
+          onClick={() => navigate(a.to)}
+          className="qa-btn flex flex-col items-center gap-2 py-3.5 px-1 active:scale-95"
+        >
+          <div className={`icon-dot ${a.iconBg}`}>
+            <NavIcon navKey={a.navKey} size={18} strokeWidth={1.75} className={a.iconColor} />
+          </div>
+          <span className="text-[10px] font-medium leading-tight text-center text-zinc-500 dark:text-zinc-400">
+            {t(a.labelKey)}
+          </span>
+        </button>
+      ))}
     </div>
   )
 }
@@ -204,34 +155,31 @@ function MealsWidget({ todayLogs, calTarget }) {
   const hasLogs = (type) => todayLogs.some(l => l.meal_type === type)
 
   return (
-    <div className="grid grid-cols-2 gap-2.5">
+    <div className="grid grid-cols-2 gap-2">
       {MEAL_TYPES.map(meal => {
         const has = hasLogs(meal)
         const kcal = mealCal(meal)
         const pct = calTarget > 0 ? Math.min((kcal / (calTarget / 4)) * 100, 100) : 0
+        const MIcon = MEAL_ICONS[meal]
         return (
           <Link key={meal} to="/food">
-            <div className={`rounded-2xl p-3.5 transition-all active:scale-95 ${
-              has
-                ? 'bg-ios-green/8 dark:bg-ios-green/10 border border-ios-green/20 dark:border-ios-green/15'
-                : 'bg-black/3 dark:bg-white/4 border border-dashed border-black/10 dark:border-white/10'
-            }`}>
+            <div className={`card rounded-2xl p-3.5 transition-all active:scale-95 ${!has ? 'border-dashed opacity-70' : ''}`}>
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5">
-                  {(() => { const MIcon = MEAL_ICONS[meal]; return <MIcon size={16} strokeWidth={1.75} className={has ? 'text-ios-green flex-shrink-0' : 'text-ios-gray flex-shrink-0'} /> })()}
-                  <span className={`text-xs font-semibold ${has ? 'text-gray-800 dark:text-gray-100' : 'text-ios-gray'}`}>{t(`food.${meal}`)}</span>
+                  <MIcon size={14} strokeWidth={1.75} className={has ? 'text-emerald-500 flex-shrink-0' : 'text-zinc-400 flex-shrink-0'} />
+                  <span className={`text-xs font-semibold ${has ? 'text-zinc-700 dark:text-zinc-200' : 'text-zinc-400'}`}>{t(`food.${meal}`)}</span>
                 </div>
-                {has && <span className="w-2 h-2 rounded-full bg-ios-green flex-shrink-0" />}
+                {has && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />}
               </div>
               {has ? (
                 <>
-                  <p className="text-base font-bold text-ios-green tabular-nums">{kcal}<span className="text-xs font-normal text-ios-gray ml-0.5">kcal</span></p>
-                  <div className="mt-1.5 h-1 w-full bg-ios-green/15 rounded-full">
-                    <div className="h-1 bg-ios-green rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
+                  <p className="text-sm font-bold text-zinc-800 dark:text-zinc-100 tabular-nums">{kcal}<span className="text-xs font-normal text-zinc-400 ml-0.5">kcal</span></p>
+                  <div className="mt-1.5 h-1 w-full bg-zinc-100 dark:bg-zinc-700/50 rounded-full">
+                    <div className="h-1 bg-emerald-500 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
                   </div>
                 </>
               ) : (
-                <p className="text-xs text-ios-gray mt-1">{t('dashboard.meal_missing')}</p>
+                <p className="text-xs text-zinc-400 mt-1">{t('dashboard.meal_missing')}</p>
               )}
             </div>
           </Link>
@@ -259,8 +207,13 @@ function MacrosWidget({ todayLogs, calTarget }) {
   ]
 
   return (
-    <Card variant="glass-violet">
-      <p className="ios-section-label mb-4">{t('food.macros')}</p>
+    <Card>
+      <div className="flex items-center gap-2.5 mb-4">
+        <div className="icon-dot bg-violet-50 dark:bg-violet-500/10">
+          <TrendingUp size={16} strokeWidth={1.75} className="text-violet-500" />
+        </div>
+        <p className="text-xs font-semibold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">{t('food.macros')}</p>
+      </div>
       <div className="flex gap-4 mb-4">
         {bars.map(b => {
           const pct = b.max > 0 ? Math.min((b.value / b.max) * 100, 100) : 0
@@ -288,7 +241,7 @@ function MacrosWidget({ todayLogs, calTarget }) {
                   style={{ width: `${pct}%`, backgroundColor: over ? '#F43F5E' : b.color }}
                 />
               </div>
-              <span className={`text-xs font-semibold tabular-nums w-14 text-right ${over ? 'text-ios-red' : 'text-gray-700 dark:text-gray-300'}`}>
+              <span className={`text-xs font-semibold tabular-nums w-14 text-right ${over ? 'text-red-500' : 'text-zinc-600 dark:text-zinc-300'}`}>
                 {b.value}/{b.max}g
               </span>
             </div>
@@ -312,19 +265,18 @@ function WaterDashWidget({ profileId, waterGoalMl }) {
 
   return (
     <Link to="/water">
-      <Card variant="glass-sky" className="h-full hover:scale-[1.01] transition-transform">
+      <Card className="h-full active:scale-[0.98] transition-transform">
         <div className="flex items-center gap-3">
-          <ProgressRing percent={todayPercent} size={48} strokeWidth={5} color={ringColor} trackColor="rgba(14,165,233,0.12)">
-            <Droplets size={14} strokeWidth={1.75} style={{ color: ringColor }} />
+          <ProgressRing percent={todayPercent} size={44} strokeWidth={4} color={ringColor} trackColor="rgba(0,0,0,0.06)">
+            <Droplets size={13} strokeWidth={1.75} style={{ color: ringColor }} />
           </ProgressRing>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-ios-gray font-medium">{t('nav.water')}</p>
-            <p className="text-base font-bold tabular-nums" style={{ color: '#0EA5E9' }}>{todayTotal}<span className="text-xs font-normal text-ios-gray ml-0.5">/{waterGoalMl}ml</span></p>
+            <p className="text-xs text-zinc-400 font-medium">{t('nav.water')}</p>
+            <p className="text-base font-bold tabular-nums text-blue-600 dark:text-blue-400">{todayTotal}<span className="text-xs font-normal text-zinc-400 ml-0.5">/{waterGoalMl}ml</span></p>
           </div>
           <button
             onClick={handleAdd}
-            className="w-7 h-7 rounded-full text-white flex items-center justify-center text-sm font-bold active:scale-90 transition-all flex-shrink-0 shadow-glow-water"
-            style={{ background: 'linear-gradient(145deg, #38BDF8, #0EA5E9)' }}
+            className="w-7 h-7 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center text-sm font-bold active:scale-90 transition-all flex-shrink-0"
           >
             +
           </button>
@@ -346,19 +298,18 @@ function FastingDashWidget({ profileId }) {
 
   if (!activeSession) {
     return (
-      <Card variant="glass-indigo" className="h-full">
+      <Card className="h-full">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(79,70,229,0.12)' }}>
-            <Zap size={22} strokeWidth={1.75} style={{ color: '#4F46E5' }} />
+          <div className="icon-dot bg-indigo-50 dark:bg-indigo-500/10 !w-10 !h-10 !rounded-xl">
+            <Zap size={18} strokeWidth={1.75} className="text-indigo-500" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-ios-gray font-medium">{t('nav.fasting')}</p>
-            <p className="text-xs text-ios-gray">{t('fasting.no_active')}</p>
+            <p className="text-xs text-zinc-400 font-medium">{t('nav.fasting')}</p>
+            <p className="text-xs text-zinc-400">{t('fasting.no_active')}</p>
           </div>
           <button
             onClick={handleStart}
-            className="px-2.5 py-1.5 text-white rounded-xl text-xs font-bold active:scale-95 transition-all flex-shrink-0"
-            style={{ background: 'linear-gradient(145deg, #6366F1, #4F46E5)', boxShadow: '0 4px 12px rgba(79,70,229,0.35)' }}
+            className="px-2.5 py-1.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl text-xs font-semibold active:scale-95 transition-all flex-shrink-0"
           >
             16h
           </button>
@@ -372,14 +323,14 @@ function FastingDashWidget({ profileId }) {
 
   return (
     <Link to="/fasting">
-      <Card variant="glass-indigo" className="h-full hover:scale-[1.01] transition-transform">
+      <Card className="h-full active:scale-[0.98] transition-transform">
         <div className="flex items-center gap-3">
-          <ProgressRing percent={pct} size={48} strokeWidth={5} color="#4F46E5" trackColor="rgba(79,70,229,0.12)">
-            <Zap size={14} strokeWidth={1.75} style={{ color: '#4F46E5' }} />
+          <ProgressRing percent={pct} size={44} strokeWidth={4} color="#4F46E5" trackColor="rgba(0,0,0,0.06)">
+            <Zap size={13} strokeWidth={1.75} className="text-indigo-500" />
           </ProgressRing>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-ios-gray font-medium">{t('fasting.active')}</p>
-            <ElapsedTimer startTime={activeSession.start_time} className="text-sm font-bold text-indigo-500" />
+            <p className="text-xs text-zinc-400 font-medium">{t('fasting.active')}</p>
+            <ElapsedTimer startTime={activeSession.start_time} className="text-sm font-bold text-indigo-600 dark:text-indigo-400" />
           </div>
         </div>
       </Card>
@@ -397,19 +348,26 @@ function HabitsWidget({ habits, habitLogs }) {
 
   return (
     <Link to="/habits">
-      <Card variant="glass-emerald" className="hover:scale-[1.01] transition-transform">
-        <div className="flex items-center justify-between mb-3">
-          <p className="ios-section-label">{t('dashboard.habits_today')}</p>
-          <div className="flex items-center gap-1.5">
-            {allDone && <PartyPopper size={16} strokeWidth={1.75} style={{ color: '#30D158' }} />}
-            <span className="text-sm font-bold text-gray-800 dark:text-gray-100">{done}</span>
-            <span className="text-sm text-ios-gray">/ {habits.length}</span>
+      <Card className="hover:scale-[1.01] transition-transform">
+        <div className="flex items-center gap-2.5 mb-3">
+          <div className="icon-dot bg-emerald-50 dark:bg-emerald-500/10">
+            {allDone
+              ? <PartyPopper size={16} strokeWidth={1.75} className="text-emerald-500" />
+              : <CheckCircle size={16} strokeWidth={1.75} className="text-emerald-500" />
+            }
           </div>
+          <div className="flex-1">
+            <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100">{t('dashboard.habits_today')}</p>
+            <p className="text-xs text-zinc-400">{done} / {habits.length}</p>
+          </div>
+          {habits.length > 0 && (
+            <span className={`text-sm font-bold tabular-nums ${allDone ? 'text-emerald-500' : 'text-zinc-700 dark:text-zinc-200'}`}>{Math.round(pct)}%</span>
+          )}
         </div>
 
         {habits.length > 0 && (
           <>
-            <div className="w-full h-1.5 bg-black/6 dark:bg-white/8 rounded-full overflow-hidden mb-3">
+            <div className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-700 rounded-full overflow-hidden mb-3">
               <div
                 className="h-1.5 rounded-full transition-all duration-700"
                 style={{ width: `${pct}%`, backgroundColor: habitBarColor }}
@@ -421,10 +379,10 @@ function HabitsWidget({ habits, habitLogs }) {
                 return (
                   <span
                     key={h.id}
-                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold transition-all ${
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-all ${
                       isDone
-                        ? 'bg-emerald-500/12 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400'
-                        : 'bg-black/5 text-ios-gray dark:bg-white/8'
+                        ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400'
+                        : 'bg-zinc-100 text-zinc-400 dark:bg-zinc-700 dark:text-zinc-500'
                     }`}
                   >
                     {getHabitDisplayName(h.name, t)}
@@ -446,19 +404,21 @@ function BPWidget({ readings }) {
 
   return (
     <Link to="/blood-pressure">
-      <Card variant="glass-rose" className="h-full hover:scale-[1.01] transition-transform">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-ios-gray font-medium">{t('nav.blood_pressure')}</p>
-          <Heart size={16} strokeWidth={1.75} style={{ color: '#F43F5E' }} />
+      <Card className="h-full hover:scale-[1.01] transition-transform">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="icon-dot bg-rose-50 dark:bg-rose-500/10">
+            <Heart size={16} strokeWidth={1.75} className="text-rose-500" />
+          </div>
+          <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{t('nav.blood_pressure')}</p>
         </div>
         {last ? (
           <>
-            <p className="text-xl font-bold text-gray-900 dark:text-gray-100 tabular-nums">{last.systolic}<span className="text-ios-gray">/{last.diastolic}</span></p>
-            <p className="text-[10px] text-ios-gray mb-1.5">mmHg</p>
+            <p className="text-xl font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">{last.systolic}<span className="text-zinc-400 font-normal">/{last.diastolic}</span></p>
+            <p className="text-[10px] text-zinc-400 mb-1.5">mmHg</p>
             {bpClass && <Badge className={`${bpClass.badgeClass} text-[10px]`}>{t(`bp.status_${bpClass.status}`)}</Badge>}
           </>
         ) : (
-          <p className="text-sm text-ios-gray">{t('dashboard.no_bp')}</p>
+          <p className="text-sm text-zinc-400">{t('dashboard.no_bp')}</p>
         )}
       </Card>
     </Link>
@@ -473,13 +433,15 @@ function WeightDashWidget({ profileId, targetWeight }) {
 
   return (
     <Link to="/weight">
-      <Card variant="glass-violet" className="h-full hover:scale-[1.01] transition-transform">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-ios-gray font-medium">{t('nav.weight')}</p>
-          <Scale size={16} strokeWidth={1.75} style={{ color: '#8B5CF6' }} />
+      <Card className="h-full hover:scale-[1.01] transition-transform">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="icon-dot bg-violet-50 dark:bg-violet-500/10">
+            <Scale size={16} strokeWidth={1.75} className="text-violet-500" />
+          </div>
+          <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{t('nav.weight')}</p>
         </div>
-        <p className="text-xl font-bold text-gray-900 dark:text-gray-100 tabular-nums">
-          {latestWeight ?? '—'}<span className="text-xs font-normal text-ios-gray ml-0.5">kg</span>
+        <p className="text-xl font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
+          {latestWeight ?? '—'}<span className="text-xs font-normal text-zinc-400 ml-0.5">kg</span>
         </p>
         {diff !== null && (
           <p className={`text-xs font-semibold mt-0.5 ${diff === 0 ? 'text-emerald-500' : diff > 0 ? 'text-amber-500' : 'text-violet-500'}`}>
@@ -489,7 +451,7 @@ function WeightDashWidget({ profileId, targetWeight }) {
         {trend !== null && (() => {
           const TrendIcon = trend < 0 ? TrendingDown : TrendingUp
           return (
-            <p className="text-[10px] text-ios-gray mt-0.5 flex items-center gap-0.5">
+            <p className="text-[10px] text-zinc-400 mt-0.5 flex items-center gap-0.5">
               <TrendIcon size={10} strokeWidth={2} /> {t('dashboard.kg_vs_yesterday', { diff: Math.abs(trend) })}
             </p>
           )
@@ -506,18 +468,20 @@ function DoctorWidget({ questions }) {
 
   return (
     <Link to="/doctor-questions">
-      <Card className="h-full hover:shadow-ios-md transition-shadow">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-ios-gray font-medium">{t('dashboard.doctor_short')}</p>
-          <Stethoscope size={16} strokeWidth={1.75} style={{ color: '#32ADE6' }} />
+      <Card className="h-full hover:scale-[1.01] transition-transform">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="icon-dot bg-sky-50 dark:bg-sky-500/10">
+            <Stethoscope size={16} strokeWidth={1.75} className="text-sky-500" />
+          </div>
+          <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{t('dashboard.doctor_short')}</p>
         </div>
-        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{pending}</p>
-        <p className="text-[10px] text-ios-gray">{t('dashboard.questions_pending')}</p>
+        <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{pending}</p>
+        <p className="text-[10px] text-zinc-400">{t('dashboard.questions_pending')}</p>
         {total > 0 && (
-          <div className="mt-1.5 h-1 w-full bg-black/6 dark:bg-white/8 rounded-full">
+          <div className="mt-1.5 h-1 w-full bg-zinc-100 dark:bg-zinc-700 rounded-full">
             <div
               className="h-1 rounded-full transition-all"
-              style={{ width: `${((total - pending) / total) * 100}%`, backgroundColor: '#30D158' }}
+              style={{ width: `${((total - pending) / total) * 100}%`, backgroundColor: '#10B981' }}
             />
           </div>
         )}
@@ -532,13 +496,15 @@ function StreakWidget({ habits, habitLogs }) {
   const pct = habits.length > 0 ? Math.round((done / habits.length) * 100) : 0
 
   return (
-    <Card variant="glass-amber" className="h-full">
-      <div className="flex items-center justify-between mb-2">
-        <p className="text-xs text-ios-gray font-medium">{t('dashboard.completed_today')}</p>
-        <Flame size={16} strokeWidth={1.75} style={{ color: '#FF9F0A' }} />
+    <Card className="h-full">
+      <div className="flex items-center gap-2 mb-2">
+        <div className="icon-dot bg-amber-50 dark:bg-amber-500/10">
+          <Flame size={16} strokeWidth={1.75} className="text-amber-500" />
+        </div>
+        <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{t('dashboard.completed_today')}</p>
       </div>
-      <p className="text-2xl font-bold tabular-nums bg-gradient-to-r from-amber-500 to-orange-400 bg-clip-text text-transparent">{pct}%</p>
-      <p className="text-[10px] text-ios-gray">{done} {t('dashboard.habits_of', { n: habits.length })}</p>
+      <p className={`text-2xl font-bold tabular-nums ${pct === 100 ? 'text-emerald-500' : 'text-zinc-900 dark:text-zinc-100'}`}>{pct}%</p>
+      <p className="text-[10px] text-zinc-400">{done} {t('dashboard.habits_of', { n: habits.length })}</p>
     </Card>
   )
 }

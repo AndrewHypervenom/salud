@@ -1,10 +1,10 @@
 import clsx from 'clsx'
 
 const variants = {
-  primary: 'bg-gradient-to-r from-brand-500 to-blue-500 hover:from-brand-600 hover:to-blue-600 text-white shadow-glow-brand active:scale-[0.98]',
-  secondary: 'bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 dark:bg-[#1C1C2E] dark:border-brand-500/20 dark:text-gray-200 dark:hover:bg-brand-500/5',
-  danger: 'bg-red-600 hover:bg-red-700 text-white',
-  ghost: 'hover:bg-gray-100 text-gray-700 dark:hover:bg-brand-500/8 dark:text-gray-300',
+  primary:   'bg-brand-600 hover:bg-brand-700 text-white shadow-sm active:scale-[0.98]',
+  secondary: 'bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700',
+  danger:    'bg-red-600 hover:bg-red-700 text-white',
+  ghost:     'hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300',
 }
 
 export function Button({ children, variant = 'primary', className, disabled, ...props }) {

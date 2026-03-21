@@ -2,255 +2,181 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Color Variables ─────────────────────────────────────── */
+/* ── Design Tokens ───────────────────────────────────────── */
 :root {
-  --ios-blue:   #007AFF;
-  --ios-green:  #30D158;
-  --ios-red:    #FF3B30;
-  --ios-orange: #FF9500;
-  --ios-yellow: #FFD60A;
-  --ios-purple: #BF5AF2;
-  --ios-teal:   #32ADE6;
-  --ios-indigo: #5856D6;
-  --ios-pink:   #FF2D55;
-  --ios-cyan:   #5AC8F5;
-  --ios-gray:   #8E8E93;
-  --ios-bg:     #F4F3FF;
+  /* Surface */
+  --bg:      #F4F4F6;
+  --surface: #FFFFFF;
+  --surface2: #F9F9FB;
+  --border:  rgba(0,0,0,0.07);
+  --border-strong: rgba(0,0,0,0.11);
+
+  /* Text */
+  --text:    #18181B;
+  --muted:   #71717A;
+
+  /* Legacy — used across all pages, do not remove */
+  --ios-blue:   #2563EB;
+  --ios-green:  #16A34A;
+  --ios-red:    #DC2626;
+  --ios-orange: #EA580C;
+  --ios-yellow: #D97706;
+  --ios-purple: #7C3AED;
+  --ios-teal:   #0891B2;
+  --ios-indigo: #4F46E5;
+  --ios-pink:   #DB2777;
+  --ios-cyan:   #0284C7;
+  --ios-gray:   #71717A;
+  --ios-bg:     #F4F4F6;
   --ios-card:   #FFFFFF;
-  --ios-separator: rgba(99,102,241,0.10);
-  --bg-base:    #F4F3FF;
+  --ios-separator: rgba(0,0,0,0.07);
+
+  /* Compat aliases */
+  --bg-base:    #F4F4F6;
   --bg-surface: #FFFFFF;
 }
 
 .dark {
-  --ios-bg:        #141420;
-  --ios-card:      #1C1C2E;
-  --ios-separator: rgba(139,92,246,0.15);
-  --bg-base:       #141420;
-  --bg-surface:    #1C1C2E;
+  --bg:      #18181B;
+  --surface: #27272A;
+  --surface2: #2E2E32;
+  --border:  rgba(255,255,255,0.07);
+  --border-strong: rgba(255,255,255,0.12);
+
+  --text:    #FAFAFA;
+  --muted:   #A1A1AA;
+
+  --ios-blue:   #60A5FA;
+  --ios-green:  #4ADE80;
+  --ios-red:    #F87171;
+  --ios-orange: #FB923C;
+  --ios-yellow: #FCD34D;
+  --ios-purple: #A78BFA;
+  --ios-teal:   #22D3EE;
+  --ios-indigo: #818CF8;
+  --ios-pink:   #F472B6;
+  --ios-cyan:   #38BDF8;
+  --ios-gray:   #A1A1AA;
+  --ios-bg:     #18181B;
+  --ios-card:   #27272A;
+  --ios-separator: rgba(255,255,255,0.07);
+
+  --bg-base:    #18181B;
+  --bg-surface: #27272A;
 }
 
-/* ── Base Styles ─────────────────────────────────────────── */
+/* ── Base ────────────────────────────────────────────────── */
 @layer base {
-  * {
-    -webkit-tap-highlight-color: transparent;
-  }
+  * { -webkit-tap-highlight-color: transparent; }
+
   body {
-    background-color: var(--bg-base);
-    background-image:
-      radial-gradient(ellipse 80% 50% at 20% -10%, rgba(139,92,246,0.12) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 40% at 80% 10%,  rgba(59,130,246,0.10) 0%, transparent 55%),
-      radial-gradient(ellipse 50% 60% at 50% 100%, rgba(99,102,241,0.07) 0%, transparent 50%);
-    background-attachment: fixed;
-    @apply text-gray-900 font-sans;
+    background-color: var(--bg);
+    color: var(--text);
+    @apply font-sans;
     font-size: 16px;
   }
-  .dark body {
-    background-color: var(--bg-base);
-    background-image:
-      radial-gradient(ellipse 90% 60% at 15% -5%,  rgba(139,92,246,0.22) 0%, transparent 55%),
-      radial-gradient(ellipse 70% 50% at 85% 10%,  rgba(59,130,246,0.16) 0%, transparent 50%),
-      radial-gradient(ellipse 60% 70% at 50% 110%, rgba(99,102,241,0.12) 0%, transparent 50%);
-    background-attachment: fixed;
-    @apply text-gray-100;
-  }
 }
 
-/* ── Glassmorphism ───────────────────────────────────────── */
+/* ── Component Styles ────────────────────────────────────── */
 @layer components {
-  .glass-card {
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(24px) saturate(200%);
-    -webkit-backdrop-filter: blur(24px) saturate(200%);
-    border: 1px solid rgba(255, 255, 255, 0.50);
-    border-radius: 20px;
-    box-shadow: 0 2px 16px rgba(99,102,241,0.06), 0 1px 4px rgba(0,0,0,0.03);
+
+  /* ── Card — single neutral style ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   }
-  .dark .glass-card {
-    background: rgba(28, 28, 46, 0.82);
-    border: 1px solid rgba(139, 92, 246, 0.14);
-    box-shadow: 0 2px 16px rgba(0,0,0,0.35), 0 0 1px rgba(139,92,246,0.20);
+  .dark .card {
+    box-shadow: none;
   }
 
-  /* Quick action buttons — light/dark adaptive */
-  .quick-action-btn {
-    background: var(--gradient);
-    box-shadow: var(--shadow);
-  }
-  .quick-action-btn .quick-action-icon {
-    color: white !important;
-  }
-  .quick-action-btn .quick-action-label {
-    color: rgba(255,255,255,0.92);
-  }
-  .dark .quick-action-btn {
-    background: var(--gradient-dark);
-    box-shadow: var(--shadow-dark);
-    border: 1px solid rgba(255,255,255,0.08);
-  }
-  .dark .quick-action-btn .quick-action-icon {
-    color: var(--icon-color) !important;
-  }
-  .dark .quick-action-btn .quick-action-label {
-    color: rgba(255,255,255,0.75);
-  }
-
-  /* Glassmorphism contextual variants */
-  .glass-card-violet {
-    background: rgba(245, 243, 255, 0.80);
-    backdrop-filter: blur(24px) saturate(200%);
-    -webkit-backdrop-filter: blur(24px) saturate(200%);
-    border: 1px solid rgba(139, 92, 246, 0.18);
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(139,92,246,0.12);
-  }
-  .dark .glass-card-violet {
-    background: rgba(139, 92, 246, 0.12);
-    border: 1px solid rgba(139, 92, 246, 0.22);
-    box-shadow: 0 4px 24px rgba(139,92,246,0.18);
-  }
-
-  .glass-card-sky {
-    background: rgba(240, 249, 255, 0.80);
-    backdrop-filter: blur(24px) saturate(200%);
-    -webkit-backdrop-filter: blur(24px) saturate(200%);
-    border: 1px solid rgba(14, 165, 233, 0.18);
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(14,165,233,0.12);
-  }
-  .dark .glass-card-sky {
-    background: rgba(14, 165, 233, 0.11);
-    border: 1px solid rgba(14, 165, 233, 0.22);
-    box-shadow: 0 4px 24px rgba(14,165,233,0.18);
-  }
-
-  .glass-card-amber {
-    background: rgba(255, 251, 235, 0.82);
-    backdrop-filter: blur(24px) saturate(200%);
-    -webkit-backdrop-filter: blur(24px) saturate(200%);
-    border: 1px solid rgba(255, 159, 10, 0.20);
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(255,159,10,0.12);
-  }
-  .dark .glass-card-amber {
-    background: rgba(255, 159, 10, 0.11);
-    border: 1px solid rgba(255, 159, 10, 0.22);
-    box-shadow: 0 4px 24px rgba(255,159,10,0.18);
-  }
-
-  .glass-card-emerald {
-    background: rgba(236, 253, 245, 0.82);
-    backdrop-filter: blur(24px) saturate(200%);
-    -webkit-backdrop-filter: blur(24px) saturate(200%);
-    border: 1px solid rgba(16, 185, 129, 0.18);
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(16,185,129,0.12);
-  }
-  .dark .glass-card-emerald {
-    background: rgba(16, 185, 129, 0.11);
-    border: 1px solid rgba(16, 185, 129, 0.22);
-    box-shadow: 0 4px 24px rgba(16,185,129,0.18);
-  }
-
-  .glass-card-rose {
-    background: rgba(255, 241, 242, 0.82);
-    backdrop-filter: blur(24px) saturate(200%);
-    -webkit-backdrop-filter: blur(24px) saturate(200%);
-    border: 1px solid rgba(244, 63, 94, 0.18);
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(244,63,94,0.12);
-  }
-  .dark .glass-card-rose {
-    background: rgba(244, 63, 94, 0.11);
-    border: 1px solid rgba(244, 63, 94, 0.22);
-    box-shadow: 0 4px 24px rgba(244,63,94,0.18);
-  }
-
-  .glass-card-indigo {
-    background: rgba(238, 242, 255, 0.82);
-    backdrop-filter: blur(24px) saturate(200%);
-    -webkit-backdrop-filter: blur(24px) saturate(200%);
-    border: 1px solid rgba(79, 70, 229, 0.18);
-    border-radius: 20px;
-    box-shadow: 0 4px 20px rgba(79,70,229,0.12);
-  }
-  .dark .glass-card-indigo {
-    background: rgba(79, 70, 229, 0.12);
-    border: 1px solid rgba(79, 70, 229, 0.22);
-    box-shadow: 0 4px 24px rgba(79,70,229,0.18);
-  }
-
+  /* ── Glass Nav ── */
   .glass-nav {
-    background: rgba(244, 243, 255, 0.90);
-    backdrop-filter: blur(28px) saturate(200%);
-    -webkit-backdrop-filter: blur(28px) saturate(200%);
+    background: rgba(244,244,246,0.94);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
   }
   .dark .glass-nav {
-    background: rgba(8, 8, 15, 0.90);
-    border-color: rgba(139, 92, 246, 0.12);
+    background: rgba(24,24,27,0.94);
   }
 
-  /* App Icon gradient buttons */
+  /* ── Legacy glass-card alias (nav + other uses) ── */
+  .glass-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .dark .glass-card {
+    box-shadow: none;
+  }
+
+  /* ── Colored glass aliases → neutral (backward compat) ── */
+  .glass-card-violet,
+  .glass-card-sky,
+  .glass-card-amber,
+  .glass-card-emerald,
+  .glass-card-rose,
+  .glass-card-indigo {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .dark .glass-card-violet,
+  .dark .glass-card-sky,
+  .dark .glass-card-amber,
+  .dark .glass-card-emerald,
+  .dark .glass-card-rose,
+  .dark .glass-card-indigo {
+    box-shadow: none;
+  }
+
+  /* ── Quick Action buttons ── */
+  .qa-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .qa-btn:active { transform: scale(0.92); }
+  .dark .qa-btn  { box-shadow: none; }
+
+  /* ── Icon dot ── */
+  .icon-dot {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* ── App Icon gradient buttons (onboarding etc) ── */
   .ios-icon-btn {
     @apply flex flex-col items-center gap-2 p-3.5 rounded-[18px] active:scale-90 transition-all duration-150;
   }
 
-  /* iOS Typography */
-  .ios-large-title {
-    font-size: 34px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    line-height: 1.1;
-  }
-  .ios-title {
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-    line-height: 1.15;
-  }
-  .ios-title2 {
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: -0.2px;
-  }
-  .ios-headline {
-    font-size: 17px;
-    font-weight: 600;
-    letter-spacing: -0.1px;
-  }
-  .ios-body {
-    font-size: 17px;
-    font-weight: 400;
-  }
-  .ios-subhead {
-    font-size: 15px;
-    font-weight: 400;
-    letter-spacing: -0.1px;
-  }
-  .ios-footnote {
-    font-size: 13px;
-    font-weight: 400;
-  }
-  .ios-caption {
-    font-size: 12px;
-    font-weight: 400;
-    color: var(--ios-gray);
-  }
-  .ios-caption2 {
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 0.05px;
-    color: var(--ios-gray);
-  }
-
-  /* iOS Section label */
+  /* ── Typography ── */
+  .ios-large-title  { font-size: 34px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.1; }
+  .ios-title        { font-size: 28px; font-weight: 700; letter-spacing: -0.3px; line-height: 1.15; }
+  .ios-title2       { font-size: 22px; font-weight: 700; letter-spacing: -0.2px; }
+  .ios-headline     { font-size: 17px; font-weight: 600; letter-spacing: -0.1px; }
+  .ios-body         { font-size: 17px; font-weight: 400; }
+  .ios-subhead      { font-size: 15px; font-weight: 400; letter-spacing: -0.1px; }
+  .ios-footnote     { font-size: 13px; font-weight: 400; }
+  .ios-caption      { font-size: 12px; font-weight: 400; color: var(--muted); }
+  .ios-caption2     { font-size: 11px; font-weight: 400; letter-spacing: 0.05px; color: var(--muted); }
   .ios-section-label {
-    @apply text-[11px] font-semibold uppercase tracking-widest;
-    color: var(--ios-gray);
+    @apply text-[10px] font-semibold uppercase tracking-widest;
+    color: var(--muted);
   }
 }
 
-/* ── Animations ──────────────────────────────────────────── */
+/* ── Utilities ───────────────────────────────────────────── */
 @layer utilities {
   .animate-shake        { animation: shake 0.55s ease-in-out; }
   .animate-scan         { animation: scan 2s ease-in-out infinite; }
@@ -263,11 +189,11 @@
   .animate-spring-in    { animation: spring-in 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards; }
   .animate-fade-scale   { animation: fade-scale 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards; }
 
-  /* Hide scrollbar but allow scroll */
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }
 
+/* ── Keyframes ───────────────────────────────────────────── */
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
   15%       { transform: translateX(-10px); }
@@ -277,50 +203,41 @@
   75%       { transform: translateX(-5px); }
   90%       { transform: translateX(5px); }
 }
-
 @keyframes scan {
   0%   { top: 0%; opacity: 1; }
   80%  { top: 100%; opacity: 1; }
   100% { top: 100%; opacity: 0; }
 }
-
 @keyframes pulse-ring {
   0%   { transform: scale(0.9); opacity: 0.8; }
   100% { transform: scale(1.4); opacity: 0; }
 }
-
 @keyframes shimmer {
   0%   { background-position: -200% center; }
   100% { background-position: 200% center; }
 }
-
 @keyframes float-particle {
   0%   { transform: translateY(0) scale(1); opacity: 1; }
   100% { transform: translateY(-60px) scale(0.5); opacity: 0; }
 }
-
 @keyframes fade-in-up {
   0%   { opacity: 0; transform: translateY(16px); }
   100% { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes success-pop {
   0%   { transform: scale(0.8); opacity: 0; }
   60%  { transform: scale(1.1); }
   100% { transform: scale(1); opacity: 1; }
 }
-
 @keyframes slide-down {
   0%   { transform: translate(-50%, -100%); opacity: 0; }
   100% { transform: translate(-50%, 0); opacity: 1; }
 }
-
 @keyframes spring-in {
   0%   { transform: scale(0.85); opacity: 0; }
   60%  { transform: scale(1.04); opacity: 1; }
   100% { transform: scale(1); opacity: 1; }
 }
-
 @keyframes fade-scale {
   0%   { transform: scale(0.92); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }

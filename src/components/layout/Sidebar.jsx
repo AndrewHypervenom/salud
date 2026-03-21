@@ -29,14 +29,14 @@ function NavItem({ item, t }) {
     <NavLink
       to={item.to}
       className={({ isActive }) =>
-        `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
+        `flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150 ${
           isActive
-            ? 'bg-brand-500/10 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400 font-semibold'
-            : 'text-gray-600 hover:bg-black/5 hover:text-gray-900 dark:text-ios-gray dark:hover:bg-white/8 dark:hover:text-gray-100'
+            ? 'bg-brand-50 dark:bg-brand-500/10 text-brand-700 dark:text-brand-400'
+            : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100'
         }`
       }
     >
-      <NavIcon navKey={item.navKey} size={19} />
+      <NavIcon navKey={item.navKey} size={18} strokeWidth={1.75} />
       {t(item.label)}
     </NavLink>
   )
@@ -46,11 +46,11 @@ export function Sidebar() {
   const { t } = useTranslation()
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-white/75 dark:bg-[rgba(13,13,31,0.80)] backdrop-blur-xl border-r border-black/6 dark:border-brand-500/10 min-h-screen pt-4 overflow-y-auto">
-      <nav className="flex flex-col gap-0.5 px-3">
+    <aside className="hidden md:flex flex-col w-60 bg-[var(--surface)] border-r border-[var(--border)] min-h-screen pt-3 overflow-y-auto">
+      <nav className="flex flex-col gap-0.5 px-2">
         {mainItems.map(item => <NavItem key={item.to} item={item} t={t} />)}
 
-        <p className="ios-section-label px-3 pt-5 pb-1.5">
+        <p className="ios-section-label px-3 pt-5 pb-2">
           {t('nav.tools')}
         </p>
         {toolItems.map(item => <NavItem key={item.to} item={item} t={t} />)}

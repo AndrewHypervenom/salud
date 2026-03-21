@@ -2,19 +2,25 @@ import clsx from 'clsx'
 
 export function Input({ label, error, className, ...props }) {
   return (
-    <div className="flex flex-col gap-1">
-      {label && <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>}
+    <div className="flex flex-col gap-1.5">
+      {label && (
+        <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          {label}
+        </label>
+      )}
       <input
         className={clsx(
-          'block w-full rounded-xl border-gray-300 h-12 px-3 text-base',
-          'focus:border-brand-500 focus:ring-brand-500',
-          'dark:bg-[#1C1C2E] dark:border-brand-500/20 dark:text-gray-200 dark:focus:border-brand-400 dark:placeholder-gray-500',
+          'block w-full rounded-xl border border-zinc-200 dark:border-zinc-700 h-12 px-3.5 text-sm',
+          'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder-zinc-400',
+          'focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500',
+          'dark:focus:border-brand-400 dark:focus:ring-brand-400',
+          'transition-colors',
           error && 'border-red-500 focus:border-red-500 focus:ring-red-500',
           className,
         )}
         {...props}
       />
-      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+      {error && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}
     </div>
   )
 }

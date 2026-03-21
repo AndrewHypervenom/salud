@@ -169,7 +169,7 @@ export function BottomNav() {
         >
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
           <div
-            className="relative bg-[var(--bg-surface)] dark:bg-[#13131F] rounded-t-3xl p-6 pb-28 max-h-[80vh] overflow-y-auto shadow-2xl border-t border-brand-500/10"
+            className="relative bg-[var(--surface)] rounded-t-3xl p-6 pb-28 max-h-[80vh] overflow-y-auto shadow-2xl border-t border-[var(--border)]"
             onClick={e => e.stopPropagation()}
           >
             {/* Handle */}
@@ -245,7 +245,7 @@ export function BottomNav() {
         >
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
           <div
-            className="relative bg-[var(--bg-surface)] dark:bg-[#13131F] rounded-t-3xl p-6 pb-28 max-h-[85vh] overflow-y-auto shadow-2xl border-t border-brand-500/10"
+            className="relative bg-[var(--surface)] rounded-t-3xl p-6 pb-28 max-h-[85vh] overflow-y-auto shadow-2xl border-t border-[var(--border)]"
             onClick={e => e.stopPropagation()}
           >
             <div className="w-10 h-1 bg-black/15 dark:bg-white/20 rounded-full mx-auto mb-5" />
@@ -259,7 +259,7 @@ export function BottomNav() {
       )}
 
       {/* ── BOTTOM BAR ────────────────────────────────────── */}
-      <nav className="fixed bottom-0 left-0 right-0 z-30 glass-nav border-t border-black/8 dark:border-white/8 flex md:hidden pb-safe">
+      <nav className="fixed bottom-0 left-0 right-0 z-30 glass-nav border-t border-[var(--border)] flex md:hidden pb-safe">
         {/* Home — always first */}
         <NavItem to="/dashboard" navKey="dashboard" label="nav.dashboard" />
 
