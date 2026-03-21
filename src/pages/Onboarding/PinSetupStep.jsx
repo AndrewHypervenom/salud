@@ -27,7 +27,7 @@ function validateRecoveryWord(word, t) {
  * Multi-step PIN setup: choose PIN → confirm PIN → recovery word.
  * Calls onComplete({ pin, recoveryWord }) when done.
  */
-export default function PinSetupStep({ onComplete, disabled }) {
+export default function PinSetupStep({ onComplete, onBack, disabled }) {
   const { t } = useTranslation()
   const [step, setStep] = useState('pin') // 'pin' | 'confirm' | 'recovery'
   const [pin, setPin] = useState('')
@@ -88,6 +88,13 @@ export default function PinSetupStep({ onComplete, disabled }) {
   if (step === 'recovery') {
     return (
       <div className="flex flex-col gap-6">
+        <button
+          type="button"
+          onClick={() => { setStep('confirm'); setConfirmPin('') }}
+          className="self-start text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+        >
+          ← {t('common.back')}
+        </button>
         <div className="text-center">
           <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('pin.recovery_setup_title')}</p>
           <p className="text-gray-500 text-sm mt-1">{t('pin.recovery_setup_hint')}</p>
@@ -121,6 +128,16 @@ export default function PinSetupStep({ onComplete, disabled }) {
 
   return (
     <div className="flex flex-col items-center gap-6">
+      <button
+        type="button"
+        onClick={() => {
+          if (step === 'confirm') { setStep('pin'); setPin(''); setConfirmPin('') }
+          else if (onBack) onBack()
+        }}
+        className="self-start text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+      >
+        ← {t('common.back')}
+      </button>
       <div className="text-center">
         <p className="text-xl font-bold text-gray-900 dark:text-gray-100">
           {step === 'pin' ? t('pin.setup_title') : t('pin.confirm_title')}

@@ -567,7 +567,11 @@
     "valid_activity": "Nivel de actividad inválido: \"{{val}}\".",
     "init_message": "Hola, quiero crear mi perfil.",
     "phone_error": "Ingresa un número válido (mínimo 8 dígitos).",
-    "save_error_prefix": "Error al guardar: {{msg}}"
+    "save_error_prefix": "Error al guardar: {{msg}}",
+    "exit_dialog_title": "¿Salir del registro?",
+    "exit_dialog_body": "Tu progreso no se guardará.",
+    "exit_confirm": "Salir",
+    "exit_cancel": "Continuar registrándome"
   },
   "habits": {
     "title": "Hábitos Diarios",

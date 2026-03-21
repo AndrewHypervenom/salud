@@ -567,7 +567,11 @@
     "valid_activity": "Invalid activity level: \"{{val}}\".",
     "init_message": "Hello, I'd like to create my profile.",
     "phone_error": "Enter a valid number (minimum 8 digits).",
-    "save_error_prefix": "Error saving: {{msg}}"
+    "save_error_prefix": "Error saving: {{msg}}",
+    "exit_dialog_title": "Leave registration?",
+    "exit_dialog_body": "Your progress will not be saved.",
+    "exit_confirm": "Leave",
+    "exit_cancel": "Continue registration"
   },
   "habits": {
     "title": "Daily Habits",

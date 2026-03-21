@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useBlocker } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Smartphone, PartyPopper, Heart } from 'lucide-react'
 import { useProfiles } from '../../hooks/useProfiles'
@@ -49,6 +49,33 @@ function validateProfile(data, t) {
   return null
 }
 
+function ExitConfirmDialog({ t, onConfirm, onCancel }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 w-full max-w-xs flex flex-col gap-4 shadow-xl">
+        <div className="text-center">
+          <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{t('onboarding.exit_dialog_title')}</p>
+          <p className="text-sm text-gray-500 mt-1">{t('onboarding.exit_dialog_body')}</p>
+        </div>
+        <div className="flex flex-col gap-2">
+          <button
+            onClick={onCancel}
+            className="w-full py-3 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-colors"
+          >
+            {t('onboarding.exit_cancel')}
+          </button>
+          <button
+            onClick={onConfirm}
+            className="w-full py-3 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors text-sm"
+          >
+            {t('onboarding.exit_confirm')}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function OnboardingPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -60,6 +87,7 @@ export default function OnboardingPage() {
 
   const [input, setInput] = useState('')
   const [phase, setPhase] = useState('chat')
+  const [showExitDialog, setShowExitDialog] = useState(false)
   const [phoneNumber, setPhoneNumber] = useState('')
   const [phoneError, setPhoneError] = useState('')
   const [saving, setSaving] = useState(false)
@@ -67,6 +95,22 @@ export default function OnboardingPage() {
   const [newProfileId, setNewProfileId] = useState(null)
   const bottomRef = useRef(null)
   const started = useRef(false)
+
+  const blocker = useBlocker(() => ['chat', 'phone', 'pin'].includes(phase))
+
+  useEffect(() => {
+    if (blocker.state === 'blocked') setShowExitDialog(true)
+  }, [blocker.state])
+
+  const handleExitConfirm = () => {
+    setShowExitDialog(false)
+    blocker.proceed?.()
+  }
+
+  const handleExitCancel = () => {
+    setShowExitDialog(false)
+    blocker.reset?.()
+  }
 
   useEffect(() => {
     if (!started.current) {
@@ -160,6 +204,9 @@ export default function OnboardingPage() {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center px-6 py-12">
         <div className="w-full max-w-xs flex flex-col gap-8">
+          <button onClick={() => setPhase('chat')} className="self-start text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+            ← {t('common.back')}
+          </button>
           <div className="text-center">
             <div className="flex justify-center mb-3">
               <Smartphone size={40} strokeWidth={1.5} className="text-primary-500" />
@@ -190,6 +237,7 @@ export default function OnboardingPage() {
           </button>
         </div>
       </div>
+      {showExitDialog && <ExitConfirmDialog t={t} onConfirm={handleExitConfirm} onCancel={handleExitCancel} />}
     )
   }
 
@@ -214,7 +262,7 @@ export default function OnboardingPage() {
 
           {/* PinSetupStep nunca se desmonta para evitar reset de estado */}
           <div className={saving ? 'opacity-40 pointer-events-none select-none' : ''}>
-            <PinSetupStep onComplete={handlePinComplete} />
+            <PinSetupStep onComplete={handlePinComplete} onBack={() => setPhase('phone')} />
           </div>
 
           {saving && (
@@ -226,6 +274,7 @@ export default function OnboardingPage() {
 
         </div>
       </div>
+      {showExitDialog && <ExitConfirmDialog t={t} onConfirm={handleExitConfirm} onCancel={handleExitCancel} />}
     )
   }
 
@@ -233,7 +282,7 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
 
       <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-4 flex items-center gap-3 flex-shrink-0">
-        <button onClick={() => navigate('/')} className="text-gray-400 hover:text-gray-600 text-sm">
+        <button onClick={() => setShowExitDialog(true)} className="text-gray-400 hover:text-gray-600 text-sm">
           ← {t('common.back')}
         </button>
         <div>
@@ -290,6 +339,8 @@ export default function OnboardingPage() {
           {t('onboarding.send_btn')}
         </button>
       </div>
+
+      {showExitDialog && <ExitConfirmDialog t={t} onConfirm={() => { setShowExitDialog(false); navigate('/') }} onCancel={() => { setShowExitDialog(false); blocker.reset?.() }} />}
 
     </div>
   )
