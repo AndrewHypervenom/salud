@@ -30,10 +30,10 @@ import FitnessProfileBanner from '../components/shared/FitnessProfileBanner'
 // ─────────────────────────────────────────────────────────
 
 const GOAL_COLORS = {
-  lose_weight:    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-  gain_muscle:    'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
-  improve_health: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300',
-  maintain:       'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+  lose_weight:    'bg-ios-blue/10 text-ios-blue dark:bg-ios-blue/15 dark:text-ios-blue',
+  gain_muscle:    'bg-ios-purple/10 text-ios-purple dark:bg-ios-purple/15 dark:text-ios-purple',
+  improve_health: 'bg-ios-red/10 text-ios-red dark:bg-ios-red/15 dark:text-ios-red',
+  maintain:       'bg-ios-green/10 text-ios-green dark:bg-ios-green/15 dark:text-ios-green',
 }
 
 function CaloriesWidget({ todayCalories, calTarget, profile, activeGoals }) {
@@ -43,7 +43,7 @@ function CaloriesWidget({ todayCalories, calTarget, profile, activeGoals }) {
   const colors = CALORIE_COLORS[status]
   const left = calTarget - todayCalories
 
-  const ringColor = status === 'over' ? '#ef4444' : status === 'warn' ? '#f59e0b' : '#16a34a'
+  const ringColor = status === 'over' ? '#FF3B30' : status === 'warn' ? '#FF9500' : '#30D158'
 
   const isMulti = activeGoals && activeGoals.length > 1
   const goalLabel = isMulti
@@ -57,7 +57,7 @@ function CaloriesWidget({ todayCalories, calTarget, profile, activeGoals }) {
     : t('dashboard.goal_maintain')
 
   const goalColor = isMulti
-    ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300'
+    ? 'bg-ios-indigo/10 text-ios-indigo dark:bg-ios-indigo/15 dark:text-ios-indigo'
     : GOAL_COLORS[profile.health_goal] ?? GOAL_COLORS.maintain
 
   const motivationKey = todayCalories === 0
@@ -66,13 +66,15 @@ function CaloriesWidget({ todayCalories, calTarget, profile, activeGoals }) {
     : status === 'warn' ? 'dashboard.motivation_warn'
     : 'dashboard.motivation_ok'
 
+  const calTextColor = status === 'over' ? 'text-ios-red' : status === 'warn' ? 'text-ios-orange' : 'text-ios-green'
+
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden bg-gradient-to-br from-white to-orange-50/40 dark:from-ios-dark dark:to-ios-dark2">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t('dashboard.calories_today')}</p>
-          <p className="text-xs text-gray-500 mt-0.5">{t(motivationKey)}</p>
+          <p className="ios-section-label">{t('dashboard.calories_today')}</p>
+          <p className="text-xs text-ios-gray mt-0.5">{t(motivationKey)}</p>
         </div>
         <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${goalColor}`}>
           {goalLabel}
@@ -81,24 +83,24 @@ function CaloriesWidget({ todayCalories, calTarget, profile, activeGoals }) {
 
       {/* Ring + stats */}
       <div className="flex items-center gap-6">
-        <ProgressRing percent={pct} size={96} strokeWidth={9} color={ringColor}>
+        <ProgressRing percent={pct} size={96} strokeWidth={8} color={ringColor} trackColor="rgba(0,0,0,0.06)">
           <div className="text-center">
-            <p className={`text-xl font-bold leading-none ${colors.text}`}>{Math.round(pct)}%</p>
+            <p className={`text-xl font-bold leading-none ${calTextColor}`}>{Math.round(pct)}%</p>
           </div>
         </ProgressRing>
 
         <div className="flex-1">
-          <p className={`text-4xl font-bold tabular-nums ${colors.text}`}>{todayCalories}</p>
-          <p className="text-sm text-gray-400">
+          <p className={`text-4xl font-bold tabular-nums tracking-tight ${calTextColor}`}>{todayCalories}</p>
+          <p className="text-sm text-ios-gray">
             {t('dashboard.calories_of', { n: calTarget })}
           </p>
-          <div className="mt-2 h-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div className="mt-2.5 h-1.5 w-full bg-black/6 dark:bg-white/8 rounded-full overflow-hidden">
             <div
-              className={`h-2 rounded-full transition-all duration-700 ${colors.bar}`}
-              style={{ width: `${pct}%` }}
+              className="h-1.5 rounded-full transition-all duration-700"
+              style={{ width: `${pct}%`, backgroundColor: ringColor }}
             />
           </div>
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs text-ios-gray mt-1.5">
             {status === 'over'
               ? t('dashboard.calories_over', { n: Math.abs(left) })
               : t('dashboard.calories_remaining', { n: left })}
@@ -113,24 +115,55 @@ function QuickActionsWidget() {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const actions = [
-    { navKey: 'food',        labelKey: 'nav.food',        to: '/food',        bg: 'bg-green-50 dark:bg-green-950/20 hover:bg-green-100 dark:hover:bg-green-900/30',    icon: 'text-green-600 dark:text-green-400'   },
-    { navKey: 'water',       labelKey: 'nav.water',       to: '/water',       bg: 'bg-blue-50 dark:bg-blue-950/20 hover:bg-blue-100 dark:hover:bg-blue-900/30',        icon: 'text-blue-500 dark:text-blue-400'     },
-    { navKey: 'weight',      labelKey: 'nav.weight',      to: '/weight',      bg: 'bg-violet-50 dark:bg-violet-950/20 hover:bg-violet-100 dark:hover:bg-violet-900/30', icon: 'text-violet-500 dark:text-violet-400' },
-    { navKey: 'fasting',     labelKey: 'nav.fasting',     to: '/fasting',     bg: 'bg-amber-50 dark:bg-amber-950/20 hover:bg-amber-100 dark:hover:bg-amber-900/30',    icon: 'text-amber-500 dark:text-amber-400'   },
-    { navKey: 'food-search', labelKey: 'nav.food_search', to: '/food-search', bg: 'bg-teal-50 dark:bg-teal-950/20 hover:bg-teal-100 dark:hover:bg-teal-900/30',        icon: 'text-teal-500 dark:text-teal-400'     },
+    {
+      navKey: 'food',
+      labelKey: 'nav.food',
+      to: '/food',
+      gradient: 'linear-gradient(145deg, #34D158, #25A244)',
+      shadow: '0 6px 16px rgba(48,209,88,0.35)',
+    },
+    {
+      navKey: 'water',
+      labelKey: 'nav.water',
+      to: '/water',
+      gradient: 'linear-gradient(145deg, #1A8FFF, #0055D4)',
+      shadow: '0 6px 16px rgba(0,122,255,0.35)',
+    },
+    {
+      navKey: 'weight',
+      labelKey: 'nav.weight',
+      to: '/weight',
+      gradient: 'linear-gradient(145deg, #CF6AF8, #9B35D4)',
+      shadow: '0 6px 16px rgba(191,90,242,0.35)',
+    },
+    {
+      navKey: 'fasting',
+      labelKey: 'nav.fasting',
+      to: '/fasting',
+      gradient: 'linear-gradient(145deg, #42BFEE, #1E8EC4)',
+      shadow: '0 6px 16px rgba(50,173,230,0.35)',
+    },
+    {
+      navKey: 'food-search',
+      labelKey: 'nav.food_search',
+      to: '/food-search',
+      gradient: 'linear-gradient(145deg, #FF9F0A, #E07000)',
+      shadow: '0 6px 16px rgba(255,149,0,0.35)',
+    },
   ]
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2.5">
       {actions.map(a => (
         <button
           key={a.to}
           onClick={() => navigate(a.to)}
-          className={`flex-1 flex flex-col items-center gap-2 py-4 rounded-2xl ${a.bg} active:scale-95 transition-all duration-150`}
+          className="flex-1 flex flex-col items-center gap-2 py-4 rounded-[18px] active:scale-90 transition-all duration-150"
+          style={{ background: a.gradient, boxShadow: a.shadow }}
         >
-          <span className={a.icon}>
-            <NavIcon navKey={a.navKey} size={22} />
+          <span className="text-white">
+            <NavIcon navKey={a.navKey} size={22} strokeWidth={1.75} />
           </span>
-          <span className="text-[10px] font-semibold text-gray-600 dark:text-gray-300 leading-tight text-center">
+          <span className="text-[10px] font-semibold text-white/90 leading-tight text-center">
             {t(a.labelKey)}
           </span>
         </button>
@@ -157,25 +190,25 @@ function MealsWidget({ todayLogs, calTarget }) {
           <Link key={meal} to="/food">
             <div className={`rounded-2xl p-3.5 transition-all active:scale-95 ${
               has
-                ? 'bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800'
-                : 'bg-gray-50 dark:bg-gray-800/50 border border-dashed border-gray-200 dark:border-gray-700'
+                ? 'bg-ios-green/8 dark:bg-ios-green/10 border border-ios-green/20 dark:border-ios-green/15'
+                : 'bg-black/3 dark:bg-white/4 border border-dashed border-black/10 dark:border-white/10'
             }`}>
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5">
-                  {(() => { const MIcon = MEAL_ICONS[meal]; return <MIcon size={16} strokeWidth={1.75} className="text-gray-500 dark:text-gray-400 flex-shrink-0" /> })()}
-                  <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">{t(`food.${meal}`)}</span>
+                  {(() => { const MIcon = MEAL_ICONS[meal]; return <MIcon size={16} strokeWidth={1.75} className={has ? 'text-ios-green flex-shrink-0' : 'text-ios-gray flex-shrink-0'} /> })()}
+                  <span className={`text-xs font-semibold ${has ? 'text-gray-800 dark:text-gray-100' : 'text-ios-gray'}`}>{t(`food.${meal}`)}</span>
                 </div>
-                {has && <span className="w-2 h-2 rounded-full bg-primary-400 flex-shrink-0" />}
+                {has && <span className="w-2 h-2 rounded-full bg-ios-green flex-shrink-0" />}
               </div>
               {has ? (
                 <>
-                  <p className="text-base font-bold text-primary-600 dark:text-primary-400">{kcal}<span className="text-xs font-normal ml-0.5">kcal</span></p>
-                  <div className="mt-1.5 h-1 w-full bg-primary-100 dark:bg-primary-900/40 rounded-full">
-                    <div className="h-1 bg-primary-400 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
+                  <p className="text-base font-bold text-ios-green tabular-nums">{kcal}<span className="text-xs font-normal text-ios-gray ml-0.5">kcal</span></p>
+                  <div className="mt-1.5 h-1 w-full bg-ios-green/15 rounded-full">
+                    <div className="h-1 bg-ios-green rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
                   </div>
                 </>
               ) : (
-                <p className="text-xs text-gray-400 mt-1">{t('dashboard.meal_missing')}</p>
+                <p className="text-xs text-ios-gray mt-1">{t('dashboard.meal_missing')}</p>
               )}
             </div>
           </Link>
@@ -197,24 +230,24 @@ function MacrosWidget({ todayLogs, calTarget }) {
   )
 
   const bars = [
-    { labelKey: 'food.protein', value: Math.round(totals.p), max: macroGoals.protein_g, color: '#3b82f6', bg: 'bg-blue-500', track: 'bg-blue-100 dark:bg-blue-900/30' },
-    { labelKey: 'food.carbs', value: Math.round(totals.c), max: macroGoals.carbs_g, color: '#22c55e', bg: 'bg-green-500', track: 'bg-green-100 dark:bg-green-900/30' },
-    { labelKey: 'food.fat', value: Math.round(totals.f), max: macroGoals.fat_g, color: '#f59e0b', bg: 'bg-amber-400', track: 'bg-amber-100 dark:bg-amber-900/30' },
+    { labelKey: 'food.protein', value: Math.round(totals.p), max: macroGoals.protein_g, color: '#007AFF', trackStyle: 'rgba(0,122,255,0.12)' },
+    { labelKey: 'food.carbs',   value: Math.round(totals.c), max: macroGoals.carbs_g,   color: '#FF9500', trackStyle: 'rgba(255,149,0,0.12)' },
+    { labelKey: 'food.fat',     value: Math.round(totals.f), max: macroGoals.fat_g,     color: '#FFD60A', trackStyle: 'rgba(255,214,10,0.15)' },
   ]
 
   return (
-    <Card>
-      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">{t('food.macros')}</p>
+    <Card className="bg-gradient-to-br from-white to-blue-50/30 dark:from-ios-dark dark:to-ios-dark2">
+      <p className="ios-section-label mb-4">{t('food.macros')}</p>
       <div className="flex gap-4 mb-4">
         {bars.map(b => {
           const pct = b.max > 0 ? Math.min((b.value / b.max) * 100, 100) : 0
           return (
             <div key={b.labelKey} className="flex-1 flex flex-col items-center gap-1">
-              <ProgressRing percent={pct} size={52} strokeWidth={5} color={b.color}>
+              <ProgressRing percent={pct} size={52} strokeWidth={5} color={b.color} trackColor="rgba(0,0,0,0.05)">
                 <span className="text-[10px] font-bold text-gray-700 dark:text-gray-200">{Math.round(pct)}%</span>
               </ProgressRing>
-              <p className="text-xs font-semibold text-gray-700 dark:text-gray-200">{b.value}g</p>
-              <p className="text-[10px] text-gray-400 text-center leading-tight">{t(b.labelKey)}</p>
+              <p className="text-xs font-bold text-gray-800 dark:text-gray-100">{b.value}g</p>
+              <p className="text-[10px] text-ios-gray text-center leading-tight">{t(b.labelKey)}</p>
             </div>
           )
         })}
@@ -225,11 +258,14 @@ function MacrosWidget({ todayLogs, calTarget }) {
           const over = b.value > b.max
           return (
             <div key={b.labelKey} className="flex items-center gap-2">
-              <span className="text-xs text-gray-500 w-20 flex-shrink-0">{t(b.labelKey)}</span>
-              <div className={`flex-1 h-2 rounded-full ${b.track}`}>
-                <div className={`h-2 rounded-full transition-all duration-700 ${over ? 'bg-red-400' : b.bg}`} style={{ width: `${pct}%` }} />
+              <span className="text-xs text-ios-gray w-20 flex-shrink-0">{t(b.labelKey)}</span>
+              <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: b.trackStyle }}>
+                <div
+                  className="h-1.5 rounded-full transition-all duration-700"
+                  style={{ width: `${pct}%`, backgroundColor: over ? '#FF3B30' : b.color }}
+                />
               </div>
-              <span className={`text-xs font-semibold tabular-nums w-14 text-right ${over ? 'text-red-500' : 'text-gray-700 dark:text-gray-300'}`}>
+              <span className={`text-xs font-semibold tabular-nums w-14 text-right ${over ? 'text-ios-red' : 'text-gray-700 dark:text-gray-300'}`}>
                 {b.value}/{b.max}g
               </span>
             </div>
@@ -243,7 +279,7 @@ function MacrosWidget({ todayLogs, calTarget }) {
 function WaterDashWidget({ profileId, waterGoalMl }) {
   const { t } = useTranslation()
   const { todayTotal, todayPercent, addWater } = useWaterLogs(profileId, waterGoalMl)
-  const ringColor = todayPercent >= 100 ? '#22c55e' : '#3b82f6'
+  const ringColor = todayPercent >= 100 ? '#30D158' : '#007AFF'
 
   const handleAdd = async (e) => {
     e.preventDefault()
@@ -253,18 +289,19 @@ function WaterDashWidget({ profileId, waterGoalMl }) {
 
   return (
     <Link to="/water">
-      <Card className="h-full hover:shadow-md transition-shadow">
+      <Card className="h-full hover:shadow-ios-md transition-shadow">
         <div className="flex items-center gap-3">
-          <ProgressRing percent={todayPercent} size={48} strokeWidth={5} color={ringColor}>
-            <Droplets size={16} strokeWidth={1.75} style={{ color: ringColor }} />
+          <ProgressRing percent={todayPercent} size={48} strokeWidth={5} color={ringColor} trackColor="rgba(0,122,255,0.1)">
+            <Droplets size={14} strokeWidth={1.75} style={{ color: ringColor }} />
           </ProgressRing>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-400 font-medium">{t('nav.water')}</p>
-            <p className="text-base font-bold text-blue-600 tabular-nums">{todayTotal}<span className="text-xs font-normal text-gray-400 ml-0.5">/{waterGoalMl}ml</span></p>
+            <p className="text-xs text-ios-gray font-medium">{t('nav.water')}</p>
+            <p className="text-base font-bold tabular-nums" style={{ color: '#007AFF' }}>{todayTotal}<span className="text-xs font-normal text-ios-gray ml-0.5">/{waterGoalMl}ml</span></p>
           </div>
           <button
             onClick={handleAdd}
-            className="w-7 h-7 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm font-bold hover:bg-blue-600 active:scale-90 transition-all flex-shrink-0"
+            className="w-7 h-7 rounded-full text-white flex items-center justify-center text-sm font-bold active:scale-90 transition-all flex-shrink-0 shadow-ios-colored-blue"
+            style={{ background: 'linear-gradient(145deg, #1A8FFF, #0055D4)' }}
           >
             +
           </button>
@@ -288,14 +325,17 @@ function FastingDashWidget({ profileId }) {
     return (
       <Card className="h-full">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center flex-shrink-0"><Zap size={22} strokeWidth={1.75} className="text-violet-600 dark:text-violet-400" /></div>
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(50,173,230,0.12)' }}>
+            <Zap size={22} strokeWidth={1.75} style={{ color: '#32ADE6' }} />
+          </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-400 font-medium">{t('nav.fasting')}</p>
-            <p className="text-xs text-gray-500">{t('fasting.no_active')}</p>
+            <p className="text-xs text-ios-gray font-medium">{t('nav.fasting')}</p>
+            <p className="text-xs text-ios-gray">{t('fasting.no_active')}</p>
           </div>
           <button
             onClick={handleStart}
-            className="px-2.5 py-1.5 bg-violet-600 text-white rounded-xl text-xs font-semibold hover:bg-violet-700 active:scale-95 transition-all flex-shrink-0"
+            className="px-2.5 py-1.5 text-white rounded-xl text-xs font-bold active:scale-95 transition-all flex-shrink-0"
+            style={{ background: 'linear-gradient(145deg, #42BFEE, #1E8EC4)', boxShadow: '0 4px 12px rgba(50,173,230,0.35)' }}
           >
             16h
           </button>
@@ -309,14 +349,14 @@ function FastingDashWidget({ profileId }) {
 
   return (
     <Link to="/fasting">
-      <Card className="h-full hover:shadow-md transition-shadow">
+      <Card className="h-full hover:shadow-ios-md transition-shadow">
         <div className="flex items-center gap-3">
-          <ProgressRing percent={pct} size={48} strokeWidth={5} color="#7c3aed">
-            <Zap size={16} strokeWidth={1.75} style={{ color: '#7c3aed' }} />
+          <ProgressRing percent={pct} size={48} strokeWidth={5} color="#32ADE6" trackColor="rgba(50,173,230,0.1)">
+            <Zap size={14} strokeWidth={1.75} style={{ color: '#32ADE6' }} />
           </ProgressRing>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-400 font-medium">{t('fasting.active')}</p>
-            <ElapsedTimer startTime={activeSession.start_time} className="text-sm font-bold text-violet-600" />
+            <p className="text-xs text-ios-gray font-medium">{t('fasting.active')}</p>
+            <ElapsedTimer startTime={activeSession.start_time} className="text-sm font-bold text-ios-teal" />
           </div>
         </div>
       </Card>
@@ -330,24 +370,26 @@ function HabitsWidget({ habits, habitLogs }) {
   const pct = habits.length > 0 ? (done / habits.length) * 100 : 0
   const allDone = habits.length > 0 && done === habits.length
 
+  const habitBarColor = allDone ? '#30D158' : pct > 0 ? '#5AC8F5' : 'rgba(0,0,0,0.1)'
+
   return (
     <Link to="/habits">
-      <Card className="hover:shadow-md transition-shadow">
+      <Card className="hover:shadow-ios-md transition-shadow">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t('dashboard.habits_today')}</p>
+          <p className="ios-section-label">{t('dashboard.habits_today')}</p>
           <div className="flex items-center gap-1.5">
-            {allDone && <PartyPopper size={16} strokeWidth={1.75} className="text-green-500" />}
-            <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{done}</span>
-            <span className="text-sm text-gray-400">/ {habits.length}</span>
+            {allDone && <PartyPopper size={16} strokeWidth={1.75} style={{ color: '#30D158' }} />}
+            <span className="text-sm font-bold text-gray-800 dark:text-gray-100">{done}</span>
+            <span className="text-sm text-ios-gray">/ {habits.length}</span>
           </div>
         </div>
 
         {habits.length > 0 && (
           <>
-            <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-3">
+            <div className="w-full h-1.5 bg-black/6 dark:bg-white/8 rounded-full overflow-hidden mb-3">
               <div
-                className={`h-2 rounded-full transition-all duration-700 ${allDone ? 'bg-green-500' : pct > 0 ? 'bg-amber-400' : 'bg-gray-300'}`}
-                style={{ width: `${pct}%` }}
+                className="h-1.5 rounded-full transition-all duration-700"
+                style={{ width: `${pct}%`, backgroundColor: habitBarColor }}
               />
             </div>
             <div className="flex flex-wrap gap-1.5">
@@ -356,10 +398,10 @@ function HabitsWidget({ habits, habitLogs }) {
                 return (
                   <span
                     key={h.id}
-                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-all ${
+                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold transition-all ${
                       isDone
-                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                        : 'bg-gray-100 text-gray-400 dark:bg-gray-800'
+                        ? 'bg-ios-cyan/12 text-ios-teal dark:bg-ios-cyan/15 dark:text-ios-cyan'
+                        : 'bg-black/5 text-ios-gray dark:bg-white/8'
                     }`}
                   >
                     {getHabitDisplayName(h.name, t)}
@@ -381,19 +423,19 @@ function BPWidget({ readings }) {
 
   return (
     <Link to="/blood-pressure">
-      <Card className="h-full hover:shadow-md transition-shadow">
+      <Card className="h-full hover:shadow-ios-md transition-shadow">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-gray-400 font-medium">{t('nav.blood_pressure')}</p>
-          <Heart size={16} strokeWidth={1.75} className="text-rose-500" />
+          <p className="text-xs text-ios-gray font-medium">{t('nav.blood_pressure')}</p>
+          <Heart size={16} strokeWidth={1.75} style={{ color: '#FF3B30' }} />
         </div>
         {last ? (
           <>
-            <p className="text-xl font-bold text-gray-900 dark:text-gray-100 tabular-nums">{last.systolic}<span className="text-gray-400">/{last.diastolic}</span></p>
-            <p className="text-[10px] text-gray-400 mb-1.5">mmHg</p>
+            <p className="text-xl font-bold text-gray-900 dark:text-gray-100 tabular-nums">{last.systolic}<span className="text-ios-gray">/{last.diastolic}</span></p>
+            <p className="text-[10px] text-ios-gray mb-1.5">mmHg</p>
             {bpClass && <Badge className={`${bpClass.badgeClass} text-[10px]`}>{t(`bp.status_${bpClass.status}`)}</Badge>}
           </>
         ) : (
-          <p className="text-sm text-gray-400">{t('dashboard.no_bp')}</p>
+          <p className="text-sm text-ios-gray">{t('dashboard.no_bp')}</p>
         )}
       </Card>
     </Link>
@@ -408,23 +450,23 @@ function WeightDashWidget({ profileId, targetWeight }) {
 
   return (
     <Link to="/weight">
-      <Card className="h-full hover:shadow-md transition-shadow">
+      <Card className="h-full hover:shadow-ios-md transition-shadow">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-gray-400 font-medium">{t('nav.weight')}</p>
-          <Scale size={16} strokeWidth={1.75} className="text-violet-500" />
+          <p className="text-xs text-ios-gray font-medium">{t('nav.weight')}</p>
+          <Scale size={16} strokeWidth={1.75} style={{ color: '#BF5AF2' }} />
         </div>
         <p className="text-xl font-bold text-gray-900 dark:text-gray-100 tabular-nums">
-          {latestWeight ?? '—'}<span className="text-xs font-normal text-gray-400 ml-0.5">kg</span>
+          {latestWeight ?? '—'}<span className="text-xs font-normal text-ios-gray ml-0.5">kg</span>
         </p>
         {diff !== null && (
-          <p className={`text-xs font-semibold mt-0.5 ${diff === 0 ? 'text-green-500' : diff > 0 ? 'text-amber-500' : 'text-blue-500'}`}>
+          <p className={`text-xs font-semibold mt-0.5 ${diff === 0 ? 'text-ios-green' : diff > 0 ? 'text-ios-orange' : 'text-ios-blue'}`}>
             {t('dashboard.kg_vs_goal', { diff: diff > 0 ? `+${diff}` : diff })}
           </p>
         )}
         {trend !== null && (() => {
           const TrendIcon = trend < 0 ? TrendingDown : TrendingUp
           return (
-            <p className="text-[10px] text-gray-400 mt-0.5 flex items-center gap-0.5">
+            <p className="text-[10px] text-ios-gray mt-0.5 flex items-center gap-0.5">
               <TrendIcon size={10} strokeWidth={2} /> {t('dashboard.kg_vs_yesterday', { diff: Math.abs(trend) })}
             </p>
           )
@@ -441,18 +483,18 @@ function DoctorWidget({ questions }) {
 
   return (
     <Link to="/doctor-questions">
-      <Card className="h-full hover:shadow-md transition-shadow">
+      <Card className="h-full hover:shadow-ios-md transition-shadow">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-gray-400 font-medium">{t('dashboard.doctor_short')}</p>
-          <Stethoscope size={16} strokeWidth={1.75} className="text-teal-500" />
+          <p className="text-xs text-ios-gray font-medium">{t('dashboard.doctor_short')}</p>
+          <Stethoscope size={16} strokeWidth={1.75} style={{ color: '#32ADE6' }} />
         </div>
         <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{pending}</p>
-        <p className="text-[10px] text-gray-400">{t('dashboard.questions_pending')}</p>
+        <p className="text-[10px] text-ios-gray">{t('dashboard.questions_pending')}</p>
         {total > 0 && (
-          <div className="mt-1.5 h-1 w-full bg-gray-200 dark:bg-gray-700 rounded-full">
+          <div className="mt-1.5 h-1 w-full bg-black/6 dark:bg-white/8 rounded-full">
             <div
-              className="h-1 bg-green-400 rounded-full"
-              style={{ width: `${((total - pending) / total) * 100}%` }}
+              className="h-1 rounded-full transition-all"
+              style={{ width: `${((total - pending) / total) * 100}%`, backgroundColor: '#30D158' }}
             />
           </div>
         )}
@@ -469,11 +511,11 @@ function StreakWidget({ habits, habitLogs }) {
   return (
     <Card className="h-full">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-xs text-gray-400 font-medium">{t('dashboard.completed_today')}</p>
-        <Flame size={16} strokeWidth={1.75} className="text-orange-500" />
+        <p className="text-xs text-ios-gray font-medium">{t('dashboard.completed_today')}</p>
+        <Flame size={16} strokeWidth={1.75} style={{ color: '#FF9500' }} />
       </div>
-      <p className="text-2xl font-bold text-orange-500">{pct}%</p>
-      <p className="text-[10px] text-gray-400">{done} {t('dashboard.habits_of', { n: habits.length })}</p>
+      <p className="text-2xl font-bold tabular-nums" style={{ color: '#FF9500' }}>{pct}%</p>
+      <p className="text-[10px] text-ios-gray">{done} {t('dashboard.habits_of', { n: habits.length })}</p>
     </Card>
   )
 }
@@ -508,7 +550,7 @@ function EditableWidget({ id, children, onHide, onMoveUp, onMoveDown, isFirst, i
         isDragging
           ? 'opacity-0 pointer-events-none'
           : isOver
-          ? 'scale-[1.015] ring-[2.5px] ring-primary-500 ring-offset-2 dark:ring-offset-gray-950 shadow-lg shadow-primary-500/20'
+          ? 'scale-[1.015] ring-[2.5px] ring-ios-orange ring-offset-2 dark:ring-offset-black shadow-ios-colored-orange'
           : ''
       }`}
     >
@@ -539,13 +581,13 @@ function EditableWidget({ id, children, onHide, onMoveUp, onMoveDown, isFirst, i
         <button
           onClick={() => onMoveUp(id)}
           disabled={isFirst}
-          className="w-6 h-5 flex items-center justify-center text-white disabled:opacity-25 hover:text-primary-300 transition-colors rounded-full"
+          className="w-6 h-5 flex items-center justify-center text-white disabled:opacity-25 hover:text-ios-orange/80 transition-colors rounded-full"
         ><ChevronUp size={12} strokeWidth={2} /></button>
         <div className="w-px h-3 bg-gray-500"/>
         <button
           onClick={() => onMoveDown(id)}
           disabled={isLast}
-          className="w-6 h-5 flex items-center justify-center text-white disabled:opacity-25 hover:text-primary-300 transition-colors rounded-full"
+          className="w-6 h-5 flex items-center justify-center text-white disabled:opacity-25 hover:text-ios-orange/80 transition-colors rounded-full"
         ><ChevronDown size={12} strokeWidth={2} /></button>
       </div>
 
@@ -727,11 +769,11 @@ export default function Dashboard() {
   if (!profile) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
-        <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/30">
+        <div className="w-24 h-24 rounded-3xl flex items-center justify-center shadow-ios-colored-orange" style={{ background: 'linear-gradient(145deg, #FF9F0A, #E07000)' }}>
           <Heart size={48} strokeWidth={1.5} className="text-white" />
         </div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('app_title')}</h1>
-        <p className="text-gray-500 max-w-xs text-sm">{t('dashboard.select_profile')}</p>
+        <p className="text-ios-gray max-w-xs text-sm">{t('dashboard.select_profile')}</p>
       </div>
     )
   }
@@ -745,21 +787,22 @@ export default function Dashboard() {
       {/* ── HEADER ─────────────────────────────────────────── */}
       <div className="flex items-center gap-3">
         <Link to={`/profiles/${profile.id}/edit`}>
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-primary-500/20 hover:scale-105 active:scale-95 transition-transform">
+          <div className="w-11 h-11 rounded-2xl flex items-center justify-center text-white font-bold text-lg hover:scale-105 active:scale-95 transition-transform shadow-ios-colored-orange" style={{ background: 'linear-gradient(145deg, #FF9F0A, #E07000)' }}>
             {profile.name[0].toUpperCase()}
           </div>
         </Link>
         <div className="flex-1">
-          <p className="text-xs text-gray-400">{t('dashboard.welcome')}</p>
-          <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100 leading-tight">{profile.name}</h1>
+          <p className="text-xs text-ios-gray">{t('dashboard.welcome')}</p>
+          <h1 className="text-[17px] font-bold text-gray-900 dark:text-gray-100 leading-tight tracking-tight">{profile.name}</h1>
         </div>
         <button
           onClick={() => setEditMode(e => !e)}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
             editMode
-              ? 'bg-primary-600 text-white shadow-md shadow-primary-500/30'
-              : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'
+              ? 'text-white shadow-ios-colored-orange'
+              : 'bg-black/6 dark:bg-white/10 text-ios-gray hover:bg-black/10 dark:hover:bg-white/15'
           }`}
+          style={editMode ? { background: 'linear-gradient(145deg, #FF9F0A, #E07000)' } : {}}
         >
           {editMode ? (
             <>
@@ -790,15 +833,15 @@ export default function Dashboard() {
 
       {/* ── EDIT MODE BANNER ───────────────────────────────── */}
       {editMode && (
-        <div className="flex items-center gap-3 px-4 py-3 bg-primary-50 dark:bg-primary-900/20 rounded-2xl border border-primary-100 dark:border-primary-800">
-          <Pencil size={18} strokeWidth={1.75} className="text-primary-600 dark:text-primary-400" />
+        <div className="flex items-center gap-3 px-4 py-3 rounded-2xl border border-ios-orange/20 dark:border-ios-orange/15" style={{ background: 'rgba(255,149,0,0.08)' }}>
+          <Pencil size={18} strokeWidth={1.75} style={{ color: '#FF9500' }} />
           <div className="flex-1">
-            <p className="text-xs font-semibold text-primary-700 dark:text-primary-300">{t('dashboard.edit_mode_title')}</p>
-            <p className="text-[11px] text-primary-600/70 dark:text-primary-400/70">{t('dashboard.edit_mode_hint')}</p>
+            <p className="text-xs font-semibold text-ios-orange">{t('dashboard.edit_mode_title')}</p>
+            <p className="text-[11px] text-ios-orange/60">{t('dashboard.edit_mode_hint')}</p>
           </div>
           <button
             onClick={resetAll}
-            className="text-[11px] font-semibold text-primary-600 dark:text-primary-400 border border-primary-200 dark:border-primary-700 px-2.5 py-1 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/40 transition-colors"
+            className="text-[11px] font-semibold text-ios-orange border border-ios-orange/30 px-2.5 py-1 rounded-lg hover:bg-ios-orange/10 transition-colors"
           >
             {t('dashboard.btn_reset')}
           </button>
@@ -860,7 +903,7 @@ export default function Dashboard() {
       {/* ── ADD HIDDEN WIDGETS (edit mode) ─────────────────── */}
       {editMode && hiddenWidgets.length > 0 && (
         <div>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3 px-1">{t('dashboard.add_widgets')}</p>
+          <p className="ios-section-label mb-3 px-1">{t('dashboard.add_widgets')}</p>
           <div className="grid grid-cols-2 gap-2.5">
             {hiddenWidgets.map(id => {
               const meta = WIDGET_CATALOG.find(w => w.id === id)
@@ -869,13 +912,16 @@ export default function Dashboard() {
                 <button
                   key={id}
                   onClick={() => showWidget(id)}
-                  className="flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 text-left hover:border-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 dark:hover:border-primary-700 transition-all group"
+                  className="flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 border-dashed border-black/10 dark:border-white/12 text-left hover:border-ios-orange/40 hover:bg-ios-orange/5 dark:hover:bg-ios-orange/8 transition-all group active:scale-97"
                 >
-                  <WidgetIcon id={id} size={22} className="text-gray-500 dark:text-gray-400 flex-shrink-0" />
+                  <WidgetIcon id={id} size={22} className="text-ios-gray flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 leading-tight">{t(meta.label)}</p>
                   </div>
-                  <span className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 group-hover:bg-primary-500 text-gray-500 group-hover:text-white flex items-center justify-center text-sm font-bold transition-all">+</span>
+                  <span className="w-6 h-6 rounded-full bg-black/8 dark:bg-white/10 group-hover:text-white flex items-center justify-center text-sm font-bold transition-all" style={{ '--tw-bg': 'transparent' }}>
+                    <span className="group-hover:hidden text-ios-gray">+</span>
+                    <span className="hidden group-hover:flex w-6 h-6 rounded-full items-center justify-center text-white" style={{ background: '#FF9500' }}>+</span>
+                  </span>
                 </button>
               )
             })}

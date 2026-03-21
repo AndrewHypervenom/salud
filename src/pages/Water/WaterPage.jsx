@@ -67,20 +67,20 @@ export default function WaterPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-        <Droplets size={26} strokeWidth={1.75} className="text-blue-500" />
+      <h1 className="ios-title text-gray-900 dark:text-gray-100 flex items-center gap-2">
+        <Droplets size={26} strokeWidth={1.75} style={{ color: '#007AFF' }} />
         {t('water.title')}
       </h1>
 
       {/* Progress ring principal */}
-      <Card className="flex flex-col items-center py-6 gap-3">
-        <ProgressRing percent={todayPercent} size={160} strokeWidth={14} color="#3b82f6">
+      <Card className="flex flex-col items-center py-6 gap-3 bg-gradient-to-br from-white to-blue-50/40 dark:from-ios-dark dark:to-ios-dark2">
+        <ProgressRing percent={todayPercent} size={160} strokeWidth={12} color="#007AFF" trackColor="rgba(0,122,255,0.1)">
           <div className="text-center">
-            <p className="text-2xl font-bold text-blue-600">{todayTotal}</p>
-            <p className="text-xs text-gray-400">ml</p>
+            <p className="text-2xl font-bold tabular-nums" style={{ color: '#007AFF' }}>{todayTotal}</p>
+            <p className="text-xs text-ios-gray">ml</p>
           </div>
         </ProgressRing>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-ios-gray">
           {todayPercent >= 100
             ? t('water.goal_met')
             : t('water.remaining', { remaining, goal: waterGoal })}
@@ -89,18 +89,19 @@ export default function WaterPage() {
 
       {/* Botones rápidos */}
       <div>
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('water.quick_add')}</p>
+        <p className="ios-section-label mb-2">{t('water.quick_add')}</p>
         <div className="grid grid-cols-3 gap-2">
           {QUICK_OPTIONS.map(opt => (
             <button
               key={opt.ml}
               onClick={() => handleAdd(opt.ml)}
               disabled={adding}
-              className="flex flex-col items-center gap-1 py-3 bg-blue-50 dark:bg-blue-900/20 rounded-2xl text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors disabled:opacity-40"
+              className="flex flex-col items-center gap-1.5 py-4 rounded-2xl text-white disabled:opacity-40 active:scale-95 transition-all"
+              style={{ background: 'linear-gradient(145deg, #1A8FFF, #0055D4)', boxShadow: '0 6px 16px rgba(0,122,255,0.30)' }}
             >
               <opt.Icon size={24} strokeWidth={1.75} />
               <span className="text-xs font-semibold">{t(opt.labelKey)}</span>
-              <span className="text-xs text-blue-400">+{opt.ml}ml</span>
+              <span className="text-xs text-white/70">+{opt.ml}ml</span>
             </button>
           ))}
         </div>
@@ -108,7 +109,7 @@ export default function WaterPage() {
 
       {/* Cantidad personalizada */}
       <Card>
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('water.custom_amount')}</p>
+        <p className="ios-section-label mb-2">{t('water.custom_amount')}</p>
         <div className="flex gap-2">
           <input
             type="number"
@@ -117,13 +118,14 @@ export default function WaterPage() {
             placeholder={t('water.ml_placeholder')}
             min="1"
             max="2000"
-            className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-xl focus:outline-none focus:border-blue-500"
+            className="flex-1 px-3 py-2 text-sm border border-black/10 dark:border-white/10 bg-black/4 dark:bg-white/6 dark:text-gray-200 rounded-xl focus:outline-none"
             onKeyDown={e => e.key === 'Enter' && handleCustom()}
           />
           <button
             onClick={handleCustom}
             disabled={!customMl || parseInt(customMl) <= 0 || adding}
-            className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold disabled:opacity-40 hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 text-white rounded-xl text-sm font-semibold disabled:opacity-40 transition-all active:scale-95"
+            style={{ background: 'linear-gradient(145deg, #1A8FFF, #0055D4)' }}
           >
             {adding ? <Spinner size="sm" /> : `+ ${t('water.add_btn')}`}
           </button>
@@ -135,21 +137,21 @@ export default function WaterPage() {
         <div className="flex justify-center py-4"><Spinner /></div>
       ) : todayEntries.length > 0 && (
         <div>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('water.today_log')}</p>
+          <p className="ios-section-label mb-2">{t('water.today_log')}</p>
           <div className="flex flex-col gap-2">
             {todayEntries.map(entry => (
               <Card key={entry.id} className="flex items-center gap-3 py-2.5">
-                <Droplets size={20} strokeWidth={1.75} className="text-blue-400 flex-shrink-0" />
+                <Droplets size={20} strokeWidth={1.75} style={{ color: '#007AFF' }} className="flex-shrink-0" />
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-blue-600">{entry.amount_ml} ml</p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-sm font-bold tabular-nums" style={{ color: '#007AFF' }}>{entry.amount_ml} ml</p>
+                  <p className="text-xs text-ios-gray">
                     {new Date(entry.logged_at).toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
                 <button
                   onClick={() => handleDelete(entry.id)}
                   disabled={deleting === entry.id}
-                  className="text-gray-300 hover:text-red-400 transition-colors p-1"
+                  className="text-ios-gray/40 hover:text-ios-red transition-colors p-1"
                 >
                   {deleting === entry.id ? <Loader2 size={16} className="animate-spin" /> : <X size={16} />}
                 </button>

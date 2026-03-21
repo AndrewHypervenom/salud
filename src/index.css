@@ -2,28 +2,146 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── iOS Color Variables ─────────────────────────────────── */
+:root {
+  --ios-blue:   #007AFF;
+  --ios-green:  #30D158;
+  --ios-red:    #FF3B30;
+  --ios-orange: #FF9500;
+  --ios-yellow: #FFD60A;
+  --ios-purple: #BF5AF2;
+  --ios-teal:   #32ADE6;
+  --ios-indigo: #5856D6;
+  --ios-pink:   #FF2D55;
+  --ios-cyan:   #5AC8F5;
+  --ios-gray:   #8E8E93;
+  --ios-bg:     #F2F2F7;
+  --ios-card:   #FFFFFF;
+  --ios-separator: rgba(60,60,67,0.12);
+}
+
+.dark {
+  --ios-bg:        #000000;
+  --ios-card:      #1C1C1E;
+  --ios-separator: rgba(84,84,88,0.65);
+}
+
+/* ── Base Styles ─────────────────────────────────────────── */
 @layer base {
   * {
     -webkit-tap-highlight-color: transparent;
   }
   body {
-    @apply bg-gray-50 text-gray-900 font-sans;
+    background-color: var(--ios-bg);
+    @apply text-gray-900 font-sans;
     font-size: 16px;
   }
   .dark body {
-    @apply bg-gray-900 text-gray-100;
+    @apply text-gray-100;
   }
 }
 
+/* ── Glassmorphism ───────────────────────────────────────── */
+@layer components {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.03);
+  }
+  .dark .glass-card {
+    background: rgba(28, 28, 30, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  }
+
+  .glass-nav {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+  }
+  .dark .glass-nav {
+    background: rgba(28, 28, 30, 0.88);
+  }
+
+  /* App Icon gradient buttons */
+  .ios-icon-btn {
+    @apply flex flex-col items-center gap-2 p-3.5 rounded-[18px] active:scale-90 transition-all duration-150;
+  }
+
+  /* iOS Typography */
+  .ios-large-title {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+  .ios-title {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    line-height: 1.15;
+  }
+  .ios-title2 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+  .ios-headline {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.1px;
+  }
+  .ios-body {
+    font-size: 17px;
+    font-weight: 400;
+  }
+  .ios-subhead {
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: -0.1px;
+  }
+  .ios-footnote {
+    font-size: 13px;
+    font-weight: 400;
+  }
+  .ios-caption {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--ios-gray);
+  }
+  .ios-caption2 {
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.05px;
+    color: var(--ios-gray);
+  }
+
+  /* iOS Section label */
+  .ios-section-label {
+    @apply text-[11px] font-semibold uppercase tracking-widest;
+    color: var(--ios-gray);
+  }
+}
+
+/* ── Animations ──────────────────────────────────────────── */
 @layer utilities {
-  .animate-shake       { animation: shake 0.55s ease-in-out; }
-  .animate-scan        { animation: scan 2s ease-in-out infinite; }
-  .animate-pulse-ring  { animation: pulse-ring 1.5s ease-out infinite; }
-  .animate-shimmer     { animation: shimmer 2s linear infinite; }
-  .animate-float       { animation: float-particle 1.8s ease-out infinite; }
-  .animate-fade-in-up  { animation: fade-in-up 0.4s ease-out forwards; }
-  .animate-success-pop { animation: success-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards; }
-  .animate-slide-down  { animation: slide-down 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+  .animate-shake        { animation: shake 0.55s ease-in-out; }
+  .animate-scan         { animation: scan 2s ease-in-out infinite; }
+  .animate-pulse-ring   { animation: pulse-ring 1.5s ease-out infinite; }
+  .animate-shimmer      { animation: shimmer 2s linear infinite; }
+  .animate-float        { animation: float-particle 1.8s ease-out infinite; }
+  .animate-fade-in-up   { animation: fade-in-up 0.4s ease-out forwards; }
+  .animate-success-pop  { animation: success-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+  .animate-slide-down   { animation: slide-down 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+  .animate-spring-in    { animation: spring-in 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+  .animate-fade-scale   { animation: fade-scale 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+
+  /* Hide scrollbar but allow scroll */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }
 
 @keyframes shake {
@@ -71,4 +189,15 @@
 @keyframes slide-down {
   0%   { transform: translate(-50%, -100%); opacity: 0; }
   100% { transform: translate(-50%, 0); opacity: 1; }
+}
+
+@keyframes spring-in {
+  0%   { transform: scale(0.85); opacity: 0; }
+  60%  { transform: scale(1.04); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fade-scale {
+  0%   { transform: scale(0.92); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }
