@@ -17,7 +17,14 @@ export default function ProfileList() {
 
   const handleAvatarClick = (profile) => {
     if (profile.access_code && !isUnlocked(profile.id)) {
-      navigate(`/profiles/${profile.id}/unlock`)
+      navigate('/login/pin', {
+        state: {
+          profileId: profile.id,
+          profileName: profile.name,
+          accessCode: profile.access_code,
+          phone: profile.phone_whatsapp
+        }
+      })
       return
     }
     setActiveProfileId(profile.id)
