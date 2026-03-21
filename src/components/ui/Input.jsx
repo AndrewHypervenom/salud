@@ -7,8 +7,8 @@ export function Input({ label, error, className, ...props }) {
       <input
         className={clsx(
           'block w-full rounded-xl border-gray-300 h-12 px-3 text-base',
-          'focus:border-primary-500 focus:ring-primary-500',
-          'dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:focus:border-primary-400 dark:placeholder-gray-500',
+          'focus:border-brand-500 focus:ring-brand-500',
+          'dark:bg-[#13131F] dark:border-brand-500/20 dark:text-gray-200 dark:focus:border-brand-400 dark:placeholder-gray-500',
           error && 'border-red-500 focus:border-red-500 focus:ring-red-500',
           className,
         )}

@@ -1,0 +1,63 @@
+// Contextual color map — cada sección/widget tiene su propio acento visual
+
+export const CONTEXT_COLORS = {
+  calories: {
+    glass:   'glass-card-amber',
+    text:    'text-amber-500',
+    ring:    '#FF9F0A',
+    glow:    'shadow-glow-calories',
+    bg:      'bg-amber-500/10',
+    gradientFrom: '#FF9F0A',
+    gradientTo:   '#FF6B35',
+  },
+  water: {
+    glass:   'glass-card-sky',
+    text:    'text-sky-500',
+    ring:    '#0EA5E9',
+    glow:    'shadow-glow-water',
+    bg:      'bg-sky-500/10',
+    gradientFrom: '#0EA5E9',
+    gradientTo:   '#38BDF8',
+  },
+  weight: {
+    glass:   'glass-card-violet',
+    text:    'text-violet-500',
+    ring:    '#8B5CF6',
+    glow:    'shadow-glow-weight',
+    bg:      'bg-violet-500/10',
+    gradientFrom: '#8B5CF6',
+    gradientTo:   '#A78BFA',
+  },
+  fasting: {
+    glass:   'glass-card-indigo',
+    text:    'text-indigo-500',
+    ring:    '#4F46E5',
+    glow:    'shadow-glow-fasting',
+    bg:      'bg-indigo-500/10',
+    gradientFrom: '#4F46E5',
+    gradientTo:   '#6366F1',
+  },
+  habits: {
+    glass:   'glass-card-emerald',
+    text:    'text-emerald-500',
+    ring:    '#10B981',
+    glow:    'shadow-glow-habits',
+    bg:      'bg-emerald-500/10',
+    gradientFrom: '#10B981',
+    gradientTo:   '#34D399',
+  },
+  bp: {
+    glass:   'glass-card-rose',
+    text:    'text-rose-500',
+    ring:    '#F43F5E',
+    glow:    'shadow-glow-bp',
+    bg:      'bg-rose-500/10',
+    gradientFrom: '#F43F5E',
+    gradientTo:   '#FB7185',
+  },
+  macros: {
+    protein: { color: '#3B82F6', track: 'rgba(59,130,246,0.12)' },
+    carbs:   { color: '#F59E0B', track: 'rgba(245,158,11,0.12)' },
+    fat:     { color: '#F97316', track: 'rgba(249,115,22,0.12)' },
+  },
+}

@@ -64,7 +64,7 @@ function NavCustomizer({ shortcuts, onSetShortcut, onClose }) {
               onClick={() => setEditingSlot(isEditing ? null : i)}
               className={`flex-1 flex flex-col items-center gap-1 py-1.5 px-1 rounded-xl transition-all ${
                 isEditing
-                  ? 'bg-ios-orange/15 ring-2 ring-ios-orange/50'
+                  ? 'bg-brand-500/15 ring-2 ring-brand-500/50'
                   : 'hover:bg-black/5 dark:hover:bg-white/8'
               }`}
             >
@@ -72,7 +72,7 @@ function NavCustomizer({ shortcuts, onSetShortcut, onClose }) {
               <span className="text-[10px] text-gray-700 dark:text-gray-300 font-medium leading-tight text-center">
                 {item ? t(item.label) : '—'}
               </span>
-              <span className="text-[9px] text-ios-orange font-semibold px-1.5 py-0.5 bg-ios-orange/10 rounded-full">
+              <span className="text-[9px] text-brand-500 font-semibold px-1.5 py-0.5 bg-brand-500/10 rounded-full">
                 {t('common.edit')}
               </span>
             </button>
@@ -107,13 +107,13 @@ function NavCustomizer({ shortcuts, onSetShortcut, onClose }) {
                   }}
                   className={`flex flex-col items-center gap-1.5 py-3 px-1 rounded-2xl transition-all ${
                     isActive
-                      ? 'bg-ios-orange/15 ring-2 ring-ios-orange/40'
+                      ? 'bg-brand-500/15 ring-2 ring-brand-500/40'
                       : isUsedElsewhere
                       ? 'opacity-30 cursor-not-allowed bg-black/3 dark:bg-white/3'
-                      : 'bg-black/4 dark:bg-white/5 hover:bg-ios-orange/10 active:scale-95'
+                      : 'bg-black/4 dark:bg-white/5 hover:bg-brand-500/10 active:scale-95'
                   }`}
                 >
-                  <NavIcon navKey={item.key} size={22} className={isActive ? 'text-ios-orange' : 'text-ios-gray dark:text-ios-gray'} />
+                  <NavIcon navKey={item.key} size={22} className={isActive ? 'text-brand-500 dark:text-brand-400' : 'text-ios-gray dark:text-ios-gray'} />
                   <span className="text-[10px] text-gray-600 dark:text-gray-300 font-medium leading-tight text-center">
                     {t(item.label)}
                   </span>
@@ -142,7 +142,7 @@ export function BottomNav() {
       to={to}
       className={({ isActive }) =>
         `flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-all duration-150 relative ${
-          isActive ? 'text-ios-orange' : 'text-ios-gray dark:text-ios-gray'
+          isActive ? 'text-brand-500 dark:text-brand-400' : 'text-ios-gray dark:text-ios-gray'
         }`
       }
     >
@@ -169,7 +169,7 @@ export function BottomNav() {
         >
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
           <div
-            className="relative bg-ios-bg dark:bg-ios-dark rounded-t-3xl p-6 pb-28 max-h-[80vh] overflow-y-auto shadow-2xl"
+            className="relative bg-[var(--bg-surface)] dark:bg-[#13131F] rounded-t-3xl p-6 pb-28 max-h-[80vh] overflow-y-auto shadow-2xl border-t border-brand-500/10"
             onClick={e => e.stopPropagation()}
           >
             {/* Handle */}
@@ -178,16 +178,16 @@ export function BottomNav() {
             {/* Personalizar barra */}
             <button
               onClick={() => setShowCustomizer(true)}
-              className="w-full flex items-center gap-3 px-4 py-3.5 mb-4 bg-ios-orange/10 dark:bg-ios-orange/15 rounded-2xl border border-ios-orange/20 dark:border-ios-orange/20 hover:bg-ios-orange/15 transition-colors active:scale-98"
+              className="w-full flex items-center gap-3 px-4 py-3.5 mb-4 bg-brand-500/10 dark:bg-brand-500/15 rounded-2xl border border-brand-500/20 dark:border-brand-500/20 hover:bg-brand-500/15 transition-colors active:scale-98"
             >
-              <div className="w-9 h-9 rounded-xl bg-ios-orange/15 flex items-center justify-center flex-shrink-0 text-ios-orange">
+              <div className="w-9 h-9 rounded-xl bg-brand-500/15 flex items-center justify-center flex-shrink-0 text-brand-500">
                 <SlidersHorizontal size={20} strokeWidth={1.75} />
               </div>
               <div className="flex-1 text-left">
-                <p className="text-sm font-semibold text-ios-orange">{t('nav.customize_title')}</p>
-                <p className="text-xs text-ios-orange/60">{t('nav.customize_hint')}</p>
+                <p className="text-sm font-semibold text-brand-600 dark:text-brand-400">{t('nav.customize_title')}</p>
+                <p className="text-xs text-brand-500/60">{t('nav.customize_hint')}</p>
               </div>
-              <svg className="w-4 h-4 text-ios-orange/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-4 h-4 text-brand-500/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
             </button>
@@ -201,7 +201,7 @@ export function BottomNav() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 rounded-2xl mb-1 transition-colors ${
                     isActive
-                      ? 'bg-ios-orange/10 text-ios-orange dark:bg-ios-orange/15 font-semibold'
+                      ? 'bg-brand-500/10 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400 font-semibold'
                       : 'text-gray-700 hover:bg-black/5 dark:text-gray-200 dark:hover:bg-white/8'
                   }`
                 }
@@ -222,7 +222,7 @@ export function BottomNav() {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-3 rounded-2xl mb-1 transition-colors ${
                     isActive
-                      ? 'bg-ios-orange/10 text-ios-orange dark:bg-ios-orange/15 font-semibold'
+                      ? 'bg-brand-500/10 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400 font-semibold'
                       : 'text-gray-700 hover:bg-black/5 dark:text-gray-200 dark:hover:bg-white/8'
                   }`
                 }
@@ -245,7 +245,7 @@ export function BottomNav() {
         >
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
           <div
-            className="relative bg-ios-bg dark:bg-ios-dark rounded-t-3xl p-6 pb-28 max-h-[85vh] overflow-y-auto shadow-2xl"
+            className="relative bg-[var(--bg-surface)] dark:bg-[#13131F] rounded-t-3xl p-6 pb-28 max-h-[85vh] overflow-y-auto shadow-2xl border-t border-brand-500/10"
             onClick={e => e.stopPropagation()}
           >
             <div className="w-10 h-1 bg-black/15 dark:bg-white/20 rounded-full mx-auto mb-5" />

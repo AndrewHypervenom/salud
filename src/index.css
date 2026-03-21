@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── iOS Color Variables ─────────────────────────────────── */
+/* ── Color Variables ─────────────────────────────────────── */
 :root {
   --ios-blue:   #007AFF;
   --ios-green:  #30D158;
@@ -15,15 +15,19 @@
   --ios-pink:   #FF2D55;
   --ios-cyan:   #5AC8F5;
   --ios-gray:   #8E8E93;
-  --ios-bg:     #F2F2F7;
+  --ios-bg:     #F4F3FF;
   --ios-card:   #FFFFFF;
-  --ios-separator: rgba(60,60,67,0.12);
+  --ios-separator: rgba(99,102,241,0.10);
+  --bg-base:    #F4F3FF;
+  --bg-surface: #FFFFFF;
 }
 
 .dark {
-  --ios-bg:        #000000;
-  --ios-card:      #1C1C1E;
-  --ios-separator: rgba(84,84,88,0.65);
+  --ios-bg:        #08080F;
+  --ios-card:      #13131F;
+  --ios-separator: rgba(139,92,246,0.15);
+  --bg-base:       #08080F;
+  --bg-surface:    #13131F;
 }
 
 /* ── Base Styles ─────────────────────────────────────────── */
@@ -32,11 +36,22 @@
     -webkit-tap-highlight-color: transparent;
   }
   body {
-    background-color: var(--ios-bg);
+    background-color: var(--bg-base);
+    background-image:
+      radial-gradient(ellipse 80% 50% at 20% -10%, rgba(139,92,246,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 10%,  rgba(59,130,246,0.10) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 60% at 50% 100%, rgba(99,102,241,0.07) 0%, transparent 50%);
+    background-attachment: fixed;
     @apply text-gray-900 font-sans;
     font-size: 16px;
   }
   .dark body {
+    background-color: var(--bg-base);
+    background-image:
+      radial-gradient(ellipse 80% 50% at 20% -10%, rgba(139,92,246,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 85% 15%,  rgba(59,130,246,0.14) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 70% at 50% 105%, rgba(79,70,229,0.10) 0%, transparent 50%);
+    background-attachment: fixed;
     @apply text-gray-100;
   }
 }
@@ -44,26 +59,112 @@
 /* ── Glassmorphism ───────────────────────────────────────── */
 @layer components {
   .glass-card {
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.03);
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.50);
+    border-radius: 20px;
+    box-shadow: 0 2px 16px rgba(99,102,241,0.06), 0 1px 4px rgba(0,0,0,0.03);
   }
   .dark .glass-card {
-    background: rgba(28, 28, 30, 0.82);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    background: rgba(19, 19, 31, 0.80);
+    border: 1px solid rgba(139, 92, 246, 0.12);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.50), 0 0 1px rgba(139,92,246,0.20);
+  }
+
+  /* Glassmorphism contextual variants */
+  .glass-card-violet {
+    background: rgba(245, 243, 255, 0.80);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    border: 1px solid rgba(139, 92, 246, 0.18);
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(139,92,246,0.12);
+  }
+  .dark .glass-card-violet {
+    background: rgba(139, 92, 246, 0.08);
+    border: 1px solid rgba(139, 92, 246, 0.20);
+    box-shadow: 0 4px 24px rgba(139,92,246,0.15);
+  }
+
+  .glass-card-sky {
+    background: rgba(240, 249, 255, 0.80);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    border: 1px solid rgba(14, 165, 233, 0.18);
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(14,165,233,0.12);
+  }
+  .dark .glass-card-sky {
+    background: rgba(14, 165, 233, 0.07);
+    border: 1px solid rgba(14, 165, 233, 0.18);
+    box-shadow: 0 4px 24px rgba(14,165,233,0.15);
+  }
+
+  .glass-card-amber {
+    background: rgba(255, 251, 235, 0.82);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    border: 1px solid rgba(255, 159, 10, 0.20);
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(255,159,10,0.12);
+  }
+  .dark .glass-card-amber {
+    background: rgba(255, 159, 10, 0.07);
+    border: 1px solid rgba(255, 159, 10, 0.18);
+    box-shadow: 0 4px 24px rgba(255,159,10,0.15);
+  }
+
+  .glass-card-emerald {
+    background: rgba(236, 253, 245, 0.82);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    border: 1px solid rgba(16, 185, 129, 0.18);
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(16,185,129,0.12);
+  }
+  .dark .glass-card-emerald {
+    background: rgba(16, 185, 129, 0.07);
+    border: 1px solid rgba(16, 185, 129, 0.18);
+    box-shadow: 0 4px 24px rgba(16,185,129,0.15);
+  }
+
+  .glass-card-rose {
+    background: rgba(255, 241, 242, 0.82);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    border: 1px solid rgba(244, 63, 94, 0.18);
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(244,63,94,0.12);
+  }
+  .dark .glass-card-rose {
+    background: rgba(244, 63, 94, 0.07);
+    border: 1px solid rgba(244, 63, 94, 0.18);
+    box-shadow: 0 4px 24px rgba(244,63,94,0.15);
+  }
+
+  .glass-card-indigo {
+    background: rgba(238, 242, 255, 0.82);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    border: 1px solid rgba(79, 70, 229, 0.18);
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(79,70,229,0.12);
+  }
+  .dark .glass-card-indigo {
+    background: rgba(79, 70, 229, 0.07);
+    border: 1px solid rgba(79, 70, 229, 0.18);
+    box-shadow: 0 4px 24px rgba(79,70,229,0.15);
   }
 
   .glass-nav {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(24px) saturate(200%);
-    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    background: rgba(244, 243, 255, 0.90);
+    backdrop-filter: blur(28px) saturate(200%);
+    -webkit-backdrop-filter: blur(28px) saturate(200%);
   }
   .dark .glass-nav {
-    background: rgba(28, 28, 30, 0.88);
+    background: rgba(8, 8, 15, 0.90);
+    border-color: rgba(139, 92, 246, 0.12);
   }
 
   /* App Icon gradient buttons */

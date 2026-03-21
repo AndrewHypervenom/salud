@@ -21,7 +21,7 @@ export function TopBar() {
     <header className="sticky top-0 z-30 glass-nav border-b border-black/8 dark:border-white/8 px-4 h-14 flex items-center justify-between">
       <div className="flex items-center gap-2.5">
         <img src={nexvidaLogo} width="26" height="26" alt="Nexvida logo" className="rounded-lg" />
-        <span className="text-[17px] font-bold tracking-tight bg-gradient-to-r from-ios-orange to-ios-pink bg-clip-text text-transparent">
+        <span className="text-[17px] font-bold tracking-tight bg-gradient-to-r from-brand-400 to-blue-400 bg-clip-text text-transparent">
           {t('app_title')}
         </span>
       </div>

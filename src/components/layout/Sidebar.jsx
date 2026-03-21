@@ -31,7 +31,7 @@ function NavItem({ item, t }) {
       className={({ isActive }) =>
         `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
           isActive
-            ? 'bg-ios-orange/10 text-ios-orange dark:bg-ios-orange/15 dark:text-ios-orange font-semibold'
+            ? 'bg-brand-500/10 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400 font-semibold'
             : 'text-gray-600 hover:bg-black/5 hover:text-gray-900 dark:text-ios-gray dark:hover:bg-white/8 dark:hover:text-gray-100'
         }`
       }
@@ -46,7 +46,7 @@ export function Sidebar() {
   const { t } = useTranslation()
 
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-white/80 dark:bg-ios-dark/80 backdrop-blur-xl border-r border-black/6 dark:border-white/6 min-h-screen pt-4 overflow-y-auto">
+    <aside className="hidden md:flex flex-col w-64 bg-white/75 dark:bg-[rgba(13,13,31,0.80)] backdrop-blur-xl border-r border-black/6 dark:border-brand-500/10 min-h-screen pt-4 overflow-y-auto">
       <nav className="flex flex-col gap-0.5 px-3">
         {mainItems.map(item => <NavItem key={item.to} item={item} t={t} />)}
 

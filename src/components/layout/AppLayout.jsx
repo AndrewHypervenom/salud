@@ -5,7 +5,7 @@ import { BottomNav } from './BottomNav'
 
 export default function AppLayout() {
   return (
-    <div className="min-h-screen bg-ios-bg dark:bg-black">
+    <div className="min-h-screen bg-[var(--bg-base)]">
       <TopBar />
       <div className="flex">
         <Sidebar />
