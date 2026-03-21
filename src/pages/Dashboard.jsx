@@ -417,11 +417,14 @@ function WeightDashWidget({ profileId, targetWeight }) {
             {t('dashboard.kg_vs_goal', { diff: diff > 0 ? `+${diff}` : diff })}
           </p>
         )}
-        {trend !== null && (
-          <p className="text-[10px] text-gray-400 mt-0.5">
-            {trend < 0 ? <TrendingDown size={10} strokeWidth={2} className="inline mr-0.5" /> : <TrendingUp size={10} strokeWidth={2} className="inline mr-0.5" />} {t('dashboard.kg_vs_yesterday', { diff: Math.abs(trend) })}
-          </p>
-        )}
+        {trend !== null && (() => {
+          const TrendIcon = trend < 0 ? TrendingDown : TrendingUp
+          return (
+            <p className="text-[10px] text-gray-400 mt-0.5 flex items-center gap-0.5">
+              <TrendIcon size={10} strokeWidth={2} /> {t('dashboard.kg_vs_yesterday', { diff: Math.abs(trend) })}
+            </p>
+          )
+        })()}
       </Card>
     </Link>
   )
