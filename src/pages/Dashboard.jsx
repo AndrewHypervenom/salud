@@ -22,6 +22,7 @@ import { Spinner } from '../components/ui/Spinner'
 import { ProgressRing } from '../components/ui/ProgressRing'
 import { ElapsedTimer } from '../components/ui/CountdownTimer'
 import { HealthCoach } from '../components/shared/HealthCoach'
+import { CravingHelper } from '../components/shared/CravingHelper'
 import { getHabitDisplayName } from '../hooks/useHabits'
 import FitnessProfileBanner from '../components/shared/FitnessProfileBanner'
 
@@ -917,6 +918,9 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* ── CRAVING HELPER ─────────────────────────────────── */}
+      {profile && !editMode && <CravingHelper profile={profile} />}
 
       {/* ── DRAG GHOST — floats under finger/cursor ─────────── */}
       {dragFromId && dragPointer && createPortal(
