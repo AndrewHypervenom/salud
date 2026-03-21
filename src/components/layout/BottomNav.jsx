@@ -192,7 +192,7 @@ export function BottomNav() {
               </svg>
             </button>
 
-            <p className="ios-section-label mb-3">{t('nav.more')}</p>
+            <p className="ios-section-label mb-3">{t('nav.tracking')}</p>
             {moreItems.map(item => (
               <NavLink
                 key={item.to}
