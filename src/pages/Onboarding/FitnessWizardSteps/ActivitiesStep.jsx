@@ -1,22 +1,23 @@
 import { useTranslation } from 'react-i18next'
+import { Footprints, Activity, Bike, Dumbbell, Waves, Wind, Trophy, Home, Sparkles } from 'lucide-react'
 
 const ACTIVITIES = [
-  { id: 'walking',       emoji: '🚶' },
-  { id: 'running',       emoji: '🏃' },
-  { id: 'cycling',       emoji: '🚴' },
-  { id: 'gym',           emoji: '🏋️' },
-  { id: 'swimming',      emoji: '🏊' },
-  { id: 'yoga',          emoji: '🧘' },
-  { id: 'sports',        emoji: '⚽' },
-  { id: 'home_workout',  emoji: '🏠' },
+  { id: 'walking',      Icon: Footprints },
+  { id: 'running',      Icon: Activity },
+  { id: 'cycling',      Icon: Bike },
+  { id: 'gym',          Icon: Dumbbell },
+  { id: 'swimming',     Icon: Waves },
+  { id: 'yoga',         Icon: Wind },
+  { id: 'sports',       Icon: Trophy },
+  { id: 'home_workout', Icon: Home },
 ]
 
 const SEDENTARY_OPTIONS = [
-  { id: 'walking',  emoji: '🚶', labelKey: 'fitness.activity_walking' },
-  { id: 'cycling',  emoji: '🚴', labelKey: 'fitness.activity_cycling' },
-  { id: 'yoga',     emoji: '🧘', labelKey: 'fitness.activity_yoga' },
-  { id: 'swimming', emoji: '🏊', labelKey: 'fitness.activity_swimming' },
-  { id: 'other',    emoji: '✨', labelKey: 'common.optional' },
+  { id: 'walking',  Icon: Footprints, labelKey: 'fitness.activity_walking' },
+  { id: 'cycling',  Icon: Bike,       labelKey: 'fitness.activity_cycling' },
+  { id: 'yoga',     Icon: Wind,       labelKey: 'fitness.activity_yoga' },
+  { id: 'swimming', Icon: Waves,      labelKey: 'fitness.activity_swimming' },
+  { id: 'other',    Icon: Sparkles,   labelKey: 'common.optional' },
 ]
 
 const FREQUENCIES = ['1-2', '3-4', '5+']
@@ -65,7 +66,7 @@ export default function ActivitiesStep({
                     : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:border-gray-300'
                 }`}
               >
-                <span className="text-2xl">{opt.emoji}</span>
+                <opt.Icon size={24} strokeWidth={1.75} className={isSelected ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400'} />
                 <p className={`font-semibold text-sm ${isSelected ? 'text-primary-700 dark:text-primary-300' : 'text-gray-700 dark:text-gray-300'}`}>
                   {t(opt.labelKey)}
                 </p>
@@ -87,7 +88,7 @@ export default function ActivitiesStep({
                     : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:border-gray-300'
                 }`}
               >
-                <span className="text-xl">{act.emoji}</span>
+                <act.Icon size={22} strokeWidth={1.75} className={isSelected ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400'} />
                 <p className={`text-[10px] font-semibold text-center leading-tight ${isSelected ? 'text-primary-700 dark:text-primary-300' : 'text-gray-600 dark:text-gray-400'}`}>
                   {t(`fitness.activity_${act.id}`)}
                 </p>

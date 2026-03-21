@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Target } from 'lucide-react'
 import GoalStep from './FitnessWizardSteps/GoalStep'
 import TargetWeightStep from './FitnessWizardSteps/TargetWeightStep'
 import ActivitiesStep from './FitnessWizardSteps/ActivitiesStep'
@@ -78,7 +79,9 @@ export default function FitnessWizard({ profileData, onComplete, onSkip }) {
       <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-4 flex-shrink-0">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <p className="font-bold text-gray-900 dark:text-gray-100">🎯 {t('fitness.wizard_title')}</p>
+            <p className="font-bold text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
+              <Target size={16} strokeWidth={2} className="text-primary-500" />{t('fitness.wizard_title')}
+            </p>
             <p className="text-xs text-gray-400">{t('fitness.wizard_subtitle')}</p>
           </div>
           <button

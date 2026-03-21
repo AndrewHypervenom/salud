@@ -15,7 +15,7 @@ import { useDashboardConfig, WIDGET_CATALOG } from '../hooks/useDashboardConfig'
 import { calcBMR, calcTDEE, calcCalorieTarget, calcCalorieTargetMulti, calcMacros, getCalorieStatus, CALORIE_COLORS } from '../lib/formulas'
 import { classifyBP } from '../lib/bpStatus'
 import { NavIcon, WidgetIcon } from '../lib/navIcons'
-import { Sunrise, Sun, Moon, Apple } from 'lucide-react'
+import { Sunrise, Sun, Moon, Apple, Droplets, Zap, Heart, Scale, TrendingDown, TrendingUp, Stethoscope, Flame, X, Pencil, PartyPopper, ChevronUp, ChevronDown } from 'lucide-react'
 import { Card } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
 import { Spinner } from '../components/ui/Spinner'
@@ -252,7 +252,7 @@ function WaterDashWidget({ profileId, waterGoalMl }) {
       <Card className="h-full hover:shadow-md transition-shadow">
         <div className="flex items-center gap-3">
           <ProgressRing percent={todayPercent} size={48} strokeWidth={5} color={ringColor}>
-            <span className="text-sm">💧</span>
+            <Droplets size={16} strokeWidth={1.75} style={{ color: ringColor }} />
           </ProgressRing>
           <div className="flex-1 min-w-0">
             <p className="text-xs text-gray-400 font-medium">{t('nav.water')}</p>
@@ -284,7 +284,7 @@ function FastingDashWidget({ profileId }) {
     return (
       <Card className="h-full">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-xl flex-shrink-0">⚡</div>
+          <div className="w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center flex-shrink-0"><Zap size={22} strokeWidth={1.75} className="text-violet-600 dark:text-violet-400" /></div>
           <div className="flex-1 min-w-0">
             <p className="text-xs text-gray-400 font-medium">{t('nav.fasting')}</p>
             <p className="text-xs text-gray-500">{t('fasting.no_active')}</p>
@@ -308,7 +308,7 @@ function FastingDashWidget({ profileId }) {
       <Card className="h-full hover:shadow-md transition-shadow">
         <div className="flex items-center gap-3">
           <ProgressRing percent={pct} size={48} strokeWidth={5} color="#7c3aed">
-            <span className="text-sm">⚡</span>
+            <Zap size={16} strokeWidth={1.75} style={{ color: '#7c3aed' }} />
           </ProgressRing>
           <div className="flex-1 min-w-0">
             <p className="text-xs text-gray-400 font-medium">{t('fasting.active')}</p>
@@ -332,7 +332,7 @@ function HabitsWidget({ habits, habitLogs }) {
         <div className="flex items-center justify-between mb-3">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t('dashboard.habits_today')}</p>
           <div className="flex items-center gap-1.5">
-            {allDone && <span className="text-sm">🎉</span>}
+            {allDone && <PartyPopper size={16} strokeWidth={1.75} className="text-green-500" />}
             <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{done}</span>
             <span className="text-sm text-gray-400">/ {habits.length}</span>
           </div>
@@ -358,7 +358,7 @@ function HabitsWidget({ habits, habitLogs }) {
                         : 'bg-gray-100 text-gray-400 dark:bg-gray-800'
                     }`}
                   >
-                    {h.emoji} {getHabitDisplayName(h.name, t)}
+                    {getHabitDisplayName(h.name, t)}
                   </span>
                 )
               })}
@@ -380,7 +380,7 @@ function BPWidget({ readings }) {
       <Card className="h-full hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between mb-2">
           <p className="text-xs text-gray-400 font-medium">{t('nav.blood_pressure')}</p>
-          <span className="text-base">❤️</span>
+          <Heart size={16} strokeWidth={1.75} className="text-rose-500" />
         </div>
         {last ? (
           <>
@@ -407,7 +407,7 @@ function WeightDashWidget({ profileId, targetWeight }) {
       <Card className="h-full hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between mb-2">
           <p className="text-xs text-gray-400 font-medium">{t('nav.weight')}</p>
-          <span className="text-base">⚖️</span>
+          <Scale size={16} strokeWidth={1.75} className="text-violet-500" />
         </div>
         <p className="text-xl font-bold text-gray-900 dark:text-gray-100 tabular-nums">
           {latestWeight ?? '—'}<span className="text-xs font-normal text-gray-400 ml-0.5">kg</span>
@@ -419,7 +419,7 @@ function WeightDashWidget({ profileId, targetWeight }) {
         )}
         {trend !== null && (
           <p className="text-[10px] text-gray-400 mt-0.5">
-            {trend < 0 ? '📉' : '📈'} {t('dashboard.kg_vs_yesterday', { diff: Math.abs(trend) })}
+            {trend < 0 ? <TrendingDown size={10} strokeWidth={2} className="inline mr-0.5" /> : <TrendingUp size={10} strokeWidth={2} className="inline mr-0.5" />} {t('dashboard.kg_vs_yesterday', { diff: Math.abs(trend) })}
           </p>
         )}
       </Card>
@@ -437,7 +437,7 @@ function DoctorWidget({ questions }) {
       <Card className="h-full hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between mb-2">
           <p className="text-xs text-gray-400 font-medium">{t('dashboard.doctor_short')}</p>
-          <span className="text-base">👨‍⚕️</span>
+          <Stethoscope size={16} strokeWidth={1.75} className="text-teal-500" />
         </div>
         <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{pending}</p>
         <p className="text-[10px] text-gray-400">{t('dashboard.questions_pending')}</p>
@@ -463,7 +463,7 @@ function StreakWidget({ habits, habitLogs }) {
     <Card className="h-full">
       <div className="flex items-center justify-between mb-2">
         <p className="text-xs text-gray-400 font-medium">{t('dashboard.completed_today')}</p>
-        <span className="text-base">🔥</span>
+        <Flame size={16} strokeWidth={1.75} className="text-orange-500" />
       </div>
       <p className="text-2xl font-bold text-orange-500">{pct}%</p>
       <p className="text-[10px] text-gray-400">{done} {t('dashboard.habits_of', { n: habits.length })}</p>
@@ -511,7 +511,7 @@ function EditableWidget({ id, children, onHide, onMoveUp, onMoveDown, isFirst, i
         onClick={() => onHide(id)}
         className="absolute -top-2.5 -right-2.5 z-30 w-6 h-6 rounded-full bg-gray-600 dark:bg-gray-500 text-white flex items-center justify-center shadow-md hover:bg-red-500 transition-colors"
         style={{ fontSize: 13, lineHeight: 1 }}
-      >✕</button>
+      ><X size={12} strokeWidth={2.5} /></button>
 
       {/* Drag handle — top-left corner pill */}
       <div
@@ -532,14 +532,14 @@ function EditableWidget({ id, children, onHide, onMoveUp, onMoveDown, isFirst, i
         <button
           onClick={() => onMoveUp(id)}
           disabled={isFirst}
-          className="w-6 h-5 flex items-center justify-center text-white disabled:opacity-25 text-[10px] hover:text-primary-300 transition-colors rounded-full"
-        >▲</button>
+          className="w-6 h-5 flex items-center justify-center text-white disabled:opacity-25 hover:text-primary-300 transition-colors rounded-full"
+        ><ChevronUp size={12} strokeWidth={2} /></button>
         <div className="w-px h-3 bg-gray-500"/>
         <button
           onClick={() => onMoveDown(id)}
           disabled={isLast}
-          className="w-6 h-5 flex items-center justify-center text-white disabled:opacity-25 text-[10px] hover:text-primary-300 transition-colors rounded-full"
-        >▼</button>
+          className="w-6 h-5 flex items-center justify-center text-white disabled:opacity-25 hover:text-primary-300 transition-colors rounded-full"
+        ><ChevronDown size={12} strokeWidth={2} /></button>
       </div>
 
       {/* Widget content with padding for floating controls */}
@@ -720,8 +720,8 @@ export default function Dashboard() {
   if (!profile) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
-        <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-5xl shadow-lg shadow-primary-500/30">
-          💚
+        <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/30">
+          <Heart size={48} strokeWidth={1.5} className="text-white" />
         </div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('app_title')}</h1>
         <p className="text-gray-500 max-w-xs text-sm">{t('dashboard.select_profile')}</p>
@@ -784,7 +784,7 @@ export default function Dashboard() {
       {/* ── EDIT MODE BANNER ───────────────────────────────── */}
       {editMode && (
         <div className="flex items-center gap-3 px-4 py-3 bg-primary-50 dark:bg-primary-900/20 rounded-2xl border border-primary-100 dark:border-primary-800">
-          <span className="text-lg">✏️</span>
+          <Pencil size={18} strokeWidth={1.75} className="text-primary-600 dark:text-primary-400" />
           <div className="flex-1">
             <p className="text-xs font-semibold text-primary-700 dark:text-primary-300">{t('dashboard.edit_mode_title')}</p>
             <p className="text-[11px] text-primary-600/70 dark:text-primary-400/70">{t('dashboard.edit_mode_hint')}</p>

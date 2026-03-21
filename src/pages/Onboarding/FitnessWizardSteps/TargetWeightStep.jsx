@@ -1,9 +1,10 @@
 import { useTranslation } from 'react-i18next'
+import { Timer, Footprints, Activity } from 'lucide-react'
 
 const SPEEDS = [
-  { id: 'slow',     emoji: '🐢' },
-  { id: 'moderate', emoji: '🚶' },
-  { id: 'fast',     emoji: '🏃' },
+  { id: 'slow',     Icon: Timer },
+  { id: 'moderate', Icon: Footprints },
+  { id: 'fast',     Icon: Activity },
 ]
 
 export default function TargetWeightStep({ targetWeight, onTargetChange, goalSpeed, onSpeedChange, profileData, onNext }) {
@@ -52,7 +53,7 @@ export default function TargetWeightStep({ targetWeight, onTargetChange, goalSpe
                     : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:border-gray-300'
                 }`}
               >
-                <span className="text-2xl">{s.emoji}</span>
+                <s.Icon size={24} strokeWidth={1.75} className={isSelected ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400'} />
                 <div className="text-center">
                   <p className={`text-xs font-bold leading-tight ${isSelected ? 'text-primary-700 dark:text-primary-300' : 'text-gray-700 dark:text-gray-300'}`}>
                     {t(`fitness.speed_${s.id}`)}

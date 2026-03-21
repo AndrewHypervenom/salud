@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Camera, Sparkles, Check, RefreshCw, Bot } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { Spinner } from '../../components/ui/Spinner'
 import { FoodAnalyzingOverlay } from '../../components/ui/FoodAnalyzingOverlay'
@@ -176,7 +177,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, dailyM
             onClick={() => fileRef.current?.click()}
             className="w-full py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-sm text-gray-500 dark:text-gray-400 hover:border-primary-400 hover:text-primary-600 transition-colors"
           >
-            📷 {t('food.photo')}
+            <Camera size={16} strokeWidth={1.75} className="inline mr-1.5" />{t('food.photo')}
           </button>
 
           {imagePreview && (
@@ -200,7 +201,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, dailyM
                     <Spinner size="sm" /> {t('food.analyzing')}
                   </span>
                 ) : (
-                  `✨ ${t('food.analyze_ai')}`
+                  <><Sparkles size={16} strokeWidth={1.75} className="inline mr-1.5" />{t('food.analyze_ai')}</>
                 )}
               </button>
             </div>
@@ -209,7 +210,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, dailyM
           {aiUsed && (
             <div className="flex items-center gap-2 animate-success-pop">
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 rounded-full text-xs font-semibold">
-                <span className="text-base">✓</span>
+                <Check size={14} strokeWidth={2.5} />
                 {t('food.ai_filled')}
               </span>
             </div>
@@ -248,7 +249,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, dailyM
                 disabled={!correction.trim() || recalculating}
                 className="px-3 py-2 bg-primary-600 text-white rounded-xl text-sm font-semibold disabled:opacity-40 hover:bg-primary-700 transition-colors flex items-center gap-1.5"
               >
-                {recalculating ? <Spinner size="sm" /> : '🔄'}
+                {recalculating ? <Spinner size="sm" /> : <RefreshCw size={16} strokeWidth={2} />}
               </button>
             </div>
           </div>
@@ -282,7 +283,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, dailyM
             >
               {recalculating
                 ? <><Spinner size="sm" /> {t('food.calculating')}</>
-                : `🤖 ${t('food.calculate_calories')}`}
+                : <><Bot size={16} strokeWidth={1.75} className="inline mr-1.5" />{t('food.calculate_calories')}</>
             </button>
           )}
 
@@ -295,7 +296,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, dailyM
             >
               {recalculating
                 ? <><Spinner size="sm" /> {t('food.recalculating')}</>
-                : `🔄 ${t('food.recalculate_calories')}`}
+                : <><RefreshCw size={16} strokeWidth={2} className="inline mr-1.5" />{t('food.recalculate_calories')}</>
             </button>
           )}
 

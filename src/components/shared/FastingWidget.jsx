@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Zap } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { ProgressRing } from '../ui/ProgressRing'
 import { ElapsedTimer } from '../ui/CountdownTimer'
@@ -19,8 +20,8 @@ export function FastingWidget({ profileId }) {
     return (
       <Card>
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-2xl flex-shrink-0">
-            ⚡
+          <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0 text-violet-500">
+            <Zap size={28} strokeWidth={1.75} />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-xs text-gray-500 font-medium mb-0.5">{t('fasting.title')}</p>
@@ -48,7 +49,7 @@ export function FastingWidget({ profileId }) {
       <Card className="hover:shadow-lg transition-shadow">
         <div className="flex items-center gap-4">
           <ProgressRing percent={percent} size={64} strokeWidth={7} color="#7c3aed">
-            <span className="text-base">⚡</span>
+            <Zap size={18} strokeWidth={1.75} className="text-violet-500" />
           </ProgressRing>
           <div className="flex-1 min-w-0">
             <p className="text-xs text-gray-500 font-medium mb-0.5">{t('fasting.active')}</p>

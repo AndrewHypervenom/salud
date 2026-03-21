@@ -1,9 +1,10 @@
 import { useTranslation } from 'react-i18next'
+import { Sprout, Zap, Flame } from 'lucide-react'
 
 const LEVELS = [
   {
     id: 'beginner',
-    emoji: '🌱',
+    Icon: Sprout,
     color: 'from-green-400 to-emerald-500',
     selected: 'ring-2 ring-green-400 bg-green-50 dark:bg-green-900/20 border-green-400',
     border: 'border-green-200 dark:border-green-700',
@@ -11,7 +12,7 @@ const LEVELS = [
   },
   {
     id: 'intermediate',
-    emoji: '⚡',
+    Icon: Zap,
     color: 'from-amber-400 to-orange-500',
     selected: 'ring-2 ring-amber-400 bg-amber-50 dark:bg-amber-900/20 border-amber-400',
     border: 'border-amber-200 dark:border-amber-700',
@@ -19,7 +20,7 @@ const LEVELS = [
   },
   {
     id: 'advanced',
-    emoji: '🔥',
+    Icon: Flame,
     color: 'from-red-400 to-rose-500',
     selected: 'ring-2 ring-red-400 bg-red-50 dark:bg-red-900/20 border-red-400',
     border: 'border-red-200 dark:border-red-700',
@@ -48,8 +49,8 @@ export default function ExperienceStep({ value, onChange }) {
                 isSelected ? lvl.selected : `${lvl.bg} ${lvl.border} hover:scale-[1.01]`
               }`}
             >
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${lvl.color} flex items-center justify-center text-2xl shadow-md flex-shrink-0`}>
-                {lvl.emoji}
+              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${lvl.color} flex items-center justify-center shadow-md flex-shrink-0 text-white`}>
+                <lvl.Icon size={24} strokeWidth={1.75} />
               </div>
               <div>
                 <p className="font-bold text-gray-900 dark:text-gray-100">

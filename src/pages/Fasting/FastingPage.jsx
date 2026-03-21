@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Zap, Pencil, Check, CheckCircle2 } from 'lucide-react'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useFasting } from '../../hooks/useFasting'
 import { useBadges } from '../../hooks/useBadges'
@@ -79,7 +80,7 @@ export default function FastingPage() {
   if (!activeProfileId) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center gap-4">
-        <span className="text-5xl">⚡</span>
+        <Zap size={48} strokeWidth={1.5} className="text-violet-300" />
         <p className="text-gray-500">{t('common.select_profile_first')}</p>
       </div>
     )
@@ -88,7 +89,10 @@ export default function FastingPage() {
   return (
     <div className="flex flex-col gap-4">
       <BadgeNotification badge={newBadge} onDismiss={clearNewBadge} lang={lang} />
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">⚡ {t('fasting.title')}</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+        <Zap size={26} strokeWidth={1.75} className="text-violet-500" />
+        {t('fasting.title')}
+      </h1>
 
       {/* Estado principal */}
       {activeSession ? (
@@ -113,14 +117,14 @@ export default function FastingPage() {
               onClick={() => startEdit(activeSession)}
               className="flex-1 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
             >
-              ✏️ {t('fasting.edit_times')}
+              <Pencil size={14} strokeWidth={2} className="inline mr-1" />{t('fasting.edit_times')}
             </button>
             <button
               onClick={handleEnd}
               disabled={ending}
               className="flex-1 py-3 bg-violet-600 text-white rounded-xl text-sm font-semibold hover:bg-violet-700 transition-colors disabled:opacity-40"
             >
-              {ending ? <Spinner size="sm" /> : `✓ ${t('fasting.end')}`}
+              {ending ? <Spinner size="sm" /> : <><Check size={16} strokeWidth={2.5} className="inline mr-1" />{t('fasting.end')}</>}
             </button>
           </div>
 
@@ -164,7 +168,7 @@ export default function FastingPage() {
         </Card>
       ) : (
         <Card className="flex flex-col items-center py-8 gap-4">
-          <span className="text-6xl">⚡</span>
+          <Zap size={56} strokeWidth={1.5} className="text-violet-400" />
           <p className="text-lg font-semibold text-gray-700 dark:text-gray-200">{t('fasting.no_active')}</p>
 
           <div className="flex flex-col gap-2 w-full">
@@ -191,7 +195,7 @@ export default function FastingPage() {
             disabled={starting}
             className="w-full py-4 bg-violet-600 text-white rounded-2xl text-base font-bold hover:bg-violet-700 transition-colors disabled:opacity-40"
           >
-            {starting ? <Spinner size="sm" /> : `⚡ ${t('fasting.start')} ${targetHours}h`}
+            {starting ? <Spinner size="sm" /> : <><Zap size={18} strokeWidth={2} className="inline mr-1.5" />{t('fasting.start')} {targetHours}h</>}
           </button>
         </Card>
       )}
@@ -217,7 +221,10 @@ export default function FastingPage() {
                 : null
               return (
                 <Card key={s.id} className="flex items-center gap-3 py-2.5">
-                  <span className="text-xl">{s.completed ? '✅' : '⚡'}</span>
+                  {s.completed
+                    ? <CheckCircle2 size={20} strokeWidth={1.75} className="text-green-500 flex-shrink-0" />
+                    : <Zap size={20} strokeWidth={1.75} className="text-violet-400 flex-shrink-0" />
+                  }
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
                       {new Date(s.start_time).toLocaleDateString(i18n.language, { day: '2-digit', month: 'short' })}

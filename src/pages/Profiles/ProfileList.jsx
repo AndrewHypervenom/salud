@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Lock } from 'lucide-react'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useAuth } from '../../context/AuthContext'
@@ -55,7 +56,9 @@ export default function ProfileList() {
                 >
                   {profile.name[0].toUpperCase()}
                   {locked && (
-                    <span className="absolute -bottom-1 -right-1 text-sm">🔒</span>
+                    <span className="absolute -bottom-1 -right-1 bg-white dark:bg-gray-800 rounded-full p-0.5">
+                      <Lock size={10} strokeWidth={2.5} className="text-gray-500" />
+                    </span>
                   )}
                 </button>
                 <div className="flex-1 min-w-0">

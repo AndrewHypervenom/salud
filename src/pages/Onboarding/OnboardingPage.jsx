@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Smartphone, PartyPopper, Heart } from 'lucide-react'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useAuth } from '../../context/AuthContext'
@@ -160,7 +161,9 @@ export default function OnboardingPage() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center px-6 py-12">
         <div className="w-full max-w-xs flex flex-col gap-8">
           <div className="text-center">
-            <div className="text-4xl mb-3">📱</div>
+            <div className="flex justify-center mb-3">
+              <Smartphone size={40} strokeWidth={1.5} className="text-primary-500" />
+            </div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('welcome.phone_step_title')}</h2>
             <p className="text-gray-500 mt-2 text-sm">{t('welcome.phone_step_hint')}</p>
           </div>
@@ -196,7 +199,9 @@ export default function OnboardingPage() {
         <div className="w-full max-w-xs flex flex-col gap-6">
 
           <div className="text-center">
-            <div className="text-4xl mb-2">🎉</div>
+            <div className="flex justify-center mb-2">
+              <PartyPopper size={40} strokeWidth={1.5} className="text-primary-500" />
+            </div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('onboarding.phase_pin')}</h2>
           </div>
 
@@ -232,7 +237,9 @@ export default function OnboardingPage() {
           ← {t('common.back')}
         </button>
         <div>
-          <p className="font-bold text-gray-900 dark:text-gray-100">💚 {t('app_title')}</p>
+          <p className="font-bold text-gray-900 dark:text-gray-100 flex items-center gap-1.5">
+            <Heart size={16} strokeWidth={2} className="text-green-500" />{t('app_title')}
+          </p>
           <p className="text-xs text-gray-400">{t('onboarding.title')}</p>
         </div>
       </div>

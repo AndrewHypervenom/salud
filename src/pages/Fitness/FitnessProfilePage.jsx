@@ -1,30 +1,35 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { TrendingDown, Dumbbell, Scale, Heart, Footprints, Activity, Bike, Waves, Wind, Trophy, Home, Sprout, Zap, Flame, Target } from 'lucide-react'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { Card } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
 
 const GOALS = [
-  { id: 'lose_weight',    emoji: '⬇️', color: 'border-teal-400 bg-teal-50 dark:bg-teal-900/20 ring-2 ring-teal-400', base: 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800' },
-  { id: 'gain_muscle',   emoji: '💪', color: 'border-purple-400 bg-purple-50 dark:bg-purple-900/20 ring-2 ring-purple-400', base: 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800' },
-  { id: 'maintain',      emoji: '⚖️', color: 'border-green-400 bg-green-50 dark:bg-green-900/20 ring-2 ring-green-400', base: 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800' },
-  { id: 'improve_health',emoji: '❤️', color: 'border-rose-400 bg-rose-50 dark:bg-rose-900/20 ring-2 ring-rose-400', base: 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800' },
+  { id: 'lose_weight',    Icon: TrendingDown, color: 'border-teal-400 bg-teal-50 dark:bg-teal-900/20 ring-2 ring-teal-400', base: 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800' },
+  { id: 'gain_muscle',   Icon: Dumbbell,     color: 'border-purple-400 bg-purple-50 dark:bg-purple-900/20 ring-2 ring-purple-400', base: 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800' },
+  { id: 'maintain',      Icon: Scale,        color: 'border-green-400 bg-green-50 dark:bg-green-900/20 ring-2 ring-green-400', base: 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800' },
+  { id: 'improve_health',Icon: Heart,        color: 'border-rose-400 bg-rose-50 dark:bg-rose-900/20 ring-2 ring-rose-400', base: 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800' },
 ]
 
 const SPEEDS = ['slow', 'moderate', 'fast']
 const ACTIVITIES = [
-  { id: 'walking', emoji: '🚶' }, { id: 'running', emoji: '🏃' },
-  { id: 'cycling', emoji: '🚴' }, { id: 'gym', emoji: '🏋️' },
-  { id: 'swimming', emoji: '🏊' }, { id: 'yoga', emoji: '🧘' },
-  { id: 'sports', emoji: '⚽' }, { id: 'home_workout', emoji: '🏠' },
+  { id: 'walking',      Icon: Footprints },
+  { id: 'running',      Icon: Activity },
+  { id: 'cycling',      Icon: Bike },
+  { id: 'gym',          Icon: Dumbbell },
+  { id: 'swimming',     Icon: Waves },
+  { id: 'yoga',         Icon: Wind },
+  { id: 'sports',       Icon: Trophy },
+  { id: 'home_workout', Icon: Home },
 ]
 const FREQUENCIES = ['1-2', '3-4', '5+']
 const LEVELS = [
-  { id: 'beginner',     emoji: '🌱' },
-  { id: 'intermediate', emoji: '⚡' },
-  { id: 'advanced',     emoji: '🔥' },
+  { id: 'beginner',     Icon: Sprout },
+  { id: 'intermediate', Icon: Zap },
+  { id: 'advanced',     Icon: Flame },
 ]
 
 export default function FitnessProfilePage() {
@@ -106,7 +111,10 @@ export default function FitnessProfilePage() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <h1 className="text-2xl font-bold">🎯 {t('fitness.profile_section_title')}</h1>
+        <h1 className="text-2xl font-bold flex items-center gap-2">
+          <Target size={24} strokeWidth={1.75} className="text-primary-500" />
+          {t('fitness.profile_section_title')}
+        </h1>
       </div>
 
       {/* Objetivo principal */}
@@ -125,7 +133,7 @@ export default function FitnessProfilePage() {
                   isSelected ? g.color : g.base
                 }`}
               >
-                <span className="text-lg">{g.emoji}</span>
+                <g.Icon size={18} strokeWidth={1.75} />
                 <span className={`text-xs font-semibold leading-tight ${isSelected ? 'text-gray-900 dark:text-gray-100' : 'text-gray-600 dark:text-gray-400'}`}>
                   {t(`fitness.goal_${g.id}`)}
                 </span>
@@ -195,7 +203,7 @@ export default function FitnessProfilePage() {
                     : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800'
                 }`}
               >
-                <span className="text-xl">{act.emoji}</span>
+                <act.Icon size={22} strokeWidth={1.75} className={isSelected ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400'} />
                 <span className={`text-[9px] font-semibold text-center leading-tight ${isSelected ? 'text-primary-700 dark:text-primary-300' : 'text-gray-500 dark:text-gray-400'}`}>
                   {t(`fitness.activity_${act.id}`)}
                 </span>
@@ -240,7 +248,7 @@ export default function FitnessProfilePage() {
                   : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800'
               }`}
             >
-              <span className="text-xl">{lvl.emoji}</span>
+              <lvl.Icon size={22} strokeWidth={1.75} className={experienceLevel === lvl.id ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400'} />
               <span className={`text-[10px] font-semibold text-center leading-tight ${experienceLevel === lvl.id ? 'text-primary-700 dark:text-primary-300' : 'text-gray-600 dark:text-gray-400'}`}>
                 {t(`fitness.level_${lvl.id}`)}
               </span>

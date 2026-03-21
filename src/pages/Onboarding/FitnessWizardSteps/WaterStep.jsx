@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Droplets } from 'lucide-react'
 
 function calcSuggestedWater(weight_kg) {
   if (!weight_kg) return 2000
@@ -43,7 +44,7 @@ export default function WaterStep({ profileData, waterGoal, onWaterChange, onCom
         onClick={handleUseSuggested}
         className="w-full py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 active:scale-95 transition-all shadow-md"
       >
-        💧 {t('fitness.water_use_suggested')}
+        <Droplets size={18} strokeWidth={1.75} className="inline mr-1.5" />{t('fitness.water_use_suggested')}
       </button>
 
       <div className="flex flex-col gap-2">

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Sunrise, Sun, Moon, Apple, UtensilsCrossed, Flame, AlertTriangle } from 'lucide-react'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useHabits } from '../../hooks/useHabits'
@@ -16,10 +17,10 @@ import { BadgeNotification } from '../../components/shared/BadgeNotification'
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack']
 
 const MEAL_ICONS = {
-  breakfast: '🌅',
-  lunch: '☀️',
-  dinner: '🌙',
-  snack: '🍎',
+  breakfast: Sunrise,
+  lunch: Sun,
+  dinner: Moon,
+  snack: Apple,
 }
 
 export default function FoodPage() {
@@ -93,7 +94,7 @@ export default function FoodPage() {
   if (!activeProfileId || !profile) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center gap-4">
-        <span className="text-5xl">🍽️</span>
+        <UtensilsCrossed size={48} strokeWidth={1.5} className="text-gray-300" />
         <p className="text-gray-500">{t('food.no_profile')}</p>
       </div>
     )
@@ -114,7 +115,7 @@ export default function FoodPage() {
             <p className={`text-3xl font-bold ${calColors.text}`}>
               {todayCalories}
               <span className="text-base font-normal text-gray-400"> / {calTarget} kcal</span>
-              {calorieStatus === 'over' && <span className="ml-1 text-base">⚠️</span>}
+              {calorieStatus === 'over' && <AlertTriangle size={16} strokeWidth={2} className="inline ml-1 text-orange-500" />}
             </p>
             <p className="text-xs text-gray-400 mt-0.5">
               {calorieStatus === 'over'
@@ -125,7 +126,7 @@ export default function FoodPage() {
             </p>
           </div>
           <div className="text-right">
-            <span className="text-4xl">🔥</span>
+            <Flame size={36} strokeWidth={1.5} className={calColors.text} />
             <p className={`text-sm font-semibold ${calColors.text}`}>{Math.round(caloriePercent)}%</p>
           </div>
         </div>
@@ -145,7 +146,7 @@ export default function FoodPage() {
           <div key={meal}>
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-base font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
-                <span>{MEAL_ICONS[meal]}</span> {t(`food.${meal}`)}
+                {(() => { const MealIcon = MEAL_ICONS[meal]; return <MealIcon size={18} strokeWidth={1.75} className="text-gray-500 dark:text-gray-400" /> })()} {t(`food.${meal}`)}
                 {logsForMeal(meal).length > 0 && (
                   <span className="text-xs font-normal text-gray-400">
                     · {logsForMeal(meal).reduce((sum, l) => sum + (l.calories_estimated || 0), 0)} kcal

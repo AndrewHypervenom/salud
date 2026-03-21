@@ -1,5 +1,6 @@
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { ChefHat, Pencil, ShoppingCart, FileText } from 'lucide-react'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useRecipes } from '../../hooks/useRecipes'
 import { Card } from '../../components/ui/Card'
@@ -35,7 +36,7 @@ export default function RecipeDetailPage() {
   if (!recipe) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center gap-4">
-        <span className="text-5xl">👨‍🍳</span>
+        <ChefHat size={48} strokeWidth={1.5} className="text-gray-300" />
         <p className="text-gray-500">{t('recipes.not_found')}</p>
         <Link to="/recipes" className="text-primary-600 underline text-sm">{t('recipes.back_to_recipes')}</Link>
       </div>
@@ -61,7 +62,7 @@ export default function RecipeDetailPage() {
           to={`/recipes/${id}/edit`}
           className="text-sm text-primary-600 font-medium"
         >
-          ✏️ {t('common.edit')}
+          <Pencil size={14} strokeWidth={2} className="inline mr-1" />{t('common.edit')}
         </Link>
       </div>
 
@@ -113,7 +114,9 @@ export default function RecipeDetailPage() {
       {/* Ingredientes */}
       {ingredients.length > 0 && (
         <Card>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">🛒 {t('recipes.ingredients_label')}</p>
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
+            <ShoppingCart size={14} strokeWidth={1.75} />{t('recipes.ingredients_label')}
+          </p>
           <ul className="flex flex-col gap-1.5">
             {ingredients.map((ing, i) => (
               <li key={i} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
@@ -128,7 +131,9 @@ export default function RecipeDetailPage() {
       {/* Instrucciones */}
       {recipe.instructions && (
         <Card>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">📝 {t('recipes.instructions_label')}</p>
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3 flex items-center gap-1.5">
+            <FileText size={14} strokeWidth={1.75} />{t('recipes.instructions_label')}
+          </p>
           <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">
             {recipe.instructions}
           </p>

@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { Activity, Dumbbell, Check, AlertTriangle } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
 
@@ -18,7 +19,9 @@ export default function ExercisePage() {
 
       {/* Program table */}
       <Card>
-        <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-3">🏃 Programa 8 semanas</h2>
+        <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
+          <Activity size={18} strokeWidth={1.75} className="text-primary-500" /> Programa 8 semanas
+        </h2>
         <div className="overflow-x-auto -mx-4 px-4">
           <table className="w-full text-sm">
             <thead>
@@ -53,12 +56,12 @@ export default function ExercisePage() {
       {/* Benefits */}
       <Card>
         <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
-          <span>💪</span> {t('exercise.benefits_title')}
+          <Dumbbell size={18} strokeWidth={1.75} className="text-green-600" /> {t('exercise.benefits_title')}
         </h2>
         <ul className="flex flex-col gap-2">
           {benefits.map((b, i) => (
             <li key={i} className="flex items-start gap-2 text-sm text-green-700">
-              <span className="mt-0.5">✓</span><span>{b}</span>
+              <Check size={14} strokeWidth={2.5} className="mt-0.5 flex-shrink-0" /><span>{b}</span>
             </li>
           ))}
         </ul>
@@ -67,7 +70,7 @@ export default function ExercisePage() {
       {/* Safety */}
       <Card className="border border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-800">
         <h2 className="font-bold text-yellow-800 mb-3 flex items-center gap-2">
-          <span>⚠️</span> {t('exercise.safety_title')}
+          <AlertTriangle size={18} strokeWidth={1.75} className="text-yellow-700" /> {t('exercise.safety_title')}
         </h2>
         <ul className="flex flex-col gap-2">
           {safety.map((s, i) => (

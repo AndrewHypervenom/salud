@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Droplets } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { ProgressRing } from '../ui/ProgressRing'
 import { useWaterLogs } from '../../hooks/useWaterLogs'
@@ -17,7 +18,7 @@ export function WaterWidget({ profileId, waterGoalMl = 2000 }) {
       <Card className="hover:shadow-lg transition-shadow">
         <div className="flex items-center gap-4">
           <ProgressRing percent={todayPercent} size={64} strokeWidth={7} color="#3b82f6">
-            <span className="text-base">💧</span>
+            <Droplets size={18} strokeWidth={1.75} className="text-blue-500" />
           </ProgressRing>
           <div className="flex-1 min-w-0">
             <p className="text-xs text-gray-500 font-medium mb-0.5">Agua hoy</p>

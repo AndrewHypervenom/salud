@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { Target } from 'lucide-react'
 
 export default function FitnessProfileBanner({ onStart, onDismiss }) {
   const { t } = useTranslation()
@@ -6,8 +7,8 @@ export default function FitnessProfileBanner({ onStart, onDismiss }) {
   return (
     <div className="rounded-2xl bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 border border-violet-100 dark:border-violet-800 p-4">
       <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center text-xl flex-shrink-0 shadow-md">
-          🎯
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-500 flex items-center justify-center flex-shrink-0 shadow-md text-white">
+          <Target size={20} strokeWidth={2} />
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-bold text-violet-900 dark:text-violet-100 text-sm leading-tight">

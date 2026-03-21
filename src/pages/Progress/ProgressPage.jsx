@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
+import { TrendingUp, BarChart3, Scale, Bot, Dumbbell, ChevronUp, ChevronDown } from 'lucide-react'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useAnalysisHistory } from '../../hooks/useAnalysisHistory'
@@ -45,7 +46,7 @@ function DayCard({ a, lang, t }) {
   const [open, setOpen] = useState(false)
   const pct = a.cal_target > 0 ? (a.total_calories / a.cal_target) * 100 : 0
   const statusColor = pct > 100 ? 'text-red-500' : pct >= 80 ? 'text-amber-500' : 'text-primary-600'
-  const statusIcon = pct > 100 ? '🔴' : pct >= 80 ? '🟡' : '🟢'
+  const statusDot = pct > 100 ? 'bg-red-500' : pct >= 80 ? 'bg-amber-400' : 'bg-green-500'
 
   return (
     <div
@@ -53,7 +54,7 @@ function DayCard({ a, lang, t }) {
       onClick={() => setOpen(o => !o)}
     >
       <div className="flex items-center gap-3 px-4 py-3">
-        <span className="text-lg flex-shrink-0">{statusIcon}</span>
+        <span className={`w-3 h-3 rounded-full flex-shrink-0 ${statusDot}`} />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-gray-700 dark:text-gray-200">{formatDate(a.analysis_date, lang)}</p>
           <CaloriePct calories={a.total_calories} target={a.cal_target} />
@@ -61,14 +62,14 @@ function DayCard({ a, lang, t }) {
         <span className={`text-sm font-bold flex-shrink-0 ${statusColor}`}>
           {Math.round(pct)}%
         </span>
-        <span className="text-gray-400 text-xs">{open ? '▲' : '▼'}</span>
+        {open ? <ChevronUp size={14} className="text-gray-400" /> : <ChevronDown size={14} className="text-gray-400" />}
       </div>
 
       {open && (
         <div className="px-4 pb-4 flex flex-col gap-2 border-t border-gray-100 dark:border-gray-700 pt-3">
           {a.analysis_text && (
             <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
-              🤖 {a.analysis_text}
+              <Bot size={13} strokeWidth={1.75} className="inline mr-1 text-primary-500" />{a.analysis_text}
             </p>
           )}
           {a.tomorrow_plan && (
@@ -78,7 +79,9 @@ function DayCard({ a, lang, t }) {
             </div>
           )}
           {a.motivation && (
-            <p className="text-xs text-primary-600 dark:text-primary-400 italic">💪 {a.motivation}</p>
+            <p className="text-xs text-primary-600 dark:text-primary-400 italic flex items-center gap-1">
+              <Dumbbell size={12} strokeWidth={2} />{a.motivation}
+            </p>
           )}
         </div>
       )}
@@ -101,7 +104,7 @@ export default function ProgressPage() {
   if (!profile) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center gap-4">
-        <span className="text-5xl">📈</span>
+        <TrendingUp size={48} strokeWidth={1.5} className="text-gray-300" />
         <p className="text-gray-500">{t('progress.select_profile')}</p>
       </div>
     )
@@ -114,7 +117,7 @@ export default function ProgressPage() {
       <div className="flex flex-col gap-4">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('progress.title')}</h1>
         <div className="flex flex-col items-center justify-center py-16 text-center gap-4">
-          <span className="text-5xl">📊</span>
+          <BarChart3 size={48} strokeWidth={1.5} className="text-gray-300" />
           <p className="text-gray-500 max-w-xs">
             {t('progress.no_analyses')}
           </p>
@@ -142,7 +145,10 @@ export default function ProgressPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">📈 {t('progress.title')}</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+        <TrendingUp size={26} strokeWidth={1.75} className="text-primary-500" />
+        {t('progress.title')}
+      </h1>
 
       {/* Tab selector */}
       <div className="flex rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
@@ -181,7 +187,7 @@ export default function ProgressPage() {
             <div className="flex justify-center py-8"><Spinner /></div>
           ) : weightLogs.length === 0 ? (
             <div className="flex flex-col items-center py-12 text-center gap-3">
-              <span className="text-5xl">⚖️</span>
+              <Scale size={48} strokeWidth={1.5} className="text-gray-300" />
               <p className="text-gray-400 text-sm">{t('progress.no_weight_records')}</p>
               <Link to="/weight" className="px-4 py-2 bg-primary-600 text-white rounded-xl text-sm font-semibold">
                 {t('progress.log_weight')}

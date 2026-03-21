@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Scale, TrendingDown, TrendingUp, Loader2, X } from 'lucide-react'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useWeightLogs } from '../../hooks/useWeightLogs'
@@ -65,7 +66,7 @@ export default function WeightPage() {
   if (!activeProfileId || !profile) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center gap-4">
-        <span className="text-5xl">⚖️</span>
+        <Scale size={48} strokeWidth={1.5} className="text-gray-300" />
         <p className="text-gray-500">{t('common.select_profile_first')}</p>
       </div>
     )
@@ -75,7 +76,10 @@ export default function WeightPage() {
     <div className="flex flex-col gap-4">
       <BadgeNotification badge={newBadge} onDismiss={clearNewBadge} lang={lang} />
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">⚖️ {t('weight.title')}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <Scale size={26} strokeWidth={1.75} className="text-primary-500" />
+          {t('weight.title')}
+        </h1>
         <button
           onClick={() => setShowForm(s => !s)}
           className="px-4 py-2 bg-primary-600 text-white rounded-xl text-sm font-semibold hover:bg-primary-700 transition-colors"
@@ -148,7 +152,10 @@ export default function WeightPage() {
 
       {weeklyChange !== null && (
         <Card className="flex items-center gap-3 py-3">
-          <span className="text-2xl">{weeklyChange < 0 ? '📉' : '📈'}</span>
+          {weeklyChange < 0
+            ? <TrendingDown size={24} strokeWidth={1.75} className="text-green-500 flex-shrink-0" />
+            : <TrendingUp size={24} strokeWidth={1.75} className="text-amber-500 flex-shrink-0" />
+          }
           <div>
             <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
               {weeklyChange < 0 ? t('weight.trending_down') : t('weight.trending_up')} {Math.abs(weeklyChange)} {t('weight.per_week')}
@@ -175,14 +182,14 @@ export default function WeightPage() {
         <div className="flex justify-center py-4"><Spinner /></div>
       ) : logs.length === 0 ? (
         <div className="flex flex-col items-center py-12 text-center gap-3">
-          <span className="text-5xl">⚖️</span>
+          <Scale size={48} strokeWidth={1.5} className="text-gray-300" />
           <p className="text-gray-400 text-sm">{t('weight.no_logs')}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-2">
           {recentLogs.map(log => (
             <Card key={log.id} className="flex items-center gap-3 py-2.5">
-              <span className="text-xl">⚖️</span>
+              <Scale size={20} strokeWidth={1.75} className="text-gray-400 flex-shrink-0" />
               <div className="flex-1">
                 <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{log.weight_kg} kg</p>
                 <p className="text-xs text-gray-400">{log.logged_date}</p>
@@ -203,7 +210,7 @@ export default function WeightPage() {
                 disabled={deleting === log.id}
                 className="text-gray-300 hover:text-red-400 transition-colors p-1"
               >
-                {deleting === log.id ? '⏳' : '✕'}
+                {deleting === log.id ? <Loader2 size={16} className="animate-spin" /> : <X size={16} />}
               </button>
             </Card>
           ))}

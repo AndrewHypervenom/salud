@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { Check, Lightbulb } from 'lucide-react'
 
 const MACRO_CONFIG = [
   { key: 'fat_g',     labelKey: 'food.fat',     kcalPerG: 9 },
@@ -189,7 +190,10 @@ export function MacroResultCard({ imagePreview, description, calories, macros, d
                 : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400'
             }`}>
               <span className="flex-shrink-0 mt-0.5">
-                {recommendation === 'macro.balanced' ? '✓' : '💡'}
+                {recommendation === 'macro.balanced'
+                  ? <Check size={15} strokeWidth={2.5} />
+                  : <Lightbulb size={15} strokeWidth={1.75} />
+                }
               </span>
               <span className="leading-snug">
                 {recommendation === 'macro.balanced' ? t(recommendation).replace('✓ ', '') : t(recommendation)}

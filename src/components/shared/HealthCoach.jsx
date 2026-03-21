@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Bot, AlertTriangle, Dumbbell } from 'lucide-react'
 import { useHealthCoach } from '../../hooks/useHealthCoach'
 import { useBadges } from '../../hooks/useBadges'
 import { Card } from '../ui/Card'
@@ -58,7 +59,7 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
     return (
       <Card className="border border-dashed border-primary-300 bg-primary-50/50 dark:bg-primary-900/10 dark:border-primary-700">
         <div className="flex flex-col items-center text-center gap-3 py-2">
-          <span className="text-4xl">🤖</span>
+          <Bot size={36} strokeWidth={1.5} className="text-primary-500" />
           <div>
             <p className="font-semibold text-gray-800 dark:text-gray-100">{t('coach.title')}</p>
             <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -79,7 +80,7 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
     return (
       <Card className="border border-dashed border-primary-300 bg-primary-50/50 dark:bg-primary-900/10">
         <div className="flex flex-col items-center text-center gap-3 py-2">
-          <span className="text-4xl">🤖</span>
+          <Bot size={36} strokeWidth={1.5} className="text-primary-500" />
           {error && (
             <>
               <p className="text-xs text-red-500">{error}</p>
@@ -100,7 +101,7 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
           onClick={handleAnalyze}
           className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 rounded-xl px-4 py-2 text-sm text-amber-700 dark:text-amber-300 w-full text-left"
         >
-          <span>⚠️</span>
+          <AlertTriangle size={16} strokeWidth={1.75} className="flex-shrink-0" />
           <span className="flex-1">{t('coach.stale_warning')}</span>
           <span className="font-semibold underline">{t('coach.regenerate')}</span>
         </button>
@@ -109,7 +110,7 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
       {/* Análisis del día */}
       <Card className="border-l-4 border-primary-500 bg-primary-50 dark:bg-primary-900/20">
         <div className="flex items-start gap-2">
-          <span className="text-2xl flex-shrink-0">🤖</span>
+          <Bot size={22} strokeWidth={1.5} className="flex-shrink-0 text-primary-500 mt-0.5" />
           <div>
             <p className="text-xs font-semibold text-primary-700 dark:text-primary-300 uppercase tracking-wide mb-1">
               {t('coach.analysis_today')}
@@ -147,7 +148,7 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
       {/* Motivación */}
       {todayAnalysis.motivation && (
         <p className="text-center text-sm font-medium text-primary-600 dark:text-primary-400 px-4">
-          💪 {todayAnalysis.motivation}
+          <Dumbbell size={15} strokeWidth={1.75} className="inline mr-1.5" />{todayAnalysis.motivation}
         </p>
       )}
 

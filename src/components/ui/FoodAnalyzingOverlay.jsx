@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Camera, Brain, FlaskConical, Sparkles } from 'lucide-react'
 
 const STEP_KEYS = [
   'food.step_reading',
@@ -8,7 +9,7 @@ const STEP_KEYS = [
   'food.step_preparing',
 ]
 
-const STEP_EMOJIS = ['📸', '🧠', '🔬', '✨']
+const STEP_ICONS = [Camera, Brain, FlaskConical, Sparkles]
 
 export function FoodAnalyzingOverlay({ imagePreview }) {
   const { t } = useTranslation()
@@ -48,22 +49,23 @@ export function FoodAnalyzingOverlay({ imagePreview }) {
         {[0, 0.45, 0.9, 1.35].map((delay, i) => (
           <span
             key={i}
-            className="absolute text-base animate-float pointer-events-none select-none"
+            className="absolute animate-float pointer-events-none select-none text-purple-400"
             style={{
               animationDelay: `${delay}s`,
               left: `${20 + i * 18}%`,
               bottom: '8px',
             }}
           >
-            ✨
+            <Sparkles size={14} strokeWidth={1.5} />
           </span>
         ))}
       </div>
 
       {/* Step text */}
       <div className="mt-3 px-4 text-center">
-        <p className="text-white font-semibold text-sm">
-          {STEP_EMOJIS[step]} {t(STEP_KEYS[step])}
+        <p className="text-white font-semibold text-sm flex items-center gap-2">
+          {(() => { const StepIcon = STEP_ICONS[step]; return <StepIcon size={16} strokeWidth={1.75} className="text-purple-300" /> })()}
+          {t(STEP_KEYS[step])}
         </p>
       </div>
 

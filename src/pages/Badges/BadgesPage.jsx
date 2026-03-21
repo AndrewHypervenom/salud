@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Trophy, Lock, ChevronRight, ChevronDown } from 'lucide-react'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useBadges, ALL_BADGES, BADGE_CATEGORIES } from '../../hooks/useBadges'
 import { Card } from '../../components/ui/Card'
@@ -17,10 +18,14 @@ function BadgeCard({ badge, record, stat, lang }) {
   const label = lang === 'es' ? badge.label_es : badge.label_en
   const desc  = lang === 'es' ? badge.desc_es  : badge.desc_en
 
+  const BadgeIcon = badge.Icon
+
   if (isUnlocked) {
     return (
       <div className="flex flex-col items-center text-center p-3 gap-1.5 rounded-2xl bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
-        <span className="text-3xl">{badge.emoji}</span>
+        <div className="w-10 h-10 rounded-xl bg-yellow-100 dark:bg-yellow-800/40 flex items-center justify-center text-yellow-600 dark:text-yellow-400">
+          {BadgeIcon && <BadgeIcon size={22} strokeWidth={1.75} />}
+        </div>
         <p className="text-xs font-bold text-gray-800 dark:text-gray-100 leading-tight">{label}</p>
         {record?.created_at && (
           <p className="text-xs text-gray-400">
@@ -33,8 +38,10 @@ function BadgeCard({ badge, record, stat, lang }) {
   }
 
   return (
-    <div className="flex flex-col items-center text-center p-3 gap-1.5 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 opacity-70">
-      <span className="text-3xl grayscale">{badge.emoji}</span>
+    <div className="flex flex-col items-center text-center p-3 gap-1.5 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 opacity-60">
+      <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400 dark:text-gray-500">
+        {BadgeIcon && <BadgeIcon size={22} strokeWidth={1.75} />}
+      </div>
       <p className="text-xs font-medium text-gray-500 dark:text-gray-400 leading-tight">{label}</p>
       <p className="text-xs text-gray-400 dark:text-gray-500 leading-tight">{desc}</p>
       {stat && (
@@ -43,7 +50,7 @@ function BadgeCard({ badge, record, stat, lang }) {
         </p>
       )}
       <div className="flex items-center gap-1">
-        <span className="text-xs text-gray-400">🔒</span>
+        <Lock size={11} strokeWidth={2} className="text-gray-400" />
         <span className={`w-2 h-2 rounded-full ${DIFFICULTY_DOT[badge.difficulty]}`} />
       </div>
     </div>
@@ -71,7 +78,10 @@ function CategorySection({ category, badges, getBadge, badgeStats, lang, t }) {
             {unlockedCount}/{categoryBadges.length}
           </span>
         </div>
-        <span className="text-gray-400 text-sm">{collapsed ? '▶' : '▼'}</span>
+        {collapsed
+          ? <ChevronRight size={16} strokeWidth={2} className="text-gray-400" />
+          : <ChevronDown size={16} strokeWidth={2} className="text-gray-400" />
+        }
       </button>
 
       {!collapsed && (
@@ -109,7 +119,7 @@ export default function BadgesPage() {
   if (!activeProfileId) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center gap-4">
-        <span className="text-5xl">🏆</span>
+        <Trophy size={48} strokeWidth={1.5} className="text-yellow-400" />
         <p className="text-gray-500">{t('common.select_profile_first')}</p>
       </div>
     )
@@ -117,7 +127,10 @@ export default function BadgesPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">🏆 {t('badges.title')}</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+        <Trophy size={26} strokeWidth={1.75} className="text-yellow-500" />
+        {t('badges.title')}
+      </h1>
 
       {/* Stats bar */}
       <Card className="flex flex-col gap-2 py-4">

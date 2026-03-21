@@ -1,26 +1,27 @@
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { NavIcon } from '../../lib/navIcons'
 
 const mainItems = [
-  { to: '/dashboard', label: 'nav.dashboard', icon: '🏠' },
-  { to: '/habits', label: 'nav.habits', icon: '✅' },
-  { to: '/food', label: 'nav.food', icon: '🍽️' },
-  { to: '/progress', label: 'nav.progress', icon: '📈' },
-  { to: '/calories', label: 'nav.calories', icon: '🔥' },
-  { to: '/blood-pressure', label: 'nav.blood_pressure', icon: '❤️' },
-  { to: '/diet', label: 'nav.diet', icon: '🥗' },
-  { to: '/exercise', label: 'nav.exercise', icon: '🏃' },
-  { to: '/doctor-questions', label: 'nav.doctor_questions', icon: '👨‍⚕️' },
-  { to: '/profiles', label: 'nav.profiles', icon: '👥' },
+  { to: '/dashboard', label: 'nav.dashboard', navKey: 'dashboard' },
+  { to: '/habits', label: 'nav.habits', navKey: 'habits' },
+  { to: '/food', label: 'nav.food', navKey: 'food' },
+  { to: '/progress', label: 'nav.progress', navKey: 'progress' },
+  { to: '/calories', label: 'nav.calories', navKey: 'calories' },
+  { to: '/blood-pressure', label: 'nav.blood_pressure', navKey: 'blood-pressure' },
+  { to: '/diet', label: 'nav.diet', navKey: 'diet' },
+  { to: '/exercise', label: 'nav.exercise', navKey: 'exercise' },
+  { to: '/doctor-questions', label: 'nav.doctor_questions', navKey: 'doctor-questions' },
+  { to: '/profiles', label: 'nav.profiles', navKey: 'profiles' },
 ]
 
 const toolItems = [
-  { to: '/water', label: 'nav.water', icon: '💧' },
-  { to: '/weight', label: 'nav.weight', icon: '⚖️' },
-  { to: '/fasting', label: 'nav.fasting', icon: '⚡' },
-  { to: '/recipes', label: 'nav.recipes', icon: '👨‍🍳' },
-  { to: '/food-search', label: 'nav.food_search', icon: '🔍' },
-  { to: '/badges', label: 'nav.badges', icon: '🏆' },
+  { to: '/water', label: 'nav.water', navKey: 'water' },
+  { to: '/weight', label: 'nav.weight', navKey: 'weight' },
+  { to: '/fasting', label: 'nav.fasting', navKey: 'fasting' },
+  { to: '/recipes', label: 'nav.recipes', navKey: 'recipes' },
+  { to: '/food-search', label: 'nav.food_search', navKey: 'food-search' },
+  { to: '/badges', label: 'nav.badges', navKey: 'badges' },
 ]
 
 function NavItem({ item, t }) {
@@ -35,7 +36,7 @@ function NavItem({ item, t }) {
         }`
       }
     >
-      <span className="text-xl">{item.icon}</span>
+      <NavIcon navKey={item.navKey} size={20} />
       {t(item.label)}
     </NavLink>
   )

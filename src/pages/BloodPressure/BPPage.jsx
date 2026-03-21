@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Heart, AlertTriangle } from 'lucide-react'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useBloodPressure } from '../../hooks/useBloodPressure'
 import { useBadges } from '../../hooks/useBadges'
@@ -20,7 +21,7 @@ export default function BPPage() {
   if (!activeProfileId) {
     return (
       <Card className="text-center py-10 text-gray-400">
-        <p className="text-3xl mb-3">❤️</p>
+        <Heart size={48} strokeWidth={1.5} className="text-rose-300 mb-3" />
         <p>{t('bp.no_profile')}</p>
       </Card>
     )
@@ -49,7 +50,7 @@ export default function BPPage() {
       {/* Crisis alert */}
       {bpClass?.isCrisis && (
         <div className="bg-red-800 text-white rounded-2xl p-4 flex items-start gap-3 animate-pulse">
-          <span className="text-2xl flex-shrink-0">🚨</span>
+          <AlertTriangle size={24} strokeWidth={2} className="flex-shrink-0" />
           <p className="font-semibold">{t('bp.crisis_alert')}</p>
         </div>
       )}

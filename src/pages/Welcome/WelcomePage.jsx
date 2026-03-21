@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Heart, Lock } from 'lucide-react'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useAuth } from '../../context/AuthContext'
@@ -48,7 +49,9 @@ export default function WelcomePage() {
 
         {/* App header */}
         <div className="text-center">
-          <div className="text-5xl mb-3">💚</div>
+          <div className="flex justify-center mb-3">
+            <Heart size={48} strokeWidth={1.5} className="text-green-500" />
+          </div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{t('app_title')}</h1>
           <p className="text-gray-500 mt-1">{t('welcome.subtitle')}</p>
         </div>
@@ -75,7 +78,7 @@ export default function WelcomePage() {
                     <p className="text-sm text-gray-400">{profile.age} {t('profile.years')}</p>
                   </div>
                   {locked && (
-                    <span className="text-xl" aria-label={t('pin.locked')}>🔒</span>
+                    <Lock size={20} strokeWidth={2} className="text-gray-400" aria-label={t('pin.locked')} />
                   )}
                 </button>
               )

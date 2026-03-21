@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { ChefHat } from 'lucide-react'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useRecipes } from '../../hooks/useRecipes'
 import { useProfiles } from '../../hooks/useProfiles'
@@ -152,7 +153,7 @@ export default function RecipesPage() {
   if (!activeProfileId) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center gap-4">
-        <span className="text-5xl">👨‍🍳</span>
+        <ChefHat size={48} strokeWidth={1.5} className="text-gray-300" />
         <p className="text-gray-500">{t('common.select_profile_first')}</p>
       </div>
     )
@@ -163,7 +164,10 @@ export default function RecipesPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">👨‍🍳 {t('recipes.title')}</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+          <ChefHat size={26} strokeWidth={1.75} className="text-primary-500" />
+          {t('recipes.title')}
+        </h1>
         {tab === 'mine' && (
           <Link
             to="/recipes/new"
@@ -217,7 +221,7 @@ export default function RecipesPage() {
             <div className="flex justify-center py-8"><Spinner /></div>
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center py-12 text-center gap-3">
-              <span className="text-5xl">👨‍🍳</span>
+              <ChefHat size={48} strokeWidth={1.5} className="text-gray-300" />
               <p className="text-gray-400 text-sm">
                 {mealFilter ? t('recipes.no_results_filter') : t('recipes.no_recipes')}
               </p>

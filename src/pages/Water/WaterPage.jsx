@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Droplets, GlassWater, FlaskConical, Loader2, X } from 'lucide-react'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useWaterLogs } from '../../hooks/useWaterLogs'
@@ -9,9 +10,9 @@ import { Card } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
 
 const QUICK_OPTIONS = [
-  { labelKey: 'water.quick_glass', ml: 250, emoji: '🥤' },
-  { labelKey: 'water.quick_small_bottle', ml: 500, emoji: '🍶' },
-  { labelKey: 'water.quick_large_bottle', ml: 750, emoji: '🧴' },
+  { labelKey: 'water.quick_glass', ml: 250, Icon: GlassWater },
+  { labelKey: 'water.quick_small_bottle', ml: 500, Icon: Droplets },
+  { labelKey: 'water.quick_large_bottle', ml: 750, Icon: FlaskConical },
 ]
 
 export default function WaterPage() {
@@ -56,7 +57,7 @@ export default function WaterPage() {
   if (!activeProfileId || !profile) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center gap-4">
-        <span className="text-5xl">💧</span>
+        <Droplets size={48} strokeWidth={1.5} className="text-blue-300" />
         <p className="text-gray-500">{t('common.select_profile_first')}</p>
       </div>
     )
@@ -66,7 +67,10 @@ export default function WaterPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">💧 {t('water.title')}</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+        <Droplets size={26} strokeWidth={1.75} className="text-blue-500" />
+        {t('water.title')}
+      </h1>
 
       {/* Progress ring principal */}
       <Card className="flex flex-col items-center py-6 gap-3">
@@ -94,7 +98,7 @@ export default function WaterPage() {
               disabled={adding}
               className="flex flex-col items-center gap-1 py-3 bg-blue-50 dark:bg-blue-900/20 rounded-2xl text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors disabled:opacity-40"
             >
-              <span className="text-2xl">{opt.emoji}</span>
+              <opt.Icon size={24} strokeWidth={1.75} />
               <span className="text-xs font-semibold">{t(opt.labelKey)}</span>
               <span className="text-xs text-blue-400">+{opt.ml}ml</span>
             </button>
@@ -135,7 +139,7 @@ export default function WaterPage() {
           <div className="flex flex-col gap-2">
             {todayEntries.map(entry => (
               <Card key={entry.id} className="flex items-center gap-3 py-2.5">
-                <span className="text-xl">💧</span>
+                <Droplets size={20} strokeWidth={1.75} className="text-blue-400 flex-shrink-0" />
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-blue-600">{entry.amount_ml} ml</p>
                   <p className="text-xs text-gray-400">
@@ -147,7 +151,7 @@ export default function WaterPage() {
                   disabled={deleting === entry.id}
                   className="text-gray-300 hover:text-red-400 transition-colors p-1"
                 >
-                  {deleting === entry.id ? '⏳' : '✕'}
+                  {deleting === entry.id ? <Loader2 size={16} className="animate-spin" /> : <X size={16} />}
                 </button>
               </Card>
             ))}

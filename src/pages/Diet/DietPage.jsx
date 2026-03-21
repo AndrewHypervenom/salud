@@ -1,11 +1,12 @@
 import { useTranslation } from 'react-i18next'
+import { CheckCircle2, Ban, Lightbulb } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 
-function ListSection({ title, items, icon, itemColor }) {
+function ListSection({ title, items, Icon, iconClass, itemColor }) {
   return (
     <Card>
       <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
-        <span className="text-xl">{icon}</span> {title}
+        <Icon size={18} strokeWidth={1.75} className={iconClass} /> {title}
       </h2>
       <ul className="flex flex-col gap-2">
         {items.map((item, i) => (
@@ -36,19 +37,22 @@ export default function DietPage() {
       <ListSection
         title={t('diet.section_eat')}
         items={eatItems}
-        icon="✅"
+        Icon={CheckCircle2}
+        iconClass="text-green-600"
         itemColor="text-green-700 dark:text-green-400"
       />
       <ListSection
         title={t('diet.section_avoid')}
         items={avoidItems}
-        icon="🚫"
+        Icon={Ban}
+        iconClass="text-red-500"
         itemColor="text-red-700 dark:text-red-400"
       />
       <ListSection
         title={t('diet.section_tips')}
         items={tipItems}
-        icon="💡"
+        Icon={Lightbulb}
+        iconClass="text-blue-500"
         itemColor="text-blue-700 dark:text-blue-400"
       />
     </div>

@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { Flame } from 'lucide-react'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { calcBMR, calcTDEE, calcMacros, getActivityMultiplier } from '../../lib/formulas'
@@ -31,7 +32,7 @@ export default function CaloriesPage() {
   if (!profile) {
     return (
       <Card className="text-center py-10 text-gray-400">
-        <p className="text-3xl mb-3">🔥</p>
+        <Flame size={48} strokeWidth={1.5} className="text-orange-300 mb-3" />
         <p>{t('calories.no_profile')}</p>
       </Card>
     )
