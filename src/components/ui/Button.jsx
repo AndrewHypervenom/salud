@@ -2,7 +2,7 @@ import clsx from 'clsx'
 
 const variants = {
   primary: 'bg-gradient-to-r from-brand-500 to-blue-500 hover:from-brand-600 hover:to-blue-600 text-white shadow-glow-brand active:scale-[0.98]',
-  secondary: 'bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 dark:bg-[#13131F] dark:border-brand-500/20 dark:text-gray-200 dark:hover:bg-brand-500/5',
+  secondary: 'bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 dark:bg-[#1C1C2E] dark:border-brand-500/20 dark:text-gray-200 dark:hover:bg-brand-500/5',
   danger: 'bg-red-600 hover:bg-red-700 text-white',
   ghost: 'hover:bg-gray-100 text-gray-700 dark:hover:bg-brand-500/8 dark:text-gray-300',
 }

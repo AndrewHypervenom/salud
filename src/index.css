@@ -23,11 +23,11 @@
 }
 
 .dark {
-  --ios-bg:        #08080F;
-  --ios-card:      #13131F;
+  --ios-bg:        #141420;
+  --ios-card:      #1C1C2E;
   --ios-separator: rgba(139,92,246,0.15);
-  --bg-base:       #08080F;
-  --bg-surface:    #13131F;
+  --bg-base:       #141420;
+  --bg-surface:    #1C1C2E;
 }
 
 /* ── Base Styles ─────────────────────────────────────────── */
@@ -48,9 +48,9 @@
   .dark body {
     background-color: var(--bg-base);
     background-image:
-      radial-gradient(ellipse 80% 50% at 20% -10%, rgba(139,92,246,0.18) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 40% at 85% 15%,  rgba(59,130,246,0.14) 0%, transparent 55%),
-      radial-gradient(ellipse 50% 70% at 50% 105%, rgba(79,70,229,0.10) 0%, transparent 50%);
+      radial-gradient(ellipse 90% 60% at 15% -5%,  rgba(139,92,246,0.22) 0%, transparent 55%),
+      radial-gradient(ellipse 70% 50% at 85% 10%,  rgba(59,130,246,0.16) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 70% at 50% 110%, rgba(99,102,241,0.12) 0%, transparent 50%);
     background-attachment: fixed;
     @apply text-gray-100;
   }
@@ -67,9 +67,32 @@
     box-shadow: 0 2px 16px rgba(99,102,241,0.06), 0 1px 4px rgba(0,0,0,0.03);
   }
   .dark .glass-card {
-    background: rgba(19, 19, 31, 0.80);
-    border: 1px solid rgba(139, 92, 246, 0.12);
-    box-shadow: 0 2px 16px rgba(0,0,0,0.50), 0 0 1px rgba(139,92,246,0.20);
+    background: rgba(28, 28, 46, 0.82);
+    border: 1px solid rgba(139, 92, 246, 0.14);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.35), 0 0 1px rgba(139,92,246,0.20);
+  }
+
+  /* Quick action buttons — light/dark adaptive */
+  .quick-action-btn {
+    background: var(--gradient);
+    box-shadow: var(--shadow);
+  }
+  .quick-action-btn .quick-action-icon {
+    color: white !important;
+  }
+  .quick-action-btn .quick-action-label {
+    color: rgba(255,255,255,0.92);
+  }
+  .dark .quick-action-btn {
+    background: var(--gradient-dark);
+    box-shadow: var(--shadow-dark);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .dark .quick-action-btn .quick-action-icon {
+    color: var(--icon-color) !important;
+  }
+  .dark .quick-action-btn .quick-action-label {
+    color: rgba(255,255,255,0.75);
   }
 
   /* Glassmorphism contextual variants */
@@ -82,9 +105,9 @@
     box-shadow: 0 4px 20px rgba(139,92,246,0.12);
   }
   .dark .glass-card-violet {
-    background: rgba(139, 92, 246, 0.08);
-    border: 1px solid rgba(139, 92, 246, 0.20);
-    box-shadow: 0 4px 24px rgba(139,92,246,0.15);
+    background: rgba(139, 92, 246, 0.12);
+    border: 1px solid rgba(139, 92, 246, 0.22);
+    box-shadow: 0 4px 24px rgba(139,92,246,0.18);
   }
 
   .glass-card-sky {
@@ -96,9 +119,9 @@
     box-shadow: 0 4px 20px rgba(14,165,233,0.12);
   }
   .dark .glass-card-sky {
-    background: rgba(14, 165, 233, 0.07);
-    border: 1px solid rgba(14, 165, 233, 0.18);
-    box-shadow: 0 4px 24px rgba(14,165,233,0.15);
+    background: rgba(14, 165, 233, 0.11);
+    border: 1px solid rgba(14, 165, 233, 0.22);
+    box-shadow: 0 4px 24px rgba(14,165,233,0.18);
   }
 
   .glass-card-amber {
@@ -110,9 +133,9 @@
     box-shadow: 0 4px 20px rgba(255,159,10,0.12);
   }
   .dark .glass-card-amber {
-    background: rgba(255, 159, 10, 0.07);
-    border: 1px solid rgba(255, 159, 10, 0.18);
-    box-shadow: 0 4px 24px rgba(255,159,10,0.15);
+    background: rgba(255, 159, 10, 0.11);
+    border: 1px solid rgba(255, 159, 10, 0.22);
+    box-shadow: 0 4px 24px rgba(255,159,10,0.18);
   }
 
   .glass-card-emerald {
@@ -124,9 +147,9 @@
     box-shadow: 0 4px 20px rgba(16,185,129,0.12);
   }
   .dark .glass-card-emerald {
-    background: rgba(16, 185, 129, 0.07);
-    border: 1px solid rgba(16, 185, 129, 0.18);
-    box-shadow: 0 4px 24px rgba(16,185,129,0.15);
+    background: rgba(16, 185, 129, 0.11);
+    border: 1px solid rgba(16, 185, 129, 0.22);
+    box-shadow: 0 4px 24px rgba(16,185,129,0.18);
   }
 
   .glass-card-rose {
@@ -138,9 +161,9 @@
     box-shadow: 0 4px 20px rgba(244,63,94,0.12);
   }
   .dark .glass-card-rose {
-    background: rgba(244, 63, 94, 0.07);
-    border: 1px solid rgba(244, 63, 94, 0.18);
-    box-shadow: 0 4px 24px rgba(244,63,94,0.15);
+    background: rgba(244, 63, 94, 0.11);
+    border: 1px solid rgba(244, 63, 94, 0.22);
+    box-shadow: 0 4px 24px rgba(244,63,94,0.18);
   }
 
   .glass-card-indigo {
@@ -152,9 +175,9 @@
     box-shadow: 0 4px 20px rgba(79,70,229,0.12);
   }
   .dark .glass-card-indigo {
-    background: rgba(79, 70, 229, 0.07);
-    border: 1px solid rgba(79, 70, 229, 0.18);
-    box-shadow: 0 4px 24px rgba(79,70,229,0.15);
+    background: rgba(79, 70, 229, 0.12);
+    border: 1px solid rgba(79, 70, 229, 0.22);
+    box-shadow: 0 4px 24px rgba(79,70,229,0.18);
   }
 
   .glass-nav {

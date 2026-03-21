@@ -119,55 +119,78 @@ function QuickActionsWidget() {
       navKey: 'food',
       labelKey: 'nav.food',
       to: '/food',
-      gradient: 'linear-gradient(145deg, #34D158, #25A244)',
-      shadow: '0 6px 16px rgba(48,209,88,0.35)',
+      gradient: 'linear-gradient(145deg, #4ADE80, #22C55E)',
+      gradientDark: 'linear-gradient(145deg, rgba(74,222,128,0.22), rgba(34,197,94,0.14))',
+      color: '#22C55E',
+      shadow: '0 6px 16px rgba(34,197,94,0.35)',
+      shadowDark: '0 4px 12px rgba(34,197,94,0.20)',
     },
     {
       navKey: 'water',
       labelKey: 'nav.water',
       to: '/water',
-      gradient: 'linear-gradient(145deg, #1A8FFF, #0055D4)',
-      shadow: '0 6px 16px rgba(0,122,255,0.35)',
+      gradient: 'linear-gradient(145deg, #38BDF8, #0EA5E9)',
+      gradientDark: 'linear-gradient(145deg, rgba(56,189,248,0.22), rgba(14,165,233,0.14))',
+      color: '#0EA5E9',
+      shadow: '0 6px 16px rgba(14,165,233,0.35)',
+      shadowDark: '0 4px 12px rgba(14,165,233,0.20)',
     },
     {
       navKey: 'weight',
       labelKey: 'nav.weight',
       to: '/weight',
-      gradient: 'linear-gradient(145deg, #CF6AF8, #9B35D4)',
-      shadow: '0 6px 16px rgba(191,90,242,0.35)',
+      gradient: 'linear-gradient(145deg, #C4B5FD, #8B5CF6)',
+      gradientDark: 'linear-gradient(145deg, rgba(196,181,253,0.22), rgba(139,92,246,0.14))',
+      color: '#8B5CF6',
+      shadow: '0 6px 16px rgba(139,92,246,0.35)',
+      shadowDark: '0 4px 12px rgba(139,92,246,0.20)',
     },
     {
       navKey: 'fasting',
       labelKey: 'nav.fasting',
       to: '/fasting',
-      gradient: 'linear-gradient(145deg, #42BFEE, #1E8EC4)',
-      shadow: '0 6px 16px rgba(50,173,230,0.35)',
+      gradient: 'linear-gradient(145deg, #818CF8, #4F46E5)',
+      gradientDark: 'linear-gradient(145deg, rgba(129,140,248,0.22), rgba(79,70,229,0.14))',
+      color: '#4F46E5',
+      shadow: '0 6px 16px rgba(79,70,229,0.35)',
+      shadowDark: '0 4px 12px rgba(79,70,229,0.20)',
     },
     {
       navKey: 'food-search',
       labelKey: 'nav.food_search',
       to: '/food-search',
-      gradient: 'linear-gradient(145deg, #FF9F0A, #E07000)',
-      shadow: '0 6px 16px rgba(255,149,0,0.35)',
+      gradient: 'linear-gradient(145deg, #FCD34D, #F59E0B)',
+      gradientDark: 'linear-gradient(145deg, rgba(252,211,77,0.22), rgba(245,158,11,0.14))',
+      color: '#F59E0B',
+      shadow: '0 6px 16px rgba(245,158,11,0.35)',
+      shadowDark: '0 4px 12px rgba(245,158,11,0.20)',
     },
   ]
   return (
-    <div className="flex gap-2.5">
-      {actions.map(a => (
-        <button
-          key={a.to}
-          onClick={() => navigate(a.to)}
-          className="flex-1 flex flex-col items-center gap-2 py-4 rounded-[18px] active:scale-90 transition-all duration-150"
-          style={{ background: a.gradient, boxShadow: a.shadow }}
-        >
-          <span className="text-white">
-            <NavIcon navKey={a.navKey} size={22} strokeWidth={1.75} />
-          </span>
-          <span className="text-[10px] font-semibold text-white/90 leading-tight text-center">
-            {t(a.labelKey)}
-          </span>
-        </button>
-      ))}
+    <div className="glass-card p-3">
+      <div className="flex gap-2">
+        {actions.map(a => (
+          <button
+            key={a.to}
+            onClick={() => navigate(a.to)}
+            className="flex-1 flex flex-col items-center gap-2 py-3.5 rounded-2xl active:scale-90 transition-all duration-150 quick-action-btn"
+            style={{
+              '--gradient': a.gradient,
+              '--gradient-dark': a.gradientDark,
+              '--icon-color': a.color,
+              '--shadow': a.shadow,
+              '--shadow-dark': a.shadowDark,
+            }}
+          >
+            <span>
+              <NavIcon navKey={a.navKey} size={22} strokeWidth={1.75} className="quick-action-icon" style={{ color: 'var(--icon-color)' }} />
+            </span>
+            <span className="text-[10px] font-semibold leading-tight text-center quick-action-label">
+              {t(a.labelKey)}
+            </span>
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
