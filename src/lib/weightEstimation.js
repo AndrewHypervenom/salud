@@ -182,119 +182,120 @@ export function calcWeightRecommendation(weeklyChange, avgNetBalance, daysOverTa
 }
 
 // Motivational phrases focused on encouraging daily app usage.
-// goals: [] means all goals. trends: [] means all trends.
+// trends: 'no_food' = no food logged recently
+//         'no_weight' = has food logs but no weight entries yet
+//         'losing' | 'gaining' | 'stable' = has weight trend data
+//         [] = applies to all trends
 const PHRASES = [
-  // --- Incentivo a registrar comidas ---
+  // --- Sin comida registrada → incentivar registrar comidas ---
   {
     goals: [],
-    trends: ['no_data'],
-    es: '¡Registra tu primera comida hoy! La IA ya está lista para analizar tu progreso.',
-    en: 'Log your first meal today! The AI is ready to analyze your progress.',
-  },
-  {
-    goals: [],
-    trends: ['no_data'],
-    es: 'Cada comida que registras enseña a la app a conocerte mejor. ¡Empieza ahora!',
-    en: 'Every meal you log helps the app know you better. Start now!',
+    trends: ['no_food'],
+    es: 'Cuanto más registres, más inteligente se vuelve tu estimación de peso. ¡Empieza hoy!',
+    en: 'The more you log, the smarter your weight estimate gets. Start today!',
   },
   {
     goals: [],
-    trends: ['no_data'],
-    es: 'La app solo puede ayudarte si le dices qué comes. ¡Regístralo todo hoy!',
-    en: 'The app can only help you if you tell it what you eat. Log everything today!',
-  },
-  // --- Incentivo a pesar y registrar peso ---
-  {
-    goals: [],
-    trends: [],
-    es: '¿Ya te pesaste hoy? Registrarlo tarda 5 segundos y hace que tu gráfico cobre vida.',
-    en: 'Did you weigh yourself today? Logging it takes 5 seconds and brings your chart to life.',
+    trends: ['no_food'],
+    es: 'La app tiene todo listo para ti. Solo necesita que le cuentes qué comiste.',
+    en: 'The app has everything ready for you. It just needs you to tell it what you ate.',
   },
   {
     goals: [],
-    trends: [],
-    es: 'Cuantos más registros de peso tengas, más precisa será la estimación de la IA.',
-    en: 'The more weight entries you have, the more accurate the AI estimate becomes.',
+    trends: ['no_food'],
+    es: 'Un registro al día es suficiente para empezar a ver el patrón. ¿Lo hacemos?',
+    en: 'One log a day is enough to start seeing the pattern. Shall we?',
   },
-  // --- Celebrar que están usando la app ---
+  // --- Tiene comida pero no peso → incentivar a pesarse ---
   {
     goals: [],
-    trends: ['losing', 'stable', 'gaining'],
-    es: '¡Estás usando la app! Eso ya te pone por delante del 90% de las personas que empiezan.',
-    en: 'You\'re using the app! That already puts you ahead of 90% of people who start.',
+    trends: ['no_weight'],
+    es: '¡Ya estás registrando comidas! Ahora añade tu peso y la gráfica cobra vida.',
+    en: 'You\'re already logging meals! Now add your weight and the chart comes alive.',
   },
   {
     goals: [],
-    trends: ['losing', 'stable'],
-    es: 'La constancia de registrar es más valiosa que la dieta perfecta. ¡Sigue así!',
-    en: 'The consistency of logging is more valuable than the perfect diet. Keep it up!',
+    trends: ['no_weight'],
+    es: 'La IA ya está estimando tu peso. Regístralo para ver qué tan acertada está.',
+    en: 'The AI is already estimating your weight. Log it to see how accurate it is.',
   },
-  // --- Por objetivo ---
   {
-    goals: ['lose_weight'],
-    trends: [],
-    es: 'Cada alimento registrado es una decisión consciente. Eso es lo que cambia el cuerpo.',
-    en: 'Every logged food is a conscious decision. That\'s what changes the body.',
+    goals: [],
+    trends: ['no_weight'],
+    es: 'Pesarte y registrarlo tarda 10 segundos. Con eso la app te da análisis reales.',
+    en: 'Weighing yourself and logging it takes 10 seconds. That gives the app real analysis.',
   },
+  // --- Bajando de peso ---
   {
     goals: ['lose_weight'],
     trends: ['losing'],
-    es: 'La app ve tu progreso aunque tú no lo notes todavía. ¡Sigue registrando!',
-    en: 'The app sees your progress even if you can\'t feel it yet. Keep logging!',
+    es: 'Tu constancia en la app está funcionando. ¡Cada registro cuenta!',
+    en: 'Your consistency in the app is working. Every log counts!',
   },
   {
-    goals: ['gain_muscle'],
-    trends: [],
-    es: 'Registra tu ejercicio hoy y deja que la IA calcule cuánto puedes comer de vuelta.',
-    en: 'Log your workout today and let the AI calculate how much you can eat back.',
+    goals: [],
+    trends: ['losing'],
+    es: 'La app ve tu progreso en tiempo real. Sigue registrando para no perder el hilo.',
+    en: 'The app sees your progress in real time. Keep logging to stay on track.',
+  },
+  // --- Subiendo de peso ---
+  {
+    goals: ['lose_weight'],
+    trends: ['gaining'],
+    es: 'La app tiene la información para ayudarte a corregir el rumbo. ¡Úsala!',
+    en: 'The app has the info to help you course-correct. Use it!',
   },
   {
     goals: ['gain_muscle'],
     trends: ['gaining'],
-    es: 'Cada registro de comida ayuda a la app a afinar tu plan de ganancia muscular.',
-    en: 'Every food log helps the app fine-tune your muscle gain plan.',
+    es: 'Cada registro de comida ayuda a la app a afinar tu plan de ganancia. ¡Sigue!',
+    en: 'Every food log helps the app fine-tune your gain plan. Keep going!',
+  },
+  // --- Estable ---
+  {
+    goals: [],
+    trends: ['stable'],
+    es: 'La constancia de registrar es más poderosa que la dieta perfecta. ¡Tú ya lo haces!',
+    en: 'The habit of logging is more powerful than the perfect diet. You\'re already doing it!',
   },
   {
-    goals: ['maintain'],
-    trends: [],
-    es: 'Registrar hoy mantiene el control. Una semana de datos y la app trabaja por ti.',
-    en: 'Logging today keeps you in control. One week of data and the app works for you.',
+    goals: ['maintain', 'improve_health'],
+    trends: ['stable'],
+    es: 'Mantener el control con datos reales es el secreto. La app lo tiene todo.',
+    en: 'Staying in control with real data is the secret. The app has it all.',
   },
-  {
-    goals: ['improve_health'],
-    trends: [],
-    es: 'Cada registro es evidencia de tu compromiso con tu salud. ¡No pares!',
-    en: 'Every log is evidence of your commitment to your health. Don\'t stop!',
-  },
-  // --- Universales potentes ---
+  // --- Universales potentes (aplican a todos) ---
   {
     goals: [],
     trends: [],
-    es: 'Los que registran lo que comen logran sus metas 3 veces más rápido. Tú ya lo haces.',
-    en: 'People who track what they eat reach their goals 3x faster. You\'re already doing it.',
+    es: 'Registrar ejercicio hoy activa la estimación de peso de la IA. ¿Ya lo hiciste?',
+    en: 'Logging exercise today activates the AI weight estimate. Did you do it?',
   },
   {
     goals: [],
     trends: [],
-    es: 'Abre la app mañana temprano y registra tu desayuno. Ese hábito lo cambia todo.',
-    en: 'Open the app tomorrow morning and log your breakfast. That habit changes everything.',
+    es: 'Las personas que registran lo que comen alcanzan sus metas 3 veces más rápido.',
+    en: 'People who track what they eat reach their goals 3x faster.',
+  },
+  {
+    goals: [],
+    trends: [],
+    es: 'Cada dato que agregas hace que tu perfil sea más preciso. La app trabaja para ti.',
+    en: 'Every data point you add makes your profile more accurate. The app works for you.',
   },
 ]
 
 /**
  * Get a contextually relevant motivational phrase.
  * @param {string} healthGoal
- * @param {'losing'|'gaining'|'stable'|'no_data'} trend
- * @param {boolean} hasRecentLogs
+ * @param {'losing'|'gaining'|'stable'|'no_weight'|'no_food'} trend
  * @param {'es'|'en'} lang
  * @returns {string}
  */
-export function getMotivationalPhrase(healthGoal, trend, hasRecentLogs, lang = 'es') {
-  const effectiveTrend = hasRecentLogs ? trend : 'no_data'
-
+export function getMotivationalPhrase(healthGoal, trend, lang = 'es') {
   const eligible = PHRASES.filter(p => {
     const goalMatch = p.goals.length === 0 || p.goals.includes(healthGoal)
-    const trendMatch = p.trends.length === 0 || p.trends.includes(effectiveTrend)
+    const trendMatch = p.trends.length === 0 || p.trends.includes(trend)
     return goalMatch && trendMatch
   })
 
