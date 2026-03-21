@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { useNavigate, useBlocker } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Smartphone, PartyPopper, Heart } from 'lucide-react'
 import { useProfiles } from '../../hooks/useProfiles'
@@ -96,21 +96,31 @@ export default function OnboardingPage() {
   const bottomRef = useRef(null)
   const started = useRef(false)
 
-  const blocker = useBlocker(() => ['chat', 'phone', 'pin'].includes(phase))
-
-  useEffect(() => {
-    if (blocker.state === 'blocked') setShowExitDialog(true)
-  }, [blocker.state])
-
   const handleExitConfirm = () => {
     setShowExitDialog(false)
-    blocker.proceed?.()
+    navigate('/')
   }
 
   const handleExitCancel = () => {
     setShowExitDialog(false)
-    blocker.reset?.()
   }
+
+  // Interceptar cierre de pestaña / recarga y botón atrás del navegador
+  useEffect(() => {
+    if (!['chat', 'phone', 'pin'].includes(phase)) return
+    const handleBeforeUnload = (e) => { e.preventDefault(); e.returnValue = '' }
+    window.history.pushState(null, '', window.location.pathname)
+    const handlePopState = () => {
+      setShowExitDialog(true)
+      window.history.pushState(null, '', window.location.pathname)
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    window.addEventListener('popstate', handlePopState)
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+      window.removeEventListener('popstate', handlePopState)
+    }
+  }, [phase])
 
   useEffect(() => {
     if (!started.current) {
@@ -344,7 +354,7 @@ export default function OnboardingPage() {
         </button>
       </div>
 
-      {showExitDialog && <ExitConfirmDialog t={t} onConfirm={() => { setShowExitDialog(false); navigate('/') }} onCancel={() => { setShowExitDialog(false); blocker.reset?.() }} />}
+      {showExitDialog && <ExitConfirmDialog t={t} onConfirm={handleExitConfirm} onCancel={handleExitCancel} />}
 
     </div>
   )
