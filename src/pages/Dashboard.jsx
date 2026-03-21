@@ -14,6 +14,8 @@ import { useWeightLogs } from '../hooks/useWeightLogs'
 import { useDashboardConfig, WIDGET_CATALOG } from '../hooks/useDashboardConfig'
 import { calcBMR, calcTDEE, calcCalorieTarget, calcCalorieTargetMulti, calcMacros, getCalorieStatus, CALORIE_COLORS } from '../lib/formulas'
 import { classifyBP } from '../lib/bpStatus'
+import { NavIcon, WidgetIcon } from '../lib/navIcons'
+import { Sunrise, Sun, Moon, Apple } from 'lucide-react'
 import { Card } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
 import { Spinner } from '../components/ui/Spinner'
@@ -111,11 +113,11 @@ function QuickActionsWidget() {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const actions = [
-    { icon: '🍽️', labelKey: 'nav.food',        to: '/food',        color: 'from-primary-500 to-primary-600' },
-    { icon: '💧', labelKey: 'nav.water',        to: '/water',       color: 'from-blue-400 to-blue-500' },
-    { icon: '⚖️', labelKey: 'nav.weight',       to: '/weight',      color: 'from-violet-500 to-violet-600' },
-    { icon: '⚡', labelKey: 'nav.fasting',      to: '/fasting',     color: 'from-amber-400 to-amber-500' },
-    { icon: '🔍', labelKey: 'nav.food_search',  to: '/food-search', color: 'from-teal-400 to-teal-500' },
+    { navKey: 'food',        labelKey: 'nav.food',        to: '/food',        color: 'from-primary-500 to-primary-600' },
+    { navKey: 'water',       labelKey: 'nav.water',        to: '/water',       color: 'from-blue-400 to-blue-500' },
+    { navKey: 'weight',      labelKey: 'nav.weight',       to: '/weight',      color: 'from-violet-500 to-violet-600' },
+    { navKey: 'fasting',     labelKey: 'nav.fasting',      to: '/fasting',     color: 'from-amber-400 to-amber-500' },
+    { navKey: 'food-search', labelKey: 'nav.food_search',  to: '/food-search', color: 'from-teal-400 to-teal-500' },
   ]
   return (
     <div className="flex gap-2">
@@ -125,7 +127,7 @@ function QuickActionsWidget() {
           onClick={() => navigate(a.to)}
           className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-2xl bg-gradient-to-b ${a.color} text-white shadow-sm active:scale-95 transition-transform`}
         >
-          <span className="text-xl">{a.icon}</span>
+          <NavIcon navKey={a.navKey} size={20} />
           <span className="text-[10px] font-semibold">{t(a.labelKey)}</span>
         </button>
       ))}
@@ -135,7 +137,7 @@ function QuickActionsWidget() {
 
 function MealsWidget({ todayLogs, calTarget }) {
   const { t } = useTranslation()
-  const MEAL_ICONS = { breakfast: '🌅', lunch: '☀️', dinner: '🌙', snack: '🍎' }
+  const MEAL_ICONS = { breakfast: Sunrise, lunch: Sun, dinner: Moon, snack: Apple }
   const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack']
 
   const mealCal = (type) => todayLogs.filter(l => l.meal_type === type).reduce((s, l) => s + (l.calories_estimated || 0), 0)
@@ -156,7 +158,7 @@ function MealsWidget({ todayLogs, calTarget }) {
             }`}>
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-lg">{MEAL_ICONS[meal]}</span>
+                  {(() => { const MIcon = MEAL_ICONS[meal]; return <MIcon size={16} strokeWidth={1.75} className="text-gray-500 dark:text-gray-400 flex-shrink-0" /> })()}
                   <span className="text-xs font-semibold text-gray-700 dark:text-gray-200">{t(`food.${meal}`)}</span>
                 </div>
                 {has && <span className="w-2 h-2 rounded-full bg-primary-400 flex-shrink-0" />}
@@ -862,7 +864,7 @@ export default function Dashboard() {
                   onClick={() => showWidget(id)}
                   className="flex items-center gap-3 px-4 py-3.5 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 text-left hover:border-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 dark:hover:border-primary-700 transition-all group"
                 >
-                  <span className="text-2xl">{meta.icon}</span>
+                  <WidgetIcon id={id} size={22} className="text-gray-500 dark:text-gray-400 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 leading-tight">{t(meta.label)}</p>
                   </div>

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
 import { LanguageToggle } from './LanguageToggle'
+import { Sun, Moon, Lock } from 'lucide-react'
 
 export function TopBar() {
   const { t } = useTranslation()
@@ -30,7 +31,7 @@ export function TopBar() {
           className="px-2 py-1.5 rounded-xl text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-lg"
           aria-label="Toggle dark mode"
         >
-          {isDark ? '☀️' : '🌙'}
+          {isDark ? <Sun size={18} strokeWidth={1.75} /> : <Moon size={18} strokeWidth={1.75} />}
         </button>
 
         <LanguageToggle />
@@ -41,7 +42,7 @@ export function TopBar() {
           className="px-2 py-1.5 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 dark:text-gray-500 transition-colors text-lg"
           aria-label={t('pin.lock_all')}
         >
-          🔒
+          <Lock size={18} strokeWidth={1.75} />
         </button>
       </div>
     </header>

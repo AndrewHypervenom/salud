@@ -2,26 +2,28 @@ import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useDashboardConfig, NAV_CATALOG } from '../../hooks/useDashboardConfig'
+import { NavIcon } from '../../lib/navIcons'
+import { MoreHorizontal, SlidersHorizontal } from 'lucide-react'
 
 // ── Fixed items — no personalizables ─────────────────────────────────────────
-const HOME_ITEM   = { key: 'dashboard', to: '/dashboard', label: 'nav.dashboard', icon: '🏠' }
-const MORE_LABEL  = { key: '_more', label: 'nav.more', icon: '⋯' }
+const HOME_ITEM   = { key: 'dashboard', to: '/dashboard', label: 'nav.dashboard' }
+const MORE_LABEL  = { key: '_more', label: 'nav.more' }
 
 const moreItems = [
-  { to: '/progress',        label: 'nav.progress',        icon: '📈' },
-  { to: '/calories',        label: 'nav.calories',        icon: '🔥' },
-  { to: '/diet',            label: 'nav.diet',            icon: '🥗' },
-  { to: '/exercise',        label: 'nav.exercise',        icon: '🏃' },
-  { to: '/doctor-questions',label: 'nav.doctor_questions',icon: '👨‍⚕️' },
-  { to: '/profiles',        label: 'nav.profiles',        icon: '👥' },
+  { key: 'progress',         to: '/progress',         label: 'nav.progress' },
+  { key: 'calories',         to: '/calories',         label: 'nav.calories' },
+  { key: 'diet',             to: '/diet',             label: 'nav.diet' },
+  { key: 'exercise',         to: '/exercise',         label: 'nav.exercise' },
+  { key: 'doctor-questions', to: '/doctor-questions', label: 'nav.doctor_questions' },
+  { key: 'profiles',         to: '/profiles',         label: 'nav.profiles' },
 ]
 const toolItems = [
-  { to: '/water',       label: 'nav.water',       icon: '💧' },
-  { to: '/weight',      label: 'nav.weight',      icon: '⚖️' },
-  { to: '/fasting',     label: 'nav.fasting',     icon: '⚡' },
-  { to: '/recipes',     label: 'nav.recipes',     icon: '👨‍🍳' },
-  { to: '/food-search', label: 'nav.food_search', icon: '🔍' },
-  { to: '/badges',      label: 'nav.badges',      icon: '🏆' },
+  { key: 'water',       to: '/water',       label: 'nav.water' },
+  { key: 'weight',      to: '/weight',      label: 'nav.weight' },
+  { key: 'fasting',     to: '/fasting',     label: 'nav.fasting' },
+  { key: 'recipes',     to: '/recipes',     label: 'nav.recipes' },
+  { key: 'food-search', to: '/food-search', label: 'nav.food_search' },
+  { key: 'badges',      to: '/badges',      label: 'nav.badges' },
 ]
 
 // ── NavCustomizer sheet ───────────────────────────────────────────────────────
@@ -47,7 +49,7 @@ function NavCustomizer({ shortcuts, onSetShortcut, onClose }) {
       <div className="flex gap-2 bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-3">
         {/* Home fixed */}
         <div className="flex-1 flex flex-col items-center gap-1 opacity-40">
-          <span className="text-2xl">🏠</span>
+          <NavIcon navKey="dashboard" size={22} className="text-gray-500" />
           <span className="text-[10px] text-gray-500 font-medium">{t('nav.dashboard')}</span>
           <span className="text-[9px] text-gray-400 px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded-full">{t('nav.fixed')}</span>
         </div>
@@ -66,7 +68,7 @@ function NavCustomizer({ shortcuts, onSetShortcut, onClose }) {
                   : 'hover:bg-gray-100 dark:hover:bg-gray-700'
               }`}
             >
-              <span className="text-2xl">{item?.icon ?? '?'}</span>
+              <NavIcon navKey={item?.key} size={22} className="text-gray-500 dark:text-gray-400" />
               <span className="text-[10px] text-gray-700 dark:text-gray-300 font-medium leading-tight text-center">
                 {item ? t(item.label) : '—'}
               </span>
@@ -79,7 +81,7 @@ function NavCustomizer({ shortcuts, onSetShortcut, onClose }) {
 
         {/* More fixed */}
         <div className="flex-1 flex flex-col items-center gap-1 opacity-40">
-          <span className="text-2xl">⋯</span>
+          <MoreHorizontal size={22} strokeWidth={1.75} className="text-gray-500" />
           <span className="text-[10px] text-gray-500 font-medium">{t('nav.more')}</span>
           <span className="text-[9px] text-gray-400 px-1.5 py-0.5 bg-gray-200 dark:bg-gray-700 rounded-full">{t('nav.fixed')}</span>
         </div>
@@ -111,7 +113,7 @@ function NavCustomizer({ shortcuts, onSetShortcut, onClose }) {
                       : 'bg-gray-50 dark:bg-gray-800/50 hover:bg-primary-50 dark:hover:bg-primary-900/20 active:scale-95'
                   }`}
                 >
-                  <span className="text-2xl">{item.icon}</span>
+                  <NavIcon navKey={item.key} size={22} className={isActive ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400'} />
                   <span className="text-[10px] text-gray-600 dark:text-gray-300 font-medium leading-tight text-center">
                     {t(item.label)}
                   </span>
@@ -135,7 +137,7 @@ export function BottomNav() {
   // Build the 3 shortcut items from nav catalog
   const shortcutItems = shortcuts.map(key => NAV_CATALOG.find(n => n.key === key)).filter(Boolean)
 
-  const NavItem = ({ to, icon, label }) => (
+  const NavItem = ({ to, navKey, label }) => (
     <NavLink
       to={to}
       className={({ isActive }) =>
@@ -146,7 +148,9 @@ export function BottomNav() {
     >
       {({ isActive }) => (
         <>
-          <span className={`text-[22px] transition-transform ${isActive ? 'scale-110' : ''}`}>{icon}</span>
+          <span className={`transition-transform ${isActive ? 'scale-110' : ''}`}>
+            <NavIcon navKey={navKey} size={22} />
+          </span>
           <span className="text-[10px] font-medium leading-tight">{t(label)}</span>
           {isActive && <span className="absolute top-1 w-1 h-1 rounded-full bg-primary-500" />}
         </>
@@ -175,7 +179,9 @@ export function BottomNav() {
               onClick={() => setShowCustomizer(true)}
               className="w-full flex items-center gap-3 px-4 py-3.5 mb-4 bg-primary-50 dark:bg-primary-900/20 rounded-2xl border border-primary-100 dark:border-primary-800 hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
             >
-              <div className="w-9 h-9 rounded-xl bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center text-lg flex-shrink-0">🎛️</div>
+              <div className="w-9 h-9 rounded-xl bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center flex-shrink-0 text-primary-600 dark:text-primary-400">
+                <SlidersHorizontal size={20} strokeWidth={1.75} />
+              </div>
               <div className="flex-1 text-left">
                 <p className="text-sm font-semibold text-primary-700 dark:text-primary-300">{t('nav.customize_title')}</p>
                 <p className="text-xs text-primary-500/70 dark:text-primary-400/60">{t('nav.customize_hint')}</p>
@@ -199,7 +205,9 @@ export function BottomNav() {
                   }`
                 }
               >
-                <span className="text-2xl w-8 text-center">{item.icon}</span>
+                <span className="w-8 flex justify-center">
+                  <NavIcon navKey={item.key} size={20} />
+                </span>
                 <span className="font-medium text-sm">{t(item.label)}</span>
               </NavLink>
             ))}
@@ -218,7 +226,9 @@ export function BottomNav() {
                   }`
                 }
               >
-                <span className="text-2xl w-8 text-center">{item.icon}</span>
+                <span className="w-8 flex justify-center">
+                  <NavIcon navKey={item.key} size={20} />
+                </span>
                 <span className="font-medium text-sm">{t(item.label)}</span>
               </NavLink>
             ))}
@@ -250,11 +260,11 @@ export function BottomNav() {
       {/* ── BOTTOM BAR ────────────────────────────────────── */}
       <nav className="fixed bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200/80 dark:border-gray-800 flex md:hidden">
         {/* Home — always first */}
-        <NavItem to="/dashboard" icon="🏠" label="nav.dashboard" />
+        <NavItem to="/dashboard" navKey="dashboard" label="nav.dashboard" />
 
         {/* 3 personalizables */}
         {shortcutItems.map(item => (
-          <NavItem key={item.key} to={item.to} icon={item.icon} label={item.label} />
+          <NavItem key={item.key} to={item.to} navKey={item.key} label={item.label} />
         ))}
 
         {/* More — always last */}
@@ -262,7 +272,7 @@ export function BottomNav() {
           onClick={() => setShowMore(true)}
           className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-gray-400 dark:text-gray-500 transition-colors active:text-gray-600"
         >
-          <span className="text-[22px] font-bold">⋯</span>
+          <MoreHorizontal size={22} strokeWidth={1.75} />
           <span className="text-[10px] font-medium leading-tight">{t('nav.more')}</span>
         </button>
       </nav>
