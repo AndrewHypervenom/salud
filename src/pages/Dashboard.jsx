@@ -38,7 +38,7 @@ const GOAL_COLORS = {
   maintain:       'bg-ios-green/10 text-ios-green dark:bg-ios-green/15 dark:text-ios-green',
 }
 
-function CaloriesWidget({ todayCalories, calTarget, todayCaloriesBurned, profile, activeGoals }) {
+function CaloriesWidget({ todayCalories, calTarget, todayCaloriesBurned, exerciseExtraCals, profile, activeGoals }) {
   const { t } = useTranslation()
   const pct = calTarget > 0 ? Math.min((todayCalories / calTarget) * 100, 100) : 0
   const status = getCalorieStatus(todayCalories, calTarget)
@@ -116,15 +116,12 @@ function CaloriesWidget({ todayCalories, calTarget, todayCaloriesBurned, profile
       </div>
 
       {/* Exercise boost row */}
-      {todayCaloriesBurned > 0 && (
+      {exerciseExtraCals > 0 && (
         <div className="mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-700/60 flex items-center gap-2">
           <Zap size={13} strokeWidth={2} className="text-green-500 flex-shrink-0" />
           <p className="text-xs text-green-600 dark:text-green-400 font-medium flex-1">
-            {t('dashboard.exercise_boost', { n: todayCaloriesBurned })}
+            +{exerciseExtraCals} kcal por ejercicio incluidas
           </p>
-          <span className="text-xs font-bold text-green-600 dark:text-green-400">
-            {t('dashboard.calories_of', { n: calTarget })}
-          </span>
         </div>
       )}
     </Card>
@@ -647,7 +644,7 @@ export default function Dashboard() {
         : calcCalorieTarget(tdee, profile.health_goal))
     : 0
   const lastBP = readings[0]
-  const { extraCals: exerciseExtraCals } = calcExerciseEatBack(
+  const { extraCals: exerciseExtraCals = 0 } = calcExerciseEatBack(
     todayCaloriesBurned ?? 0,
     profile?.health_goal ?? 'improve_health',
   )
@@ -720,7 +717,7 @@ export default function Dashboard() {
 
     switch (id) {
       case 'calories':
-        return <CaloriesWidget todayCalories={todayCalories} calTarget={adjustedCalTarget} todayCaloriesBurned={todayCaloriesBurned} profile={profile} activeGoals={activeGoals} />
+        return <CaloriesWidget todayCalories={todayCalories} calTarget={adjustedCalTarget} todayCaloriesBurned={todayCaloriesBurned} exerciseExtraCals={exerciseExtraCals} profile={profile} activeGoals={activeGoals} />
       case 'quick_actions':
         return <QuickActionsWidget />
       case 'meals':

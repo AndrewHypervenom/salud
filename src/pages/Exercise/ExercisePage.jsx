@@ -10,6 +10,7 @@ import { Badge } from '../../components/ui/Badge'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useExerciseLogs } from '../../hooks/useExerciseLogs'
+import { useFoodLogs } from '../../hooks/useFoodLogs'
 import { useEstimateExercise } from '../../hooks/useEstimateExercise'
 import { EXERCISE_SUGGESTIONS, getWorkoutPlan, getRecoveryGuidance } from '../../lib/exerciseUtils'
 import { calcExerciseEatBack } from '../../lib/formulas'
@@ -62,6 +63,7 @@ export default function ExercisePage() {
   const { activeProfileId } = useProfileContext()
   const { profiles, loading } = useProfiles()
   const { todayLogs, todayCaloriesBurned, todayMinutes, addExerciseLog, deleteExerciseLog } = useExerciseLogs(activeProfileId)
+  const { todayCalories } = useFoodLogs(activeProfileId)
   const { estimating, estimate, estimateExercise, clearEstimate } = useEstimateExercise()
 
   const [showForm, setShowForm] = useState(false)
@@ -202,7 +204,9 @@ export default function ExercisePage() {
     (profile.weight_kg * 10 + profile.height_cm * 6.25 - profile.age * 5 + (profile.sex === 'male' ? 5 : -161)) *
     { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, very_active: 1.9 }[profile.activity ?? 'sedentary']
   ) : 0
-  const adjustedTarget = calTarget + todayCaloriesBurned
+  const { extraCals: exerciseExtraCals } = calcExerciseEatBack(todayCaloriesBurned, healthGoal)
+  const adjustedTarget = calTarget + exerciseExtraCals
+  const canEatToday = Math.max(0, adjustedTarget - todayCalories)
 
   return (
     <div className="flex flex-col gap-4">
@@ -252,9 +256,11 @@ export default function ExercisePage() {
           </div>
           <div className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-2xl p-3 text-center">
             <Zap size={16} className="text-orange-500 mx-auto mb-1" />
-            <p className="font-bold text-lg text-orange-600 tabular-nums leading-tight mt-0.5">{adjustedTarget > 0 ? adjustedTarget.toLocaleString() : '—'}</p>
+            <p className={`font-bold text-lg tabular-nums leading-tight mt-0.5 ${canEatToday === 0 ? 'text-red-500' : 'text-orange-600'}`}>
+              {calTarget > 0 ? canEatToday.toLocaleString() : '—'}
+            </p>
             <p className="text-xs text-gray-400">kcal</p>
-            <p className="text-[10px] text-gray-500 mt-0.5">{t('exercise.adjusted_target')}</p>
+            <p className="text-[10px] text-gray-500 mt-0.5">Puedes comer hoy</p>
           </div>
         </div>
 
@@ -536,6 +542,7 @@ export default function ExercisePage() {
       {/* ── SMART RECOVERY CARD ── */}
       {todayCaloriesBurned > 0 && profile && (() => {
         const { extraCals, eatBackPct, rationale } = calcExerciseEatBack(todayCaloriesBurned, healthGoal)
+        const remaining = Math.max(0, adjustedTarget - todayCalories)
         const recovery = getRecoveryGuidance(todayLogs, healthGoal)
         const subtitleKey = `exercise.recovery_subtitle_${recovery?.type ?? 'light'}`
         const reasonKey = `exercise.recovery_eat_back_reason_${rationale}`
@@ -562,15 +569,15 @@ export default function ExercisePage() {
               <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-1 leading-relaxed">
                 {t(reasonKey)}
               </p>
-              <div className="mt-2 flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400">
-                <span className="font-medium">{t('exercise.calorie_boost')}</span>
-                <div className="text-right">
-                  <span className="text-gray-400">{calTarget.toLocaleString()} </span>
-                  <span className="text-yellow-500 font-bold">+{extraCals}</span>
-                  <span className="text-gray-500"> = </span>
-                  <span className="font-bold text-emerald-700 dark:text-emerald-300">{(calTarget + extraCals).toLocaleString()} kcal</span>
-                </div>
+              <div className="mt-3 flex items-center justify-between">
+                <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Puedes comer hoy</span>
+                <span className={`text-2xl font-bold tabular-nums ${remaining === 0 ? 'text-red-500' : 'text-emerald-700 dark:text-emerald-200'}`}>
+                  {remaining.toLocaleString()} <span className="text-sm font-normal text-emerald-600 dark:text-emerald-400">kcal</span>
+                </span>
               </div>
+              <p className="text-[10px] text-emerald-600 dark:text-emerald-500 mt-1">
+                Meta {adjustedTarget.toLocaleString()} kcal − Ya comiste {todayCalories.toLocaleString()} kcal
+              </p>
             </div>
 
             {/* Macro focus */}

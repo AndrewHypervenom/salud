@@ -98,25 +98,19 @@ export default function DietPage() {
           <div>
             <p className="text-white/70 text-xs mb-0.5">{t('diet.consumed_today')}</p>
             <p className="text-4xl font-bold tabular-nums">{todayCalories}</p>
-            <p className="text-white/70 text-xs mt-0.5">
-              {t('diet.consumed_today')}
-            </p>
+            <p className="text-white/70 text-xs mt-0.5">kcal consumidas</p>
           </div>
           <div className="flex-1 text-right">
+            <p className="text-white/70 text-xs">Puedes comer hoy</p>
+            <p className={`text-3xl font-bold tabular-nums ${remaining < 0 ? 'text-red-200' : ''}`}>
+              {remaining >= 0 ? remaining.toLocaleString() : '0'}
+            </p>
             {todayCaloriesBurned > 0 ? (
-              <div>
-                <p className="text-white/70 text-xs">{t('diet.adjusted_target_label')}</p>
-                <p className="text-2xl font-bold tabular-nums">{adjustedTarget.toLocaleString()}</p>
-                <p className="text-xs text-yellow-200 flex items-center justify-end gap-1">
-                  <Zap size={10} /> +{extraCals} kcal de ejercicio ({eatBackPct}%)
-                </p>
-              </div>
+              <p className="text-xs text-yellow-200 flex items-center justify-end gap-1">
+                <Zap size={10} /> +{extraCals} kcal ejercicio ({eatBackPct}%)
+              </p>
             ) : (
-              <div>
-                <p className="text-white/70 text-xs">{t('diet.calorie_target')}</p>
-                <p className="text-2xl font-bold tabular-nums">{target.toLocaleString()}</p>
-                <p className="text-xs text-white/60">kcal</p>
-              </div>
+              <p className="text-xs text-white/60">de {target.toLocaleString()} kcal</p>
             )}
           </div>
         </div>
@@ -138,13 +132,11 @@ export default function DietPage() {
 
         <div className="grid grid-cols-3 gap-2 text-center mb-4">
           <div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-              {todayCaloriesBurned > 0 ? t('diet.adjusted_target_label') : t('diet.calorie_target')}
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Puedes comer</p>
+            <p className={`font-bold text-lg ${remaining < 0 ? 'text-red-600' : 'text-gray-900 dark:text-gray-100'}`}>
+              {remaining >= 0 ? remaining.toLocaleString() : '0'}
             </p>
-            <p className="font-bold text-lg text-gray-900 dark:text-gray-100">
-              {todayCaloriesBurned > 0 ? adjustedTarget.toLocaleString() : target}
-            </p>
-            <p className="text-xs text-gray-400">kcal</p>
+            <p className="text-xs text-gray-400">kcal hoy</p>
           </div>
           <div>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{t('diet.consumed_today')}</p>
