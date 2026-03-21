@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import nexvidaLogo from '../../assets/favicon.svg'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useAuth } from '../../context/AuthContext'
@@ -79,7 +80,7 @@ export default function LoginPage() {
 
         {/* Header */}
         <div className="text-center">
-          <div className="text-6xl mb-4">💚</div>
+          <img src={nexvidaLogo} width="64" height="64" alt="Nexvida logo" className="rounded-2xl mx-auto mb-4" />
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{t('app_title')}</h1>
           <p className="text-gray-500 mt-2 text-lg">{t('welcome.subtitle')}</p>
         </div>
