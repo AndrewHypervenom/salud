@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { CheckCircle2, Ban, Lightbulb, Flame, History } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
+import { CravingHelper } from '../../components/shared/CravingHelper'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useFoodLogs, useRecentFoodLogs } from '../../hooks/useFoodLogs'
@@ -165,6 +166,9 @@ export default function DietPage() {
           </div>
         )}
       </Card>
+
+      {/* Craving helper */}
+      <CravingHelper profile={profile} />
     </div>
   )
 }

@@ -868,5 +868,15 @@
     "profile_incomplete": "Not completed — customize your goals",
     "complete_now": "Complete",
     "progress_label": "Step {{current}} of {{total}}"
+  },
+  "craving": {
+    "title": "Having a craving?",
+    "subtitle": "Tell me what you want to eat and I'll suggest a balanced alternative",
+    "placeholder": "e.g. chocolate cake, fries, ice cream...",
+    "button": "Find alternative",
+    "loading": "Thinking...",
+    "try_another": "Try another craving",
+    "result_label": "My suggestion:",
+    "error": "Oops, couldn't get a suggestion. Please try again."
   }
 }

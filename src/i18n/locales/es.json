@@ -868,5 +868,15 @@
     "profile_incomplete": "Sin completar — personaliza tus objetivos",
     "complete_now": "Completar",
     "progress_label": "Paso {{current}} de {{total}}"
+  },
+  "craving": {
+    "title": "¿Tienes un antojo?",
+    "subtitle": "Cuéntame qué quieres comer y te doy una idea más balanceada",
+    "placeholder": "ej: torta de chocolate, papas fritas, helado...",
+    "button": "Buscar alternativa",
+    "loading": "Pensando...",
+    "try_another": "Intentar con otro antojo",
+    "result_label": "Mi sugerencia:",
+    "error": "Ups, no pude obtener una sugerencia. Intenta de nuevo."
   }
 }
