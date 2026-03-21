@@ -283,7 +283,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, dailyM
             >
               {recalculating
                 ? <><Spinner size="sm" /> {t('food.calculating')}</>
-                : <><Bot size={16} strokeWidth={1.75} className="inline mr-1.5" />{t('food.calculate_calories')}</>
+                : <><Bot size={16} strokeWidth={1.75} className="inline mr-1.5" />{t('food.calculate_calories')}</>}
             </button>
           )}
 
@@ -296,7 +296,7 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, dailyM
             >
               {recalculating
                 ? <><Spinner size="sm" /> {t('food.recalculating')}</>
-                : <><RefreshCw size={16} strokeWidth={2} className="inline mr-1.5" />{t('food.recalculate_calories')}</>
+                : <><RefreshCw size={16} strokeWidth={2} className="inline mr-1.5" />{t('food.recalculate_calories')}</>}
             </button>
           )}
 
