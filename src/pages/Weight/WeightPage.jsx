@@ -255,15 +255,15 @@ export default function WeightPage() {
         {/* Estimado IA */}
         <div className="card rounded-2xl p-4">
           <div className="flex items-center gap-1.5 mb-2">
-            <Brain size={13} className="text-orange-400" />
+            <Brain size={13} className="text-blue-400" />
             <p className="text-xs text-gray-400 font-medium">{t('weight.kg_estimated')}</p>
           </div>
-          <p className="text-2xl font-bold text-orange-500 leading-none">
+          <p className="text-2xl font-bold text-blue-500 dark:text-blue-400 leading-none">
             {todayEstimatedWeight !== null ? todayEstimatedWeight : '—'}
             {todayEstimatedWeight !== null && <span className="text-sm font-normal text-gray-400 ml-1">kg</span>}
           </p>
           {estimatedDelta !== null && (
-            <p className={`text-xs mt-1 font-medium ${estimatedDelta > 0 ? 'text-amber-500' : 'text-green-500'}`}>
+            <p className={`text-xs mt-1 font-medium ${estimatedDelta > 0 ? 'text-red-500 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
               {estimatedDelta > 0 ? `+${estimatedDelta}` : estimatedDelta} kg vs registrado
             </p>
           )}
@@ -336,10 +336,10 @@ export default function WeightPage() {
 
       {/* Frase motivadora */}
       {motivationalPhrase && (
-        <div className="rounded-2xl px-4 py-3.5 bg-primary-50 dark:bg-primary-950/40 border border-primary-100 dark:border-primary-900">
+        <div className="card rounded-2xl px-4 py-3.5 border-l-4 border-l-primary-500">
           <div className="flex gap-2.5 items-start">
-            <Sparkles size={15} className="text-primary-400 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-primary-700 dark:text-primary-300 leading-relaxed italic">
+            <Sparkles size={15} className="text-primary-500 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed italic">
               {motivationalPhrase}
             </p>
           </div>

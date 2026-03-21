@@ -102,12 +102,12 @@ export function WeightChart({ logs = [], estimatedLogs = [], targetWeight = null
           </>
         )}
 
-        {/* Estimated weight line (orange dashed) */}
+        {/* Estimated weight line (blue dashed) */}
         {estimatedSorted.length > 0 && (
           <polyline
             points={estimatedPoints}
             fill="none"
-            stroke="#f97316"
+            stroke="#3b82f6"
             strokeWidth="1.5"
             strokeDasharray="5,3"
             strokeLinejoin="round"
@@ -155,7 +155,7 @@ export function WeightChart({ logs = [], estimatedLogs = [], targetWeight = null
         )}
         {estimatedSorted.length > 0 && (
           <span className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
-            <span className="inline-block w-4 border-t-2 border-dashed border-orange-500" />
+            <span className="inline-block w-4 border-t-2 border-dashed border-blue-500" />
             {t('weight.legend_estimated')}
           </span>
         )}
