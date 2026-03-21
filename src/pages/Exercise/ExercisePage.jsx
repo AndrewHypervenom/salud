@@ -1,17 +1,53 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Activity, Dumbbell, Check, AlertTriangle, Plus, Trash2, Zap, ChevronDown, ChevronUp } from 'lucide-react'
+import {
+  Activity, Dumbbell, Check, AlertTriangle, Plus, Trash2, Sparkles,
+  ChevronDown, ChevronUp, Heart, Leaf, Trophy, Music, Zap, Timer,
+  Flame, Info, X,
+} from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Badge } from '../../components/ui/Badge'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useExerciseLogs } from '../../hooks/useExerciseLogs'
-import { estimateCaloriesBurned, getWorkoutPlan } from '../../lib/exerciseUtils'
+import { useEstimateExercise } from '../../hooks/useEstimateExercise'
+import { EXERCISE_SUGGESTIONS, getWorkoutPlan } from '../../lib/exerciseUtils'
 
-const EXERCISE_TYPES = ['cardio', 'strength', 'flexibility', 'sports', 'other']
+// ── Category config ──────────────────────────────────────
+const CATEGORIES = [
+  { key: 'cardio',      Icon: Heart,     label: 'exercise.category_cardio',      color: 'text-red-500',    bg: 'bg-red-50 dark:bg-red-900/20',    ring: 'ring-red-400',    type: 'cardio' },
+  { key: 'strength',   Icon: Dumbbell,  label: 'exercise.category_strength',    color: 'text-blue-500',   bg: 'bg-blue-50 dark:bg-blue-900/20',   ring: 'ring-blue-400',   type: 'strength' },
+  { key: 'flexibility',Icon: Leaf,      label: 'exercise.category_flexibility', color: 'text-green-500',  bg: 'bg-green-50 dark:bg-green-900/20', ring: 'ring-green-400',  type: 'flexibility' },
+  { key: 'sports',     Icon: Trophy,    label: 'exercise.category_sports',      color: 'text-orange-500', bg: 'bg-orange-50 dark:bg-orange-900/20', ring: 'ring-orange-400', type: 'sports' },
+  { key: 'dance',      Icon: Music,     label: 'exercise.category_dance',       color: 'text-pink-500',   bg: 'bg-pink-50 dark:bg-pink-900/20',   ring: 'ring-pink-400',   type: 'sports' },
+  { key: 'other',      Icon: Sparkles,  label: 'exercise.category_other',       color: 'text-violet-500', bg: 'bg-violet-50 dark:bg-violet-900/20',ring: 'ring-violet-400', type: 'other' },
+]
+
+const CATEGORY_COLORS = {
+  cardio:      { bg: 'bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20',       border: 'border-red-100 dark:border-red-800',      icon: 'text-red-500', badge: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' },
+  strength:    { bg: 'bg-gradient-to-r from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20',       border: 'border-blue-100 dark:border-blue-800',    icon: 'text-blue-500', badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' },
+  flexibility: { bg: 'bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20', border: 'border-green-100 dark:border-green-800', icon: 'text-green-500', badge: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' },
+  sports:      { bg: 'bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20',  border: 'border-orange-100 dark:border-orange-800', icon: 'text-orange-500', badge: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' },
+  other:       { bg: 'bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20', border: 'border-violet-100 dark:border-violet-800', icon: 'text-violet-500', badge: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300' },
+}
+
+const INTENSITY_COLORS = {
+  low:       'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+  moderate:  'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300',
+  high:      'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300',
+  very_high: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
+}
+
+function getCategoryForType(type) {
+  if (type === 'strength') return 'strength'
+  if (type === 'flexibility') return 'flexibility'
+  if (type === 'cardio') return 'cardio'
+  return 'sports'
+}
 
 const EMPTY_FORM = {
   exercise_type: 'cardio',
+  category: 'cardio',
   name: '',
   duration_minutes: '',
   calories_burned: '',
@@ -25,25 +61,92 @@ export default function ExercisePage() {
   const { activeProfileId } = useProfileContext()
   const { profiles, loading } = useProfiles()
   const { todayLogs, todayCaloriesBurned, todayMinutes, addExerciseLog, deleteExerciseLog } = useExerciseLogs(activeProfileId)
+  const { estimating, estimate, estimateExercise, clearEstimate } = useEstimateExercise()
 
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
   const [deletingId, setDeletingId] = useState(null)
-  const [showRoutine, setShowRoutine] = useState(true)
+  const [showRoutine, setShowRoutine] = useState(false)
+  const [showTips, setShowTips] = useState(false)
+
+  // Autocomplete
+  const [suggestions, setSuggestions] = useState([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const inputRef = useRef(null)
+  const suggestionsRef = useRef(null)
 
   const profile = profiles.find(p => p.id === activeProfileId)
-
   const experienceLevel = profile?.fitness_profile?.experience_level ?? 'beginner'
   const healthGoal = profile?.health_goal ?? 'improve_health'
   const isBeginner = experienceLevel === 'beginner' || !profile?.fitness_profile?.experience_level
-
   const workoutPlan = profile ? getWorkoutPlan(experienceLevel, healthGoal) : null
 
-  const handleEstimate = () => {
-    if (!form.name || !form.duration_minutes || !profile?.weight_kg) return
-    const est = estimateCaloriesBurned(form.name, Number(form.duration_minutes), profile.weight_kg)
-    setForm(prev => ({ ...prev, calories_burned: String(est) }))
+  // Close suggestions on outside click
+  useEffect(() => {
+    function handleClick(e) {
+      if (
+        inputRef.current && !inputRef.current.contains(e.target) &&
+        suggestionsRef.current && !suggestionsRef.current.contains(e.target)
+      ) {
+        setShowSuggestions(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  function handleNameChange(value) {
+    setForm(prev => ({ ...prev, name: value }))
+    clearEstimate()
+    if (value.length >= 2) {
+      const filtered = EXERCISE_SUGGESTIONS.filter(s =>
+        s.name.toLowerCase().includes(value.toLowerCase())
+      ).slice(0, 6)
+      setSuggestions(filtered)
+      setShowSuggestions(filtered.length > 0)
+    } else {
+      setShowSuggestions(false)
+    }
+  }
+
+  function selectSuggestion(suggestion) {
+    setForm(prev => ({
+      ...prev,
+      name: suggestion.name,
+      exercise_type: suggestion.type,
+      category: suggestion.category,
+    }))
+    setShowSuggestions(false)
+    clearEstimate()
+  }
+
+  function selectCategory(cat) {
+    setForm(prev => ({
+      ...prev,
+      category: cat.key,
+      exercise_type: cat.type,
+      name: '',
+    }))
+    clearEstimate()
+    const filtered = EXERCISE_SUGGESTIONS.filter(s => s.category === cat.key)
+    setSuggestions(filtered.slice(0, 6))
+    setShowSuggestions(filtered.length > 0)
+    setTimeout(() => inputRef.current?.focus(), 100)
+  }
+
+  async function handleAIEstimate() {
+    if (!form.name || !form.duration_minutes) return
+    const result = await estimateExercise({
+      exerciseName: form.name,
+      durationMinutes: Number(form.duration_minutes),
+      weightKg: profile?.weight_kg,
+      experienceLevel,
+      healthGoal,
+    })
+    if (result) {
+      setForm(prev => ({ ...prev, calories_burned: String(result.calories_estimated) }))
+    }
   }
 
   const handleSave = async () => {
@@ -61,6 +164,7 @@ export default function ExercisePage() {
       })
       setForm(EMPTY_FORM)
       setShowForm(false)
+      clearEstimate()
     } catch (e) {
       console.error(e)
     } finally {
@@ -92,8 +196,17 @@ export default function ExercisePage() {
     )
   }
 
+  const selectedCat = CATEGORIES.find(c => c.key === form.category) ?? CATEGORIES[0]
+  const calTarget = profile ? Math.round(
+    (profile.weight_kg * 10 + profile.height_cm * 6.25 - profile.age * 5 + (profile.sex === 'male' ? 5 : -161)) *
+    { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725, very_active: 1.9 }[profile.activity ?? 'sedentary']
+  ) : 0
+  const adjustedTarget = calTarget + todayCaloriesBurned
+
   return (
     <div className="flex flex-col gap-4">
+
+      {/* ── HEADER ── */}
       <div>
         <h1 className="text-2xl font-bold">{t('exercise.title')}</h1>
         <p className="text-gray-500 text-sm">
@@ -105,9 +218,9 @@ export default function ExercisePage() {
         </p>
       </div>
 
-      {/* Today's exercise log */}
+      {/* ── STATS + LOG CARD ── */}
       <Card>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-4">
           <h2 className="font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <Activity size={18} strokeWidth={1.75} className="text-primary-500" />
             {t('exercise.log_title')}
@@ -115,104 +228,200 @@ export default function ExercisePage() {
           {!showForm && (
             <button
               onClick={() => setShowForm(true)}
-              className="flex items-center gap-1 text-sm text-primary-600 font-medium"
+              className="flex items-center gap-1.5 text-sm bg-primary-600 hover:bg-primary-700 text-white px-3 py-1.5 rounded-xl font-medium transition-colors"
             >
-              <Plus size={16} /> {t('exercise.add_exercise')}
+              <Plus size={15} /> {t('exercise.add_exercise')}
             </button>
           )}
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-3 text-center">
-            <p className="text-xs text-gray-500 dark:text-gray-400">{t('exercise.burned_today')}</p>
-            <p className="font-bold text-2xl text-green-600">{todayCaloriesBurned}</p>
+        {/* Stats row */}
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-2xl p-3 text-center">
+            <Flame size={16} className="text-green-500 mx-auto mb-1" />
+            <p className="font-bold text-2xl text-green-600 tabular-nums">{todayCaloriesBurned}</p>
             <p className="text-xs text-gray-400">kcal</p>
+            <p className="text-[10px] text-gray-500 mt-0.5">{t('exercise.burned_today')}</p>
           </div>
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 text-center">
-            <p className="text-xs text-gray-500 dark:text-gray-400">{t('exercise.minutes_today')}</p>
-            <p className="font-bold text-2xl text-blue-600">{todayMinutes}</p>
+          <div className="bg-gradient-to-br from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20 rounded-2xl p-3 text-center">
+            <Timer size={16} className="text-blue-500 mx-auto mb-1" />
+            <p className="font-bold text-2xl text-blue-600 tabular-nums">{todayMinutes}</p>
             <p className="text-xs text-gray-400">min</p>
+            <p className="text-[10px] text-gray-500 mt-0.5">{t('exercise.minutes_today')}</p>
+          </div>
+          <div className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-2xl p-3 text-center">
+            <Zap size={16} className="text-orange-500 mx-auto mb-1" />
+            <p className="font-bold text-lg text-orange-600 tabular-nums leading-tight mt-0.5">{adjustedTarget > 0 ? adjustedTarget.toLocaleString() : '—'}</p>
+            <p className="text-xs text-gray-400">kcal</p>
+            <p className="text-[10px] text-gray-500 mt-0.5">{t('exercise.adjusted_target')}</p>
           </div>
         </div>
 
-        {/* Inline form */}
+        {/* ── FORM ── */}
         {showForm && (
-          <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 mb-4 flex flex-col gap-3">
-            {/* Type */}
+          <div className="border border-gray-200 dark:border-gray-700 rounded-2xl p-4 mb-4 flex flex-col gap-4">
+
+            {/* Category picker */}
             <div>
-              <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">
+              <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 block">
                 {t('exercise.form_type')}
               </label>
-              <select
-                value={form.exercise_type}
-                onChange={e => setForm(prev => ({ ...prev, exercise_type: e.target.value }))}
-                className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-              >
-                {EXERCISE_TYPES.map(type => (
-                  <option key={type} value={type}>{t(`exercise.type_${type}`)}</option>
-                ))}
-              </select>
+              <div className="grid grid-cols-3 gap-2">
+                {CATEGORIES.map(cat => {
+                  const active = form.category === cat.key
+                  return (
+                    <button
+                      key={cat.key}
+                      type="button"
+                      onClick={() => selectCategory(cat)}
+                      className={`flex flex-col items-center gap-1 py-2.5 rounded-xl border-2 transition-all ${
+                        active
+                          ? `${cat.bg} ${cat.ring} ring-2 border-transparent`
+                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      <cat.Icon size={20} strokeWidth={1.75} className={cat.color} />
+                      <span className={`text-[10px] font-medium ${active ? cat.color : 'text-gray-500'}`}>
+                        {t(cat.label)}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
 
-            {/* Name */}
-            <div>
-              <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">
+            {/* Exercise name with autocomplete */}
+            <div className="relative">
+              <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 block">
                 {t('exercise.form_name')} *
               </label>
               <input
+                ref={inputRef}
                 type="text"
                 value={form.name}
-                onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
-                placeholder={t('exercise.form_name')}
-                className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                onChange={e => handleNameChange(e.target.value)}
+                onFocus={() => {
+                  if (suggestions.length > 0) setShowSuggestions(true)
+                }}
+                placeholder={t('exercise.search_exercise')}
+                className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-400"
               />
+              {showSuggestions && suggestions.length > 0 && (
+                <div
+                  ref={suggestionsRef}
+                  className="absolute z-20 top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg overflow-hidden"
+                >
+                  {suggestions.map(s => {
+                    const catCfg = CATEGORIES.find(c => c.key === s.category)
+                    return (
+                      <button
+                        key={s.name}
+                        type="button"
+                        onMouseDown={() => selectSuggestion(s)}
+                        className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-700 text-left transition-colors"
+                      >
+                        {catCfg && <catCfg.Icon size={15} className={catCfg.color} />}
+                        <span className="text-sm text-gray-900 dark:text-gray-100">{s.name}</span>
+                        <span className="ml-auto text-xs text-gray-400">{t(catCfg?.label ?? 'exercise.category_other')}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
             </div>
 
-            {/* Duration + Estimate */}
+            {/* Duration + AI estimate */}
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">
+                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 block">
                   {t('exercise.form_duration')}
                 </label>
                 <input
                   type="number"
                   min="1"
                   value={form.duration_minutes}
-                  onChange={e => setForm(prev => ({ ...prev, duration_minutes: e.target.value }))}
+                  onChange={e => {
+                    setForm(prev => ({ ...prev, duration_minutes: e.target.value }))
+                    clearEstimate()
+                  }}
                   placeholder="30"
-                  className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">
+                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 block">
                   {t('exercise.form_calories')}
                 </label>
-                <div className="flex gap-1">
+                <div className="flex gap-1.5">
                   <input
                     type="number"
                     min="0"
                     value={form.calories_burned}
                     onChange={e => setForm(prev => ({ ...prev, calories_burned: e.target.value }))}
                     placeholder="0"
-                    className="flex-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 min-w-0"
+                    className="flex-1 text-sm border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 min-w-0"
                   />
                   <button
-                    onClick={handleEstimate}
-                    disabled={!form.name || !form.duration_minutes || !profile?.weight_kg}
-                    title={t('exercise.btn_estimate')}
-                    className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30 text-blue-600 disabled:opacity-40"
+                    type="button"
+                    onClick={handleAIEstimate}
+                    disabled={estimating || !form.name || !form.duration_minutes}
+                    title={t('exercise.ai_estimate')}
+                    className="px-2 rounded-xl bg-violet-100 dark:bg-violet-900/30 text-violet-600 disabled:opacity-40 flex items-center gap-1 flex-shrink-0"
                   >
-                    <Zap size={16} />
+                    {estimating
+                      ? <span className="animate-spin text-xs">⟳</span>
+                      : <Sparkles size={15} />}
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Sets / Reps (optional) */}
+            {/* AI estimate result */}
+            {estimate && !estimate.isFallback && (
+              <div className="bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800 rounded-xl p-3 flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles size={14} className="text-violet-500" />
+                    <span className="text-xs font-semibold text-violet-700 dark:text-violet-300">
+                      {t('exercise.ai_estimate_result', { n: estimate.calories_estimated })}
+                    </span>
+                  </div>
+                  {estimate.intensity && (
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${INTENSITY_COLORS[estimate.intensity] ?? ''}`}>
+                      {t(`exercise.intensity_${estimate.intensity}`, estimate.intensity)}
+                    </span>
+                  )}
+                </div>
+                {estimate.description && (
+                  <p className="text-xs text-violet-700 dark:text-violet-400 leading-relaxed">{estimate.description}</p>
+                )}
+                {estimate.tips && estimate.tips.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowTips(v => !v)}
+                    className="flex items-center gap-1 text-xs text-violet-600 dark:text-violet-400 font-medium"
+                  >
+                    <Info size={12} />
+                    {t('exercise.ai_tips')}
+                    {showTips ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                  </button>
+                )}
+                {showTips && estimate.tips && (
+                  <ul className="flex flex-col gap-1">
+                    {estimate.tips.map((tip, i) => (
+                      <li key={i} className="text-xs text-violet-700 dark:text-violet-400 flex items-start gap-1.5">
+                        <span className="mt-0.5 flex-shrink-0">•</span>{tip}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+
+            {/* Sets / Reps */}
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">
+                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 block">
                   {t('exercise.form_sets')}
                 </label>
                 <input
@@ -221,11 +430,11 @@ export default function ExercisePage() {
                   value={form.sets}
                   onChange={e => setForm(prev => ({ ...prev, sets: e.target.value }))}
                   placeholder="3"
-                  className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">
+                <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 block">
                   {t('exercise.form_reps')}
                 </label>
                 <input
@@ -234,14 +443,14 @@ export default function ExercisePage() {
                   value={form.reps}
                   onChange={e => setForm(prev => ({ ...prev, reps: e.target.value }))}
                   placeholder="12"
-                  className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 />
               </div>
             </div>
 
             {/* Notes */}
             <div>
-              <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">
+              <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2 block">
                 {t('exercise.form_notes')}
               </label>
               <input
@@ -249,7 +458,7 @@ export default function ExercisePage() {
                 value={form.notes}
                 onChange={e => setForm(prev => ({ ...prev, notes: e.target.value }))}
                 placeholder={t('exercise.form_notes')}
-                className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
               />
             </div>
 
@@ -257,74 +466,97 @@ export default function ExercisePage() {
               <button
                 onClick={handleSave}
                 disabled={saving || !form.name.trim()}
-                className="flex-1 py-2 rounded-xl bg-primary-600 text-white text-sm font-semibold disabled:opacity-50"
+                className="flex-1 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold disabled:opacity-50 transition-colors"
               >
                 {saving ? '...' : t('exercise.btn_save')}
               </button>
               <button
-                onClick={() => { setShowForm(false); setForm(EMPTY_FORM) }}
-                className="flex-1 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-sm text-gray-600 dark:text-gray-400"
+                onClick={() => { setShowForm(false); setForm(EMPTY_FORM); clearEstimate() }}
+                className="p-2.5 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400"
               >
-                {t('exercise.btn_cancel')}
+                <X size={18} />
               </button>
             </div>
           </div>
         )}
 
-        {/* Today's logs list */}
+        {/* ── TODAY'S LOGS ── */}
         {todayLogs.length === 0 ? (
-          <p className="text-sm text-gray-400 text-center py-2">{t('exercise.no_logs')}</p>
+          <div className="text-center py-6">
+            <Activity size={32} strokeWidth={1} className="mx-auto text-gray-300 dark:text-gray-600 mb-2" />
+            <p className="text-sm text-gray-400">{t('exercise.no_logs')}</p>
+          </div>
         ) : (
           <div className="flex flex-col gap-2">
-            {todayLogs.map(log => (
-              <div
-                key={log.id}
-                className="flex items-center justify-between gap-2 py-2 border-b last:border-0 border-gray-100 dark:border-gray-800"
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{log.name}</p>
-                  <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                    <Badge className="text-xs capitalize">
-                      {t(`exercise.type_${log.exercise_type}`, log.exercise_type)}
-                    </Badge>
-                    {log.duration_minutes && (
-                      <span className="text-xs text-gray-400">{log.duration_minutes} min</span>
-                    )}
-                    {log.sets && log.reps && (
-                      <span className="text-xs text-gray-400">{log.sets}×{log.reps}</span>
-                    )}
-                    {log.calories_burned > 0 && (
-                      <span className="text-xs text-green-600 font-medium">-{log.calories_burned} kcal</span>
-                    )}
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleDelete(log.id)}
-                  disabled={deletingId === log.id}
-                  className="p-1.5 text-gray-400 hover:text-red-500 disabled:opacity-40"
+            {todayLogs.map(log => {
+              const catKey = getCategoryForType(log.exercise_type)
+              const colors = CATEGORY_COLORS[catKey] ?? CATEGORY_COLORS.other
+              const catCfg = CATEGORIES.find(c => c.type === log.exercise_type && c.key !== 'dance') ?? CATEGORIES[5]
+              return (
+                <div
+                  key={log.id}
+                  className={`${colors.bg} ${colors.border} border rounded-2xl p-3 flex items-center gap-3`}
                 >
-                  <Trash2 size={15} />
-                </button>
-              </div>
-            ))}
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-white/60 dark:bg-black/20`}>
+                    <catCfg.Icon size={20} strokeWidth={1.75} className={colors.icon} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{log.name}</p>
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
+                      {log.duration_minutes && (
+                        <span className="text-xs text-gray-500 flex items-center gap-0.5">
+                          <Timer size={10} /> {log.duration_minutes} min
+                        </span>
+                      )}
+                      {log.sets && log.reps && (
+                        <span className="text-xs text-gray-500">{log.sets}×{log.reps}</span>
+                      )}
+                      {log.calories_burned > 0 && (
+                        <span className="text-xs font-bold text-green-600 flex items-center gap-0.5">
+                          <Flame size={10} /> {log.calories_burned} kcal
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleDelete(log.id)}
+                    disabled={deletingId === log.id}
+                    className="p-1.5 text-gray-400 hover:text-red-500 disabled:opacity-40 flex-shrink-0"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
+              )
+            })}
           </div>
         )}
       </Card>
 
-      {/* Calorie impact */}
-      {todayCaloriesBurned > 0 && (
-        <Card className="border border-green-200 bg-green-50 dark:bg-green-900/20 dark:border-green-800">
-          <h2 className="font-bold text-green-800 dark:text-green-300 mb-2 flex items-center gap-2">
-            <Zap size={18} strokeWidth={1.75} className="text-green-600" />
-            {t('exercise.calorie_impact')}
-          </h2>
-          <p className="text-sm text-green-700 dark:text-green-400">
-            {t('exercise.calorie_impact_text', { burned: todayCaloriesBurned })}
-          </p>
-        </Card>
+      {/* ── CALORIE IMPACT CARD ── */}
+      {todayCaloriesBurned > 0 && calTarget > 0 && (
+        <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-4 text-white shadow-lg">
+          <div className="flex items-center gap-2 mb-3">
+            <Zap size={18} strokeWidth={1.75} />
+            <span className="font-bold text-sm">{t('exercise.adjusted_target')}</span>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-green-100">Meta base</span>
+              <span className="font-semibold">{calTarget.toLocaleString()} kcal</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-green-100">+ Quemado hoy</span>
+              <span className="font-bold text-yellow-200">+{todayCaloriesBurned} kcal</span>
+            </div>
+            <div className="border-t border-green-400/50 pt-1.5 flex items-center justify-between">
+              <span className="font-bold">= Tu meta ajustada</span>
+              <span className="text-2xl font-bold tabular-nums">{adjustedTarget.toLocaleString()}</span>
+            </div>
+          </div>
+        </div>
       )}
 
-      {/* Recommended routine */}
+      {/* ── RECOMMENDED ROUTINE ── */}
       {workoutPlan && (
         <Card>
           <button
@@ -351,7 +583,6 @@ export default function ExercisePage() {
                   {t(`exercise.plan.${workoutPlan.focus_key.replace('exercise.plan.', '')}`, workoutPlan.focus_key)}
                 </Badge>
               </div>
-
               <div className="flex flex-col gap-2">
                 {workoutPlan.exercises.map((ex, i) => {
                   const exKey = ex.name_key.replace('exercise.plan.ex.', '')
@@ -362,7 +593,6 @@ export default function ExercisePage() {
                       <span className="text-gray-500 text-xs">
                         {ex.sets && ex.reps ? `${ex.sets}×${ex.reps}` : ''}
                         {ex.duration ? `${ex.duration} min` : ''}
-                        {!ex.sets && !ex.duration ? '' : ''}
                       </span>
                     </div>
                   )
@@ -373,7 +603,7 @@ export default function ExercisePage() {
         </Card>
       )}
 
-      {/* 8-week program (beginners) */}
+      {/* ── 8-WEEK PROGRAM (beginners) ── */}
       {isBeginner && (
         <Card>
           <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
@@ -412,7 +642,7 @@ export default function ExercisePage() {
         </Card>
       )}
 
-      {/* Benefits */}
+      {/* ── BENEFITS ── */}
       <Card>
         <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
           <Dumbbell size={18} strokeWidth={1.75} className="text-green-600" /> {t('exercise.benefits_title')}
@@ -426,7 +656,7 @@ export default function ExercisePage() {
         </ul>
       </Card>
 
-      {/* Safety */}
+      {/* ── SAFETY ── */}
       <Card className="border border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-800">
         <h2 className="font-bold text-yellow-800 dark:text-yellow-300 mb-3 flex items-center gap-2">
           <AlertTriangle size={18} strokeWidth={1.75} className="text-yellow-700 dark:text-yellow-400" /> {t('exercise.safety_title')}

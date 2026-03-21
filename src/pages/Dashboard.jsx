@@ -8,6 +8,7 @@ import { useBloodPressure } from '../hooks/useBloodPressure'
 import { useDoctorQuestions } from '../hooks/useDoctorQuestions'
 import { useHabits } from '../hooks/useHabits'
 import { useFoodLogs } from '../hooks/useFoodLogs'
+import { useExerciseLogs } from '../hooks/useExerciseLogs'
 import { useWaterLogs } from '../hooks/useWaterLogs'
 import { useFasting } from '../hooks/useFasting'
 import { useWeightLogs } from '../hooks/useWeightLogs'
@@ -37,7 +38,7 @@ const GOAL_COLORS = {
   maintain:       'bg-ios-green/10 text-ios-green dark:bg-ios-green/15 dark:text-ios-green',
 }
 
-function CaloriesWidget({ todayCalories, calTarget, profile, activeGoals }) {
+function CaloriesWidget({ todayCalories, calTarget, todayCaloriesBurned, profile, activeGoals }) {
   const { t } = useTranslation()
   const pct = calTarget > 0 ? Math.min((todayCalories / calTarget) * 100, 100) : 0
   const status = getCalorieStatus(todayCalories, calTarget)
@@ -113,6 +114,19 @@ function CaloriesWidget({ todayCalories, calTarget, profile, activeGoals }) {
           </p>
         </div>
       </div>
+
+      {/* Exercise boost row */}
+      {todayCaloriesBurned > 0 && (
+        <div className="mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-700/60 flex items-center gap-2">
+          <Zap size={13} strokeWidth={2} className="text-green-500 flex-shrink-0" />
+          <p className="text-xs text-green-600 dark:text-green-400 font-medium flex-1">
+            {t('dashboard.exercise_boost', { n: todayCaloriesBurned })}
+          </p>
+          <span className="text-xs font-bold text-green-600 dark:text-green-400">
+            {t('dashboard.calories_of', { n: calTarget })}
+          </span>
+        </div>
+      )}
     </Card>
   )
 }
@@ -601,6 +615,7 @@ export default function Dashboard() {
   const { questions } = useDoctorQuestions(activeProfileId)
   const { habits, todayLogs: habitLogs } = useHabits(activeProfileId)
   const { todayCalories, todayLogs } = useFoodLogs(activeProfileId)
+  const { todayCaloriesBurned } = useExerciseLogs(activeProfileId)
   const {
     visibleWidgets, hiddenWidgets,
     moveWidget, hideWidget, showWidget, reorderWidgets, resetAll,
@@ -632,6 +647,7 @@ export default function Dashboard() {
         : calcCalorieTarget(tdee, profile.health_goal))
     : 0
   const lastBP = readings[0]
+  const adjustedCalTarget = calTarget + (todayCaloriesBurned ?? 0)
 
   // ── Pointer-based drag (mouse + touch) ──────────────────
   const handlePointerDown = useCallback((e, id) => {
@@ -700,7 +716,7 @@ export default function Dashboard() {
 
     switch (id) {
       case 'calories':
-        return <CaloriesWidget todayCalories={todayCalories} calTarget={calTarget} profile={profile} activeGoals={activeGoals} />
+        return <CaloriesWidget todayCalories={todayCalories} calTarget={adjustedCalTarget} todayCaloriesBurned={todayCaloriesBurned} profile={profile} activeGoals={activeGoals} />
       case 'quick_actions':
         return <QuickActionsWidget />
       case 'meals':

@@ -44,6 +44,68 @@ export const EXERCISE_METS = {
   default: 4.0,
 }
 
+// Exercise suggestions for autocomplete — each with name, type, and category
+export const EXERCISE_SUGGESTIONS = [
+  // Cardio
+  { name: 'Correr', type: 'cardio', category: 'cardio' },
+  { name: 'Caminata', type: 'cardio', category: 'cardio' },
+  { name: 'Trote', type: 'cardio', category: 'cardio' },
+  { name: 'Ciclismo', type: 'cardio', category: 'cardio' },
+  { name: 'Spinning', type: 'cardio', category: 'cardio' },
+  { name: 'Natación', type: 'cardio', category: 'cardio' },
+  { name: 'HIIT', type: 'cardio', category: 'cardio' },
+  { name: 'Elíptica', type: 'cardio', category: 'cardio' },
+  { name: 'Remo', type: 'cardio', category: 'cardio' },
+  { name: 'Saltar cuerda', type: 'cardio', category: 'cardio' },
+  { name: 'Escaladora', type: 'cardio', category: 'cardio' },
+  { name: 'Aeróbicos', type: 'cardio', category: 'cardio' },
+  // Strength
+  { name: 'Pesas', type: 'strength', category: 'strength' },
+  { name: 'Sentadillas', type: 'strength', category: 'strength' },
+  { name: 'Press de banca', type: 'strength', category: 'strength' },
+  { name: 'Peso muerto', type: 'strength', category: 'strength' },
+  { name: 'Dominadas', type: 'strength', category: 'strength' },
+  { name: 'Crossfit', type: 'strength', category: 'strength' },
+  { name: 'Calistenia', type: 'strength', category: 'strength' },
+  { name: 'Flexiones', type: 'strength', category: 'strength' },
+  { name: 'Fondos', type: 'strength', category: 'strength' },
+  { name: 'Kettlebell', type: 'strength', category: 'strength' },
+  { name: 'TRX', type: 'strength', category: 'strength' },
+  // Flexibility
+  { name: 'Yoga', type: 'flexibility', category: 'flexibility' },
+  { name: 'Pilates', type: 'flexibility', category: 'flexibility' },
+  { name: 'Estiramiento', type: 'flexibility', category: 'flexibility' },
+  { name: 'Movilidad', type: 'flexibility', category: 'flexibility' },
+  { name: 'Yoga restaurativo', type: 'flexibility', category: 'flexibility' },
+  { name: 'Meditación activa', type: 'flexibility', category: 'flexibility' },
+  // Sports
+  { name: 'Fútbol', type: 'sports', category: 'sports' },
+  { name: 'Baloncesto', type: 'sports', category: 'sports' },
+  { name: 'Tenis', type: 'sports', category: 'sports' },
+  { name: 'Pádel', type: 'sports', category: 'sports' },
+  { name: 'Voleibol', type: 'sports', category: 'sports' },
+  { name: 'Boxeo', type: 'sports', category: 'sports' },
+  { name: 'Muay Thai', type: 'sports', category: 'sports' },
+  { name: 'Artes marciales', type: 'sports', category: 'sports' },
+  { name: 'Escalada', type: 'sports', category: 'sports' },
+  { name: 'Parkour', type: 'sports', category: 'sports' },
+  { name: 'Paddleboard', type: 'sports', category: 'sports' },
+  { name: 'Surf', type: 'sports', category: 'sports' },
+  { name: 'Senderismo', type: 'sports', category: 'sports' },
+  // Dance
+  { name: 'Pole Dance', type: 'sports', category: 'dance' },
+  { name: 'Zumba', type: 'sports', category: 'dance' },
+  { name: 'Baile', type: 'sports', category: 'dance' },
+  { name: 'Salsa', type: 'sports', category: 'dance' },
+  { name: 'Reggaetón fitness', type: 'sports', category: 'dance' },
+  { name: 'Hip hop dance', type: 'sports', category: 'dance' },
+  { name: 'Barre', type: 'flexibility', category: 'dance' },
+  // Other
+  { name: 'Caminata en agua', type: 'other', category: 'other' },
+  { name: 'Jardinería intensa', type: 'other', category: 'other' },
+  { name: 'Juego activo', type: 'other', category: 'other' },
+]
+
 /**
  * Estimates calories burned using MET formula
  * calories = MET × weight_kg × (duration_minutes / 60)
