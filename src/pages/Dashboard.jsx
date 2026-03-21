@@ -39,6 +39,13 @@ const GOAL_COLORS = {
   maintain:       'bg-ios-green/10 text-ios-green dark:bg-ios-green/15 dark:text-ios-green',
 }
 
+const GOAL_LABELS = {
+  lose_weight:    'dashboard.goal_lose_weight',
+  gain_muscle:    'dashboard.goal_gain_muscle',
+  improve_health: 'dashboard.goal_improve_health',
+  maintain:       'dashboard.goal_maintain',
+}
+
 function CaloriesWidget({ todayCalories, calTarget, todayCaloriesBurned, exerciseExtraCals, profile, activeGoals }) {
   const { t } = useTranslation()
   const pct = calTarget > 0 ? Math.min((todayCalories / calTarget) * 100, 100) : 0
@@ -48,20 +55,9 @@ function CaloriesWidget({ todayCalories, calTarget, todayCaloriesBurned, exercis
 
   const ringColor = status === 'over' ? '#F43F5E' : status === 'warn' ? '#FF9F0A' : '#10B981'
 
-  const isMulti = activeGoals && activeGoals.length > 1
-  const goalLabel = isMulti
-    ? t('dashboard.multi_goal', { n: activeGoals.length })
-    : profile.health_goal === 'lose_weight'
-    ? t('dashboard.goal_lose_weight')
-    : profile.health_goal === 'gain_muscle'
-    ? t('dashboard.goal_gain_muscle')
-    : profile.health_goal === 'improve_health'
-    ? t('dashboard.goal_improve_health')
-    : t('dashboard.goal_maintain')
-
-  const goalColor = isMulti
-    ? 'bg-ios-indigo/10 text-ios-indigo dark:bg-ios-indigo/15 dark:text-ios-indigo'
-    : GOAL_COLORS[profile.health_goal] ?? GOAL_COLORS.maintain
+  const goals = activeGoals?.length > 0
+    ? activeGoals
+    : [profile.health_goal ?? 'maintain']
 
   const motivationKey = todayCalories === 0
     ? 'dashboard.motivation_empty'
@@ -84,9 +80,16 @@ function CaloriesWidget({ todayCalories, calTarget, todayCaloriesBurned, exercis
             <p className="text-xs text-zinc-400 dark:text-zinc-500">{t(motivationKey)}</p>
           </div>
         </div>
-        <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${goalColor}`}>
-          {goalLabel}
-        </span>
+        <div className="flex flex-wrap gap-1 justify-end max-w-[55%]">
+          {goals.map(g => (
+            <span
+              key={g}
+              className={`text-xs font-medium px-2.5 py-1 rounded-full ${GOAL_COLORS[g] ?? GOAL_COLORS.maintain}`}
+            >
+              {t(GOAL_LABELS[g] ?? 'dashboard.goal_maintain')}
+            </span>
+          ))}
+        </div>
       </div>
 
       {/* Ring + stats */}
