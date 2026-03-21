@@ -113,11 +113,11 @@ function QuickActionsWidget() {
   const navigate = useNavigate()
   const { t } = useTranslation()
   const actions = [
-    { navKey: 'food',        labelKey: 'nav.food',        to: '/food',        color: 'from-primary-500 to-primary-600' },
-    { navKey: 'water',       labelKey: 'nav.water',        to: '/water',       color: 'from-blue-400 to-blue-500' },
-    { navKey: 'weight',      labelKey: 'nav.weight',       to: '/weight',      color: 'from-violet-500 to-violet-600' },
-    { navKey: 'fasting',     labelKey: 'nav.fasting',      to: '/fasting',     color: 'from-amber-400 to-amber-500' },
-    { navKey: 'food-search', labelKey: 'nav.food_search',  to: '/food-search', color: 'from-teal-400 to-teal-500' },
+    { navKey: 'food',        labelKey: 'nav.food',        to: '/food',        bg: 'bg-green-50 dark:bg-green-950/20 hover:bg-green-100 dark:hover:bg-green-900/30',    icon: 'text-green-600 dark:text-green-400'   },
+    { navKey: 'water',       labelKey: 'nav.water',       to: '/water',       bg: 'bg-blue-50 dark:bg-blue-950/20 hover:bg-blue-100 dark:hover:bg-blue-900/30',        icon: 'text-blue-500 dark:text-blue-400'     },
+    { navKey: 'weight',      labelKey: 'nav.weight',      to: '/weight',      bg: 'bg-violet-50 dark:bg-violet-950/20 hover:bg-violet-100 dark:hover:bg-violet-900/30', icon: 'text-violet-500 dark:text-violet-400' },
+    { navKey: 'fasting',     labelKey: 'nav.fasting',     to: '/fasting',     bg: 'bg-amber-50 dark:bg-amber-950/20 hover:bg-amber-100 dark:hover:bg-amber-900/30',    icon: 'text-amber-500 dark:text-amber-400'   },
+    { navKey: 'food-search', labelKey: 'nav.food_search', to: '/food-search', bg: 'bg-teal-50 dark:bg-teal-950/20 hover:bg-teal-100 dark:hover:bg-teal-900/30',        icon: 'text-teal-500 dark:text-teal-400'     },
   ]
   return (
     <div className="flex gap-2">
@@ -125,10 +125,14 @@ function QuickActionsWidget() {
         <button
           key={a.to}
           onClick={() => navigate(a.to)}
-          className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-2xl bg-gradient-to-b ${a.color} text-white shadow-sm active:scale-95 transition-transform`}
+          className={`flex-1 flex flex-col items-center gap-2 py-4 rounded-2xl ${a.bg} active:scale-95 transition-all duration-150`}
         >
-          <NavIcon navKey={a.navKey} size={20} />
-          <span className="text-[10px] font-semibold">{t(a.labelKey)}</span>
+          <span className={a.icon}>
+            <NavIcon navKey={a.navKey} size={22} />
+          </span>
+          <span className="text-[10px] font-semibold text-gray-600 dark:text-gray-300 leading-tight text-center">
+            {t(a.labelKey)}
+          </span>
         </button>
       ))}
     </div>
