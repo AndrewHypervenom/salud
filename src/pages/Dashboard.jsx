@@ -905,7 +905,7 @@ export default function Dashboard() {
         return (
           <div key={id} className="contents">
             {widgetNode}
-            {id === 'macros' && !editMode && profile && <CravingHelper profile={profile} />}
+            {id === 'macros' && profile && <CravingHelper profile={profile} />}
           </div>
         )
       })}
