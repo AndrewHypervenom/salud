@@ -181,99 +181,103 @@ export function calcWeightRecommendation(weeklyChange, avgNetBalance, daysOverTa
   return { type: 'losing_maintain', topFood: null }
 }
 
-// Motivational phrases: each has goals[], trends[], es, en
-// goals: [] means all goals apply
-// trends: [] means all trends apply
+// Motivational phrases focused on encouraging daily app usage.
+// goals: [] means all goals. trends: [] means all trends.
 const PHRASES = [
-  {
-    goals: ['lose_weight'],
-    trends: ['losing'],
-    es: 'Cada día registrado es un paso hacia tu meta. ¡Vas muy bien!',
-    en: 'Every logged day is a step toward your goal. You\'re doing great!',
-  },
+  // --- Incentivo a registrar comidas ---
   {
     goals: [],
-    trends: ['losing'],
-    es: 'El cuerpo cambia antes de que la balanza lo muestre. Sigue así.',
-    en: 'Your body changes before the scale shows it. Keep going.',
-  },
-  {
-    goals: ['gain_muscle'],
-    trends: ['gaining'],
-    es: 'Los músculos pesan más que la grasa. Un poco de más es buena señal.',
-    en: 'Muscle weighs more than fat. A little extra is a good sign.',
-  },
-  {
-    goals: ['lose_weight'],
-    trends: ['gaining'],
-    es: 'Un día difícil no borra semanas de progreso. Vuelve al camino mañana.',
-    en: 'One hard day doesn\'t erase weeks of progress. Get back on track tomorrow.',
-  },
-  {
-    goals: [],
-    trends: ['stable'],
-    es: 'Mantener el peso también es un logro. Enfócate en los hábitos.',
-    en: 'Maintaining weight is also an achievement. Focus on the habits.',
+    trends: ['no_data'],
+    es: '¡Registra tu primera comida hoy! La IA ya está lista para analizar tu progreso.',
+    en: 'Log your first meal today! The AI is ready to analyze your progress.',
   },
   {
     goals: [],
     trends: ['no_data'],
-    es: 'Registrar lo que comes es la herramienta más poderosa. ¡Empieza hoy!',
-    en: 'Logging what you eat is the most powerful tool. Start today!',
+    es: 'Cada comida que registras enseña a la app a conocerte mejor. ¡Empieza ahora!',
+    en: 'Every meal you log helps the app know you better. Start now!',
   },
   {
     goals: [],
     trends: ['no_data'],
-    es: 'Sin datos no hay progreso visible. Registra aunque sea una comida.',
-    en: 'Without data there\'s no visible progress. Log at least one meal.',
+    es: 'La app solo puede ayudarte si le dices qué comes. ¡Regístralo todo hoy!',
+    en: 'The app can only help you if you tell it what you eat. Log everything today!',
   },
+  // --- Incentivo a pesar y registrar peso ---
+  {
+    goals: [],
+    trends: [],
+    es: '¿Ya te pesaste hoy? Registrarlo tarda 5 segundos y hace que tu gráfico cobre vida.',
+    en: 'Did you weigh yourself today? Logging it takes 5 seconds and brings your chart to life.',
+  },
+  {
+    goals: [],
+    trends: [],
+    es: 'Cuantos más registros de peso tengas, más precisa será la estimación de la IA.',
+    en: 'The more weight entries you have, the more accurate the AI estimate becomes.',
+  },
+  // --- Celebrar que están usando la app ---
+  {
+    goals: [],
+    trends: ['losing', 'stable', 'gaining'],
+    es: '¡Estás usando la app! Eso ya te pone por delante del 90% de las personas que empiezan.',
+    en: 'You\'re using the app! That already puts you ahead of 90% of people who start.',
+  },
+  {
+    goals: [],
+    trends: ['losing', 'stable'],
+    es: 'La constancia de registrar es más valiosa que la dieta perfecta. ¡Sigue así!',
+    en: 'The consistency of logging is more valuable than the perfect diet. Keep it up!',
+  },
+  // --- Por objetivo ---
   {
     goals: ['lose_weight'],
     trends: [],
-    es: 'La consistencia supera a la perfección. No necesitas hacerlo perfecto.',
-    en: 'Consistency beats perfection. You don\'t need to be perfect.',
+    es: 'Cada alimento registrado es una decisión consciente. Eso es lo que cambia el cuerpo.',
+    en: 'Every logged food is a conscious decision. That\'s what changes the body.',
+  },
+  {
+    goals: ['lose_weight'],
+    trends: ['losing'],
+    es: 'La app ve tu progreso aunque tú no lo notes todavía. ¡Sigue registrando!',
+    en: 'The app sees your progress even if you can\'t feel it yet. Keep logging!',
   },
   {
     goals: ['gain_muscle'],
     trends: [],
-    es: 'La proteína es el ladrillo de tus músculos. ¿Ya cumpliste tu meta hoy?',
-    en: 'Protein is the building block of your muscles. Did you hit your goal today?',
+    es: 'Registra tu ejercicio hoy y deja que la IA calcule cuánto puedes comer de vuelta.',
+    en: 'Log your workout today and let the AI calculate how much you can eat back.',
+  },
+  {
+    goals: ['gain_muscle'],
+    trends: ['gaining'],
+    es: 'Cada registro de comida ayuda a la app a afinar tu plan de ganancia muscular.',
+    en: 'Every food log helps the app fine-tune your muscle gain plan.',
   },
   {
     goals: ['maintain'],
     trends: [],
-    es: 'El equilibrio no es aburrido. Es la base de la salud a largo plazo.',
-    en: 'Balance isn\'t boring. It\'s the foundation of long-term health.',
+    es: 'Registrar hoy mantiene el control. Una semana de datos y la app trabaja por ti.',
+    en: 'Logging today keeps you in control. One week of data and the app works for you.',
   },
   {
     goals: ['improve_health'],
     trends: [],
-    es: 'Pequeños cambios, resultado enorme. Cada elección cuenta.',
-    en: 'Small changes, huge results. Every choice counts.',
+    es: 'Cada registro es evidencia de tu compromiso con tu salud. ¡No pares!',
+    en: 'Every log is evidence of your commitment to your health. Don\'t stop!',
   },
+  // --- Universales potentes ---
   {
     goals: [],
-    trends: ['losing'],
-    es: 'Tu futuro yo te lo agradecerá. Un día a la vez.',
-    en: 'Your future self will thank you. One day at a time.',
+    trends: [],
+    es: 'Los que registran lo que comen logran sus metas 3 veces más rápido. Tú ya lo haces.',
+    en: 'People who track what they eat reach their goals 3x faster. You\'re already doing it.',
   },
   {
     goals: [],
     trends: [],
-    es: 'La mente fit viene antes que el cuerpo fit. Tú ya tienes la mentalidad.',
-    en: 'A fit mind comes before a fit body. You already have the mindset.',
-  },
-  {
-    goals: [],
-    trends: [],
-    es: 'No te compares con ayer. Compárate con quien eras hace un mes.',
-    en: 'Don\'t compare to yesterday. Compare to who you were a month ago.',
-  },
-  {
-    goals: [],
-    trends: ['no_data'],
-    es: 'Los hábitos se forman con datos. Registra hoy y construye tu historia.',
-    en: 'Habits are built with data. Log today and build your story.',
+    es: 'Abre la app mañana temprano y registra tu desayuno. Ese hábito lo cambia todo.',
+    en: 'Open the app tomorrow morning and log your breakfast. That habit changes everything.',
   },
 ]
 
