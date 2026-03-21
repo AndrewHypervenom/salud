@@ -987,6 +987,7 @@ export default function FoodSearchPage() {
     navigate('/food', {
       state: {
         prefill: {
+          meal_type: 'snack',
           description: `${item.name}${item.brand ? ` (${item.brand})` : ''} - ${item.serving_size}`,
           calories_estimated: item.calories,
           protein_g: item.protein_g,
