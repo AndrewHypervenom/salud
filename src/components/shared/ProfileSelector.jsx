@@ -13,7 +13,14 @@ export function ProfileSelector({ onClose }) {
 
   const handleSelect = (profile) => {
     if (profile.access_code && !isUnlocked(profile.id)) {
-      navigate(`/profiles/${profile.id}/unlock`)
+      navigate('/login/pin', {
+        state: {
+          profileId: profile.id,
+          profileName: profile.name,
+          accessCode: profile.access_code,
+          phone: profile.phone_whatsapp
+        }
+      })
       onClose?.()
       return
     }

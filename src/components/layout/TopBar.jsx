@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import nexvidaLogo from '../../assets/favicon.svg'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import { useProfileContext } from '../../context/ProfileContext'
 import { useTheme } from '../../context/ThemeContext'
 import { LanguageToggle } from './LanguageToggle'
 import { Sun, Moon, LogOut } from 'lucide-react'
@@ -11,9 +12,11 @@ export function TopBar() {
   const navigate = useNavigate()
   const { lockAll } = useAuth()
   const { isDark, toggleTheme } = useTheme()
+  const { setActiveProfileId } = useProfileContext()
 
   const handleLockAll = () => {
     lockAll()
+    setActiveProfileId(null)
     navigate('/')
   }
 
