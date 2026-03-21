@@ -13,7 +13,7 @@ import { useWaterLogs } from '../hooks/useWaterLogs'
 import { useFasting } from '../hooks/useFasting'
 import { useWeightLogs } from '../hooks/useWeightLogs'
 import { useDashboardConfig, WIDGET_CATALOG } from '../hooks/useDashboardConfig'
-import { calcBMR, calcTDEE, calcCalorieTarget, calcCalorieTargetMulti, calcMacros, calcExerciseEatBack, getCalorieStatus, CALORIE_COLORS } from '../lib/formulas'
+import { calcBMR, calcTDEE, calcCalorieTargetFromProfile, calcCalorieTarget, calcCalorieTargetMulti, calcMacros, calcExerciseEatBack, getCalorieStatus, CALORIE_COLORS } from '../lib/formulas'
 import { classifyBP } from '../lib/bpStatus'
 import { NavIcon, WidgetIcon } from '../lib/navIcons'
 import { Sunrise, Sun, Moon, Apple, Droplets, Zap, Heart, Scale, TrendingDown, TrendingUp, Stethoscope, Flame, X, Pencil, PartyPopper, ChevronUp, ChevronDown, CheckCircle } from 'lucide-react'
@@ -638,11 +638,7 @@ export default function Dashboard() {
   const bmr = profile ? calcBMR(profile.weight_kg, profile.height_cm, profile.age, profile.sex) : 0
   const tdee = profile ? calcTDEE(bmr, profile.activity) : 0
   const activeGoals = profile?.fitness_profile?.goals
-  const calTarget = profile
-    ? (activeGoals?.length > 0
-        ? calcCalorieTargetMulti(tdee, activeGoals)
-        : calcCalorieTarget(tdee, profile.health_goal))
-    : 0
+  const calTarget = calcCalorieTargetFromProfile(profile, tdee)
   const lastBP = readings[0]
   const { extraCals: exerciseExtraCals = 0 } = calcExerciseEatBack(
     todayCaloriesBurned ?? 0,

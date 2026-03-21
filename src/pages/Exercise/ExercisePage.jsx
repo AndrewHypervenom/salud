@@ -13,7 +13,7 @@ import { useExerciseLogs } from '../../hooks/useExerciseLogs'
 import { useFoodLogs } from '../../hooks/useFoodLogs'
 import { useEstimateExercise } from '../../hooks/useEstimateExercise'
 import { EXERCISE_SUGGESTIONS, getWorkoutPlan, getRecoveryGuidance } from '../../lib/exerciseUtils'
-import { calcBMR, calcTDEE, calcCalorieTarget, calcExerciseEatBack } from '../../lib/formulas'
+import { calcBMR, calcTDEE, calcCalorieTargetFromProfile, calcExerciseEatBack } from '../../lib/formulas'
 
 // ── Category config ──────────────────────────────────────
 const CATEGORIES = [
@@ -201,10 +201,10 @@ export default function ExercisePage() {
 
   const selectedCat = CATEGORIES.find(c => c.key === form.category) ?? CATEGORIES[0]
 
-  // Mismo cálculo que Dashboard y DietPage — una sola fuente de verdad
+  // Una sola fuente de verdad — mismo resultado que Dashboard
   const bmr = profile ? calcBMR(profile.weight_kg, profile.height_cm, profile.age, profile.sex) : 0
   const tdee = profile ? calcTDEE(bmr, profile.activity) : 0
-  const calTarget = profile ? calcCalorieTarget(tdee, healthGoal) : 0
+  const calTarget = calcCalorieTargetFromProfile(profile, tdee)
   const { extraCals: exerciseExtraCals } = calcExerciseEatBack(todayCaloriesBurned, healthGoal)
   const adjustedTarget = calTarget + exerciseExtraCals
   const canEatToday = Math.max(0, adjustedTarget - todayCalories)

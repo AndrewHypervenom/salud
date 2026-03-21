@@ -5,7 +5,7 @@ import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useFoodLogs, useRecentFoodLogs } from '../../hooks/useFoodLogs'
 import { useExerciseLogs } from '../../hooks/useExerciseLogs'
-import { calcBMR, calcTDEE, calcCalorieTarget, calcExerciseEatBack, getCalorieStatus, CALORIE_COLORS } from '../../lib/formulas'
+import { calcBMR, calcTDEE, calcCalorieTargetFromProfile, calcExerciseEatBack, getCalorieStatus, CALORIE_COLORS } from '../../lib/formulas'
 import { FridgeAssistant } from '../../components/shared/FridgeAssistant'
 
 function ListSection({ title, items, Icon, iconClass, itemColor }) {
@@ -61,7 +61,7 @@ export default function DietPage() {
   const healthGoal = profile.health_goal ?? 'improve_health'
   const bmr = calcBMR(profile.weight_kg, profile.height_cm, profile.age, profile.sex)
   const tdee = calcTDEE(bmr, profile.activity)
-  const target = calcCalorieTarget(tdee, healthGoal)
+  const target = calcCalorieTargetFromProfile(profile, tdee)
   const { extraCals, eatBackPct } = calcExerciseEatBack(todayCaloriesBurned, healthGoal)
   const adjustedTarget = target + extraCals
   const remaining = adjustedTarget - todayCalories

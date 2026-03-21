@@ -125,6 +125,18 @@ export function calcExerciseEatBack(caloriesBurned, healthGoal = 'maintain') {
   return { extraCals, eatBackPct: Math.round(pct * 100), rationale: RATIONALE[healthGoal] }
 }
 
+/**
+ * Single source of truth for calorie target from a profile object.
+ * Handles both single-goal and multi-goal profiles consistently.
+ * Use this everywhere instead of inline branching.
+ */
+export function calcCalorieTargetFromProfile(profile, tdee) {
+  if (!profile || !tdee) return 0
+  const activeGoals = profile.fitness_profile?.goals
+  if (activeGoals?.length > 0) return calcCalorieTargetMulti(tdee, activeGoals)
+  return calcCalorieTarget(tdee, profile.health_goal)
+}
+
 export function calcCalorieTargetMulti(tdee, goals = []) {
   if (!goals || goals.length === 0) return Math.max(1200, tdee)
   if (goals.length === 1) return calcCalorieTarget(tdee, goals[0])
