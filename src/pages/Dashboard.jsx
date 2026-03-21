@@ -885,7 +885,7 @@ export default function Dashboard() {
         const content = renderWidget(id)
         if (!content) return null
 
-        return editMode ? (
+        const widgetNode = editMode ? (
           <EditableWidget
             key={id} id={id}
             onHide={hideWidget}
@@ -900,6 +900,13 @@ export default function Dashboard() {
           </EditableWidget>
         ) : (
           <div key={id} data-widget-id={id}>{content}</div>
+        )
+
+        return (
+          <div key={id} className="contents">
+            {widgetNode}
+            {id === 'macros' && !editMode && profile && <CravingHelper profile={profile} />}
+          </div>
         )
       })}
 
@@ -931,9 +938,6 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-
-      {/* ── CRAVING HELPER ─────────────────────────────────── */}
-      {profile && !editMode && <CravingHelper profile={profile} />}
 
       {/* ── DRAG GHOST — floats under finger/cursor ─────────── */}
       {dragFromId && dragPointer && createPortal(
