@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import nexvidaLogo from '../../assets/favicon.svg'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
@@ -18,7 +19,10 @@ export function TopBar() {
   return (
     <header className="sticky top-0 z-30 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 h-16 flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <span className="text-xl font-bold text-primary-600 dark:text-primary-400">💚 {t('app_title')}</span>
+        <div className="flex items-center gap-2">
+          <img src={nexvidaLogo} width="28" height="28" alt="Nexvida logo" />
+          <span className="text-xl font-bold text-primary-600 dark:text-primary-400">{t('app_title')}</span>
+        </div>
       </div>
       <div className="flex items-center gap-2">
         <button
