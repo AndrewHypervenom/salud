@@ -16,7 +16,7 @@ export const NAV_ICON_MAP = {
   weight:           Scale,
   fasting:          Zap,
   recipes:          ChefHat,
-  'food-search':    Search,
+  'food-search':    Sparkles,
   badges:           Trophy,
   calories:         Flame,
   diet:             Salad,

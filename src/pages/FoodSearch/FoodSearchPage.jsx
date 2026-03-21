@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { Search, ScanLine, Images } from 'lucide-react'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useFoodSearch } from '../../hooks/useFoodSearch'
@@ -14,6 +15,34 @@ import { FoodAnalyzingOverlay } from '../../components/ui/FoodAnalyzingOverlay'
 import { calcMacros, calcTDEE, calcBMR, calcCalorieTarget } from '../../lib/formulas'
 import { BadgeNotification } from '../../components/shared/BadgeNotification'
 import { supabase } from '../../lib/supabase'
+import { PhotoAnalysisMode } from './PhotoAnalysisMode'
+
+// ─── Segmented Control tipo iOS ───────────────────────────────────────────────
+function SegmentedControl({ value, onChange, t }) {
+  const tabs = [
+    { key: 'search',  label: t('food_search.tab_search'),  icon: <Search size={13} /> },
+    { key: 'barcode', label: t('food_search.tab_barcode'), icon: <ScanLine size={13} /> },
+    { key: 'photos',  label: t('food_search.tab_photos'),  icon: <Images size={13} /> },
+  ]
+  return (
+    <div className="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-2xl gap-1">
+      {tabs.map(tab => (
+        <button
+          key={tab.key}
+          onClick={() => onChange(tab.key)}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-semibold transition-all duration-200 ${
+            value === tab.key
+              ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+              : 'text-gray-500 dark:text-gray-400'
+          }`}
+        >
+          {tab.icon}
+          {tab.label}
+        </button>
+      ))}
+    </div>
+  )
+}
 
 // ─── Unidades con su factor de conversión a gramos ───────────────────────────
 const UNITS = [
@@ -937,7 +966,8 @@ export default function FoodSearchPage() {
   const { newBadge, clearNewBadge } = useBadges(activeProfileId)
 
   const [query, setQuery] = useState('')
-  const [scanMode, setScanMode] = useState(searchParams.get('mode') === 'scan')
+  const [activeTab, setActiveTab] = useState(searchParams.get('mode') === 'scan' ? 'barcode' : 'search')
+  const [scanMode, setScanMode] = useState(false)
   const [scanned, setScanned] = useState(null)
   const [myProductsOpen, setMyProductsOpen] = useState(false)
   const [scanProcessing, setScanProcessing] = useState(false)
@@ -1001,9 +1031,11 @@ export default function FoodSearchPage() {
   return (
     <div className="flex flex-col gap-4">
       <BadgeNotification badge={newBadge} onDismiss={clearNewBadge} lang={lang} />
+
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">🔍 {t('food_search.title')}</h1>
-        {activeProfileId && (
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">✨ {t('food_search.title')}</h1>
+        {activeProfileId && activeTab !== 'photos' && (
           <button
             onClick={() => setMyProductsOpen(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 rounded-full text-xs font-semibold border border-emerald-100 dark:border-emerald-800/30 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors"
@@ -1013,74 +1045,150 @@ export default function FoodSearchPage() {
         )}
       </div>
 
-      {/* Chips de acceso rápido a Mis Productos */}
-      {recentProducts.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-4 px-4">
-          {recentProducts.map(p => (
-            <button key={p.id} onClick={() => injectResults([p])}
-              className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800
-                         rounded-2xl border border-gray-200 dark:border-gray-700
-                         shadow-sm flex-shrink-0 active:scale-95 transition-all">
-              {p.product_image_url
-                ? <img src={p.product_image_url} className="w-6 h-6 rounded-md object-cover flex-shrink-0" alt="" />
-                : <span className="text-base">📦</span>
-              }
-              <div className="flex flex-col items-start">
-                <span className="text-xs font-semibold text-gray-800 dark:text-gray-200 max-w-[72px] truncate">{p.name}</span>
-                <span className="text-[10px] text-gray-400">{p.calories_per_100g} kcal</span>
-              </div>
+      {/* Segmented Control */}
+      <SegmentedControl value={activeTab} onChange={setActiveTab} t={t} />
+
+      {/* ── TAB: Buscar ──────────────────────────────────────────────────────── */}
+      {activeTab === 'search' && (
+        <div key="tab-search" className="flex flex-col gap-4 animate-fade-in-up">
+          {/* Chips de acceso rápido a Mis Productos */}
+          {recentProducts.length > 0 && (
+            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-4 px-4">
+              {recentProducts.map(p => (
+                <button key={p.id} onClick={() => injectResults([p])}
+                  className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-gray-800
+                             rounded-2xl border border-gray-200 dark:border-gray-700
+                             shadow-sm flex-shrink-0 active:scale-95 transition-all">
+                  {p.product_image_url
+                    ? <img src={p.product_image_url} className="w-6 h-6 rounded-md object-cover flex-shrink-0" alt="" />
+                    : <span className="text-base">📦</span>
+                  }
+                  <div className="flex flex-col items-start">
+                    <span className="text-xs font-semibold text-gray-800 dark:text-gray-200 max-w-[72px] truncate">{p.name}</span>
+                    <span className="text-[10px] text-gray-400">{p.calories_per_100g} kcal</span>
+                  </div>
+                </button>
+              ))}
+              <button onClick={() => setMyProductsOpen(true)}
+                className="px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-2xl text-xs font-semibold text-gray-500 flex-shrink-0 active:scale-95 transition-all whitespace-nowrap">
+                Ver todos →
+              </button>
+            </div>
+          )}
+
+          {/* Buscador */}
+          <div className="flex gap-2">
+            <input
+              ref={searchRef}
+              type="text" value={query}
+              onChange={e => setQuery(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSearch()}
+              placeholder={t('food_search.search_placeholder')}
+              className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary-500"
+            />
+            <button onClick={handleSearch} disabled={!query.trim() || loading}
+              className="px-4 py-3 bg-primary-600 text-white rounded-xl font-semibold text-sm disabled:opacity-40 hover:bg-primary-700 transition-colors">
+              {loading ? <Spinner size="sm" /> : '🔍'}
             </button>
-          ))}
-          <button onClick={() => setMyProductsOpen(true)}
-            className="px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-2xl text-xs font-semibold text-gray-500 flex-shrink-0 active:scale-95 transition-all whitespace-nowrap">
-            Ver todos →
-          </button>
+          </div>
+
+          {/* Error */}
+          {error && !(scanned && results.length === 0) && (
+            <p className="text-sm text-red-600 bg-red-50 dark:bg-red-950/30 rounded-xl px-4 py-3">{error}</p>
+          )}
+
+          {/* Loading — skeletons */}
+          {loading && (
+            <div className="flex flex-col gap-3">
+              {[0, 1, 2].map(i => (
+                <div key={i} className="h-24 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />
+              ))}
+            </div>
+          )}
+
+          {/* Resultados */}
+          {!loading && results.length > 0 && (
+            <div className="flex flex-col gap-3">
+              <p className="text-xs text-gray-400">{results.length} resultado{results.length !== 1 ? 's' : ''}</p>
+              {results.map((item, i) => (
+                <ResultItem key={item.barcode || i} item={item} onAdd={handleAdd} />
+              ))}
+            </div>
+          )}
+
+          {/* Sin resultados */}
+          {!loading && !error && results.length === 0 && query && !scanned && (
+            <div className="flex flex-col items-center py-12 text-center gap-3">
+              <span className="text-5xl">🔍</span>
+              <p className="text-gray-400 text-sm">{t('food_search.no_results')}</p>
+            </div>
+          )}
+
+          {/* Estado inicial */}
+          {!loading && results.length === 0 && !query && !scanned && !scanProcessing && (
+            <div className="flex flex-col gap-3 py-2">
+              <button onClick={() => searchRef.current?.focus()}
+                className="flex flex-col items-center justify-center gap-2 py-10
+                           bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700
+                           rounded-3xl active:scale-[0.97] transition-all shadow-sm">
+                <span className="text-4xl">🔍</span>
+                <span className="text-sm font-bold text-gray-900 dark:text-gray-100">Buscar por nombre</span>
+                <span className="text-[11px] text-gray-400 text-center leading-tight">+3 millones de productos</span>
+              </button>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Buscador */}
-      <div className="flex gap-2">
-        <input
-          ref={searchRef}
-          type="text" value={query}
-          onChange={e => setQuery(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && handleSearch()}
-          placeholder={t('food_search.search_placeholder')}
-          className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary-500"
-        />
-        <button onClick={handleSearch} disabled={!query.trim() || loading}
-          className="px-4 py-3 bg-primary-600 text-white rounded-xl font-semibold text-sm disabled:opacity-40 hover:bg-primary-700 transition-colors">
-          {loading ? <Spinner size="sm" /> : '🔍'}
-        </button>
-        <button onClick={() => setScanMode(true)}
-          className="px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-xl text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-          📷
-        </button>
-      </div>
+      {/* ── TAB: Código de Barras ─────────────────────────────────────────────── */}
+      {activeTab === 'barcode' && (
+        <div key="tab-barcode" className="flex flex-col gap-4 animate-fade-in-up">
+          <button
+            onClick={() => setScanMode(true)}
+            className="flex flex-col items-center justify-center gap-3 py-12
+                       bg-gray-900 dark:bg-gray-950 text-white rounded-3xl
+                       active:scale-[0.97] transition-all shadow-lg w-full"
+          >
+            <span className="text-5xl">📷</span>
+            <span className="text-lg font-bold">Escanear código</span>
+            <span className="text-sm text-gray-400 text-center leading-tight">Apunta al código de barras del envase</span>
+          </button>
+
+          {/* Estado post-escaneo */}
+          {scanned && !scanMode && (
+            <p className="text-xs text-gray-500 text-center">
+              {t('food_search.scanned_code')} <span className="font-mono font-semibold">{scanned}</span>
+            </p>
+          )}
+          {scanProcessing && (
+            <div className="flex flex-col items-center gap-3 py-8">
+              <Spinner />
+              <p className="text-sm text-gray-500">Buscando código <span className="font-mono font-bold">{scanned}</span>…</p>
+            </div>
+          )}
+          {/* Resultados del escaneo */}
+          {!loading && !scanProcessing && results.length > 0 && (
+            <div className="flex flex-col gap-3">
+              {results.map((item, i) => (
+                <ResultItem key={item.barcode || i} item={item} onAdd={handleAdd} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── TAB: Analizar Fotos ───────────────────────────────────────────────── */}
+      {activeTab === 'photos' && (
+        <div key="tab-photos" className="animate-fade-in-up">
+          <PhotoAnalysisMode profileId={activeProfileId} onUseFood={handleAdd} />
+        </div>
+      )}
+
+      {/* ── Sheets globales (funcionan sobre cualquier tab) ───────────────────── */}
 
       {/* Escáner fullscreen */}
       {scanMode && (
         <BarcodeScanner onScan={handleScan} onClose={() => setScanMode(false)} active={scanMode} fullscreen />
-      )}
-
-      {/* Código escaneado */}
-      {scanned && !scanMode && (
-        <p className="text-xs text-gray-500 text-center">
-          {t('food_search.scanned_code')} <span className="font-mono font-semibold">{scanned}</span>
-        </p>
-      )}
-
-      {/* Error (solo si NO es "no encontrado" por barcode) */}
-      {error && !(scanned && results.length === 0) && (
-        <p className="text-sm text-red-600 bg-red-50 dark:bg-red-950/30 rounded-xl px-4 py-3">{error}</p>
-      )}
-
-      {/* Estado intermedio post-escaneo */}
-      {scanProcessing && (
-        <div className="flex flex-col items-center gap-3 py-12">
-          <Spinner />
-          <p className="text-sm text-gray-500">Buscando código <span className="font-mono font-bold">{scanned}</span>…</p>
-        </div>
       )}
 
       {/* ManualFoodEntry como bottom-sheet cuando barcode no encontrado */}
@@ -1103,58 +1211,6 @@ export default function FoodSearchPage() {
               <ManualFoodEntry barcode={scanned} profileId={activeProfileId} onAdd={handleAdd} />
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Loading — skeletons */}
-      {loading && (
-        <div className="flex flex-col gap-3">
-          {[0, 1, 2].map(i => (
-            <div key={i} className="h-24 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />
-          ))}
-        </div>
-      )}
-
-      {/* Resultados */}
-      {!loading && results.length > 0 && (
-        <div className="flex flex-col gap-3">
-          <p className="text-xs text-gray-400">{results.length} resultado{results.length !== 1 ? 's' : ''}</p>
-          {results.map((item, i) => (
-            <ResultItem key={item.barcode || i} item={item} onAdd={handleAdd} />
-          ))}
-        </div>
-      )}
-
-      {/* Sin resultados por búsqueda de nombre */}
-      {!loading && !error && results.length === 0 && query && !scanned && (
-        <div className="flex flex-col items-center py-12 text-center gap-3">
-          <span className="text-5xl">🔍</span>
-          <p className="text-gray-400 text-sm">{t('food_search.no_results')}</p>
-        </div>
-      )}
-
-      {/* Estado inicial — hero CTAs */}
-      {!loading && results.length === 0 && !query && !scanned && !scanProcessing && (
-        <div className="flex flex-col gap-4 py-2">
-          <div className="flex gap-3">
-            <button onClick={() => setScanMode(true)}
-              className="flex-1 flex flex-col items-center justify-center gap-2 py-7 px-4
-                         bg-gray-900 dark:bg-gray-950 text-white rounded-3xl
-                         active:scale-[0.97] transition-all shadow-lg">
-              <span className="text-3xl">📷</span>
-              <span className="text-sm font-bold">Escanear</span>
-              <span className="text-[10px] text-gray-400 text-center leading-tight">Código de barras</span>
-            </button>
-            <button onClick={() => searchRef.current?.focus()}
-              className="flex-1 flex flex-col items-center justify-center gap-2 py-7 px-4
-                         bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700
-                         rounded-3xl active:scale-[0.97] transition-all shadow-sm">
-              <span className="text-3xl">🔍</span>
-              <span className="text-sm font-bold text-gray-900 dark:text-gray-100">Buscar</span>
-              <span className="text-[10px] text-gray-400 text-center leading-tight">Por nombre</span>
-            </button>
-          </div>
-          <p className="text-[11px] text-gray-400 text-center">+3 millones de productos en la base de datos</p>
         </div>
       )}
 
