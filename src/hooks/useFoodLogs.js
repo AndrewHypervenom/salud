@@ -92,3 +92,36 @@ export function useRecentFoodLogs(profileId, days = 7) {
   useEffect(() => { fetch() }, [fetch])
   return { recentFoods, loading }
 }
+
+export function useFoodLogsByDay(profileId, days = 60) {
+  const [foodLogsByDay, setFoodLogsByDay] = useState({})
+  const [rawLogs, setRawLogs] = useState([])
+  const [loading, setLoading] = useState(false)
+
+  const fetch = useCallback(async () => {
+    if (!profileId) { setFoodLogsByDay({}); setRawLogs([]); return }
+    setLoading(true)
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
+    const { data } = await supabase
+      .from('food_logs')
+      .select('logged_at, calories_estimated, description')
+      .eq('profile_id', profileId)
+      .gte('logged_at', since)
+      .order('logged_at', { ascending: true })
+    if (data) {
+      setRawLogs(data)
+      const byDay = {}
+      for (const log of data) {
+        const date = new Date(log.logged_at).toLocaleDateString('en-CA')
+        if (!byDay[date]) byDay[date] = { totalCal: 0, logs: [] }
+        byDay[date].totalCal += log.calories_estimated || 0
+        byDay[date].logs.push(log)
+      }
+      setFoodLogsByDay(byDay)
+    }
+    setLoading(false)
+  }, [profileId, days])
+
+  useEffect(() => { fetch() }, [fetch])
+  return { foodLogsByDay, rawLogs, loading }
+}

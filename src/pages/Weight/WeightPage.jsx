@@ -1,23 +1,36 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Scale, TrendingDown, TrendingUp, Loader2, X } from 'lucide-react'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useWeightLogs } from '../../hooks/useWeightLogs'
 import { useBadges } from '../../hooks/useBadges'
+import { useFoodLogsByDay } from '../../hooks/useFoodLogs'
+import { useExerciseLogsByDay } from '../../hooks/useExerciseLogs'
 import { WeightChart } from '../../components/ui/WeightChart'
 import { Card } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
 import { BadgeNotification } from '../../components/shared/BadgeNotification'
+import { calcBMR, calcTDEE } from '../../lib/formulas'
+import {
+  calcEstimatedWeightSeries,
+  calcTodayEstimatedWeight,
+  calcWeeklyStats,
+  getTopFoods,
+  calcWeightRecommendation,
+  getMotivationalPhrase,
+} from '../../lib/weightEstimation'
 
 export default function WeightPage() {
   const { t, i18n } = useTranslation()
   const lang = i18n.language?.startsWith('es') ? 'es' : 'en'
   const { activeProfileId } = useProfileContext()
-  const { profiles, updateProfile } = useProfiles()
+  const { profiles } = useProfiles()
   const profile = profiles.find(p => p.id === activeProfileId)
   const { logs, loading, latestWeight, addWeight, deleteWeight } = useWeightLogs(activeProfileId)
   const { newBadge, checkAndUnlock, clearNewBadge } = useBadges(activeProfileId)
+  const { foodLogsByDay, rawLogs } = useFoodLogsByDay(activeProfileId, 60)
+  const { exerciseLogsByDay } = useExerciseLogsByDay(activeProfileId, 60)
 
   const [showForm, setShowForm] = useState(false)
   const [newWeight, setNewWeight] = useState('')
@@ -35,7 +48,6 @@ export default function WeightPage() {
     setSaving(true)
     try {
       await addWeight(kg, newDate)
-      // Check goal badge
       if (targetWeight && Math.abs(kg - targetWeight) <= 0.5) {
         await checkAndUnlock('goal_reached', true)
       }
@@ -51,17 +63,50 @@ export default function WeightPage() {
     setDeleting(null)
   }
 
-  // Calcular estadísticas
+  // Estadísticas básicas
   const diff = (latestWeight && targetWeight) ? Math.round((latestWeight - targetWeight) * 10) / 10 : null
   const last7 = logs.slice(0, 7)
   const weeklyChange = last7.length >= 2
     ? Math.round((last7[0].weight_kg - last7[last7.length - 1].weight_kg) * 100) / 100
     : null
 
-  // Proyección simple
   const projectionWeeks = (diff !== null && weeklyChange && weeklyChange !== 0)
     ? Math.ceil(Math.abs(diff) / Math.abs(weeklyChange))
     : null
+
+  // TDEE para estimación (sin ajuste por objetivo — usar mantenimiento puro)
+  const tdee = profile ? calcTDEE(calcBMR(profile.weight_kg, profile.height_cm, profile.age, profile.sex), profile.activity) : 0
+
+  // Peso estimado por IA
+  const estimatedSeries = useMemo(() => {
+    if (!tdee || !foodLogsByDay || Object.keys(foodLogsByDay).length === 0) return []
+    return calcEstimatedWeightSeries(logs, foodLogsByDay, exerciseLogsByDay, tdee, profile?.weight_kg)
+  }, [logs, foodLogsByDay, exerciseLogsByDay, tdee, profile?.weight_kg])
+
+  const todayEstimatedWeight = useMemo(() => calcTodayEstimatedWeight(estimatedSeries), [estimatedSeries])
+
+  // Stats semanales y recomendaciones
+  const weeklyStats = useMemo(() =>
+    calcWeeklyStats(foodLogsByDay, exerciseLogsByDay, tdee, 7),
+    [foodLogsByDay, exerciseLogsByDay, tdee]
+  )
+
+  const topFoods = useMemo(() => getTopFoods(rawLogs), [rawLogs])
+
+  const hasRecentLogs = useMemo(() => {
+    const threeDaysAgo = new Date(Date.now() - 3 * 86400000).toLocaleDateString('en-CA')
+    return Object.keys(foodLogsByDay).some(d => d >= threeDaysAgo)
+  }, [foodLogsByDay])
+
+  const recommendation = useMemo(() =>
+    calcWeightRecommendation(weeklyChange, weeklyStats.avgNetBalance, weeklyStats.daysOverTarget, topFoods, profile?.health_goal, hasRecentLogs),
+    [weeklyChange, weeklyStats, topFoods, profile?.health_goal, hasRecentLogs]
+  )
+
+  const motivationalPhrase = useMemo(() => {
+    const trend = weeklyChange === null ? 'no_data' : weeklyChange < -0.1 ? 'losing' : weeklyChange > 0.1 ? 'gaining' : 'stable'
+    return getMotivationalPhrase(profile?.health_goal, trend, hasRecentLogs, lang)
+  }, [weeklyChange, profile?.health_goal, hasRecentLogs, lang])
 
   if (!activeProfileId || !profile) {
     return (
@@ -71,6 +116,18 @@ export default function WeightPage() {
       </div>
     )
   }
+
+  const recIcon = recommendation
+    ? (recommendation.type === 'losing_good' || recommendation.type === 'gaining_good' || recommendation.type === 'maintaining_good'
+        ? '✅'
+        : recommendation.type === 'no_data'
+        ? '📝'
+        : '💡')
+    : null
+
+  const estimatedDelta = (todayEstimatedWeight !== null && latestWeight !== null)
+    ? Math.round((todayEstimatedWeight - latestWeight) * 10) / 10
+    : null
 
   return (
     <div className="flex flex-col gap-4">
@@ -128,13 +185,27 @@ export default function WeightPage() {
         </Card>
       )}
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-2">
+      {/* Stats — 2x2 grid */}
+      <div className="grid grid-cols-2 gap-2">
         <Card className="text-center py-3">
           <p className="text-xl font-bold text-gray-900 dark:text-gray-100">
             {latestWeight ?? '—'}
           </p>
-          <p className="text-xs text-gray-400 leading-tight">{t('weight.kg_current')}</p>
+          <p className="text-xs text-gray-400 leading-tight">{t('weight.kg_registered')}</p>
+          {logs[0] && (
+            <p className="text-xs text-gray-300 dark:text-gray-600 mt-0.5">{logs[0].logged_date}</p>
+          )}
+        </Card>
+        <Card className="text-center py-3">
+          <p className="text-xl font-bold text-orange-500">
+            {todayEstimatedWeight !== null ? todayEstimatedWeight : '—'}
+          </p>
+          <p className="text-xs text-gray-400 leading-tight">{t('weight.kg_estimated')}</p>
+          {estimatedDelta !== null && (
+            <p className={`text-xs mt-0.5 font-medium ${estimatedDelta > 0 ? 'text-amber-500' : 'text-green-500'}`}>
+              {estimatedDelta > 0 ? `+${estimatedDelta}` : estimatedDelta} kg
+            </p>
+          )}
         </Card>
         <Card className="text-center py-3">
           <p className="text-xl font-bold text-gray-900 dark:text-gray-100">
@@ -169,15 +240,39 @@ export default function WeightPage() {
         </Card>
       )}
 
-      {/* Gráfico */}
-      {logs.length > 0 && (
+      {/* Gráfico con ambas líneas */}
+      {(logs.length > 0 || estimatedSeries.length > 0) && (
         <Card>
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">{t('weight.history')}</p>
-          <WeightChart logs={logs.slice(0, 30)} targetWeight={targetWeight} height={160} />
+          <WeightChart
+            logs={logs.slice(0, 30)}
+            estimatedLogs={estimatedSeries}
+            targetWeight={targetWeight}
+            height={160}
+          />
         </Card>
       )}
 
-      {/* Lista */}
+      {/* Recomendación personalizada */}
+      {recommendation && (
+        <Card className="flex gap-3 items-start py-3">
+          <span className="text-xl flex-shrink-0 mt-0.5">{recIcon}</span>
+          <p className="text-sm text-gray-700 dark:text-gray-200">
+            {t(`weight.rec_${recommendation.type}`, { food: recommendation.topFood || '' })}
+          </p>
+        </Card>
+      )}
+
+      {/* Frase motivadora */}
+      {motivationalPhrase && (
+        <Card className="py-3 bg-primary-50 dark:bg-primary-900/20 border border-primary-100 dark:border-primary-800">
+          <p className="text-sm text-primary-700 dark:text-primary-300 text-center italic">
+            "{motivationalPhrase}"
+          </p>
+        </Card>
+      )}
+
+      {/* Lista de registros */}
       {loading ? (
         <div className="flex justify-center py-4"><Spinner /></div>
       ) : logs.length === 0 ? (
