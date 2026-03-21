@@ -24,6 +24,7 @@ import { ProgressRing } from '../components/ui/ProgressRing'
 import { ElapsedTimer } from '../components/ui/CountdownTimer'
 import { HealthCoach } from '../components/shared/HealthCoach'
 import { CravingHelper } from '../components/shared/CravingHelper'
+import { RemindersWidget } from '../components/shared/RemindersWidget'
 import { getHabitDisplayName } from '../hooks/useHabits'
 import FitnessProfileBanner from '../components/shared/FitnessProfileBanner'
 
@@ -722,6 +723,8 @@ export default function Dashboard() {
         return <MacrosWidget todayLogs={todayLogs} calTarget={calTarget} />
       case 'craving':
         return <CravingHelper profile={profile} />
+      case 'reminders':
+        return <RemindersWidget profile={profile} />
       case 'water':
         return <WaterDashWidget profileId={activeProfileId} waterGoalMl={waterGoal} />
       case 'fasting':

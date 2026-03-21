@@ -6,13 +6,16 @@ import TargetWeightStep from './FitnessWizardSteps/TargetWeightStep'
 import ActivitiesStep from './FitnessWizardSteps/ActivitiesStep'
 import ExperienceStep from './FitnessWizardSteps/ExperienceStep'
 import WaterStep from './FitnessWizardSteps/WaterStep'
+import RoutineStep from './FitnessWizardSteps/RoutineStep'
+import DietStep from './FitnessWizardSteps/DietStep'
+import HealthConditionsStep from './FitnessWizardSteps/HealthConditionsStep'
 
 function getStepFlow(goals) {
   const needsTarget = goals.includes('lose_weight') || goals.includes('gain_muscle')
   if (needsTarget) {
-    return ['goal', 'target_weight', 'activities', 'experience', 'water']
+    return ['goal', 'target_weight', 'routine', 'activities', 'experience', 'diet', 'health_conditions', 'water']
   }
-  return ['goal', 'activities', 'experience', 'water']
+  return ['goal', 'routine', 'activities', 'experience', 'diet', 'health_conditions', 'water']
 }
 
 function getProgress(step, goals) {
@@ -41,6 +44,20 @@ export default function FitnessWizard({ profileData, onComplete, onSkip }) {
   const [experienceLevel, setExperienceLevel] = useState(null)
   const [waterGoal, setWaterGoal] = useState(null)
 
+  // New routine state
+  const [currentlyExercises, setCurrentlyExercises] = useState(null)
+  const [hasDefinedRoutine, setHasDefinedRoutine] = useState(false)
+  const [routineDays, setRoutineDays] = useState([])
+  const [sessionDurationMin, setSessionDurationMin] = useState(null)
+  const [preferredWorkoutTime, setPreferredWorkoutTime] = useState(null)
+
+  // New diet state
+  const [dietaryPreference, setDietaryPreference] = useState(null)
+  const [foodRestrictions, setFoodRestrictions] = useState([])
+
+  // Health conditions
+  const [healthConditions, setHealthConditions] = useState({})
+
   const { current, total } = getProgress(step, goals)
   const pct = (current / total) * 100
 
@@ -60,6 +77,7 @@ export default function FitnessWizard({ profileData, onComplete, onSkip }) {
       target_weight_kg: targetWeight ? parseFloat(targetWeight) : null,
       weight_goal_speed: goalSpeed,
       water_goal_ml: ml,
+      health_conditions: healthConditions,
       fitness_profile: {
         completed: true,
         completed_at: new Date().toISOString(),
@@ -68,6 +86,14 @@ export default function FitnessWizard({ profileData, onComplete, onSkip }) {
         workout_frequency: frequency,
         sedentary_interest: sedentaryInterest || null,
         goals,
+        // New fields
+        currently_exercises: currentlyExercises,
+        has_defined_routine: hasDefinedRoutine,
+        routine_days: routineDays,
+        session_duration_min: sessionDurationMin,
+        preferred_workout_time: preferredWorkoutTime,
+        dietary_preference: dietaryPreference,
+        food_restrictions: foodRestrictions,
       },
     }
     onComplete(fitnessData)
@@ -120,6 +146,21 @@ export default function FitnessWizard({ profileData, onComplete, onSkip }) {
             onNext={goNext}
           />
         )}
+        {step === 'routine' && (
+          <RoutineStep
+            currentlyExercises={currentlyExercises}
+            onCurrentlyExercisesChange={setCurrentlyExercises}
+            hasDefinedRoutine={hasDefinedRoutine}
+            onHasDefinedRoutineChange={setHasDefinedRoutine}
+            routineDays={routineDays}
+            onRoutineDaysChange={setRoutineDays}
+            sessionDurationMin={sessionDurationMin}
+            onSessionDurationChange={setSessionDurationMin}
+            preferredWorkoutTime={preferredWorkoutTime}
+            onPreferredWorkoutTimeChange={setPreferredWorkoutTime}
+            onNext={goNext}
+          />
+        )}
         {step === 'activities' && (
           <ActivitiesStep
             profileData={profileData}
@@ -129,6 +170,7 @@ export default function FitnessWizard({ profileData, onComplete, onSkip }) {
             onSedentaryChange={setSedentaryInterest}
             frequency={frequency}
             onFrequencyChange={setFrequency}
+            currentlyExercises={currentlyExercises}
             onNext={goNext}
           />
         )}
@@ -141,6 +183,22 @@ export default function FitnessWizard({ profileData, onComplete, onSkip }) {
               const idx = flow.indexOf('experience')
               if (idx < flow.length - 1) setStep(flow[idx + 1])
             }}
+          />
+        )}
+        {step === 'diet' && (
+          <DietStep
+            dietaryPreference={dietaryPreference}
+            onDietaryPreferenceChange={setDietaryPreference}
+            foodRestrictions={foodRestrictions}
+            onFoodRestrictionsChange={setFoodRestrictions}
+            onNext={goNext}
+          />
+        )}
+        {step === 'health_conditions' && (
+          <HealthConditionsStep
+            conditions={healthConditions}
+            onConditionsChange={setHealthConditions}
+            onNext={goNext}
           />
         )}
         {step === 'water' && (

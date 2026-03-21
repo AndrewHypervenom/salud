@@ -34,6 +34,31 @@ const HABIT_NAME_TO_KEY = {
   'Proteína en cada comida':  'habits.default_protein',
   'Ir al gimnasio':           'habits.default_gym',
   'Caminar 15 minutos':       'habits.default_walk_short',
+  'Completar entrenamiento':  'habits.default_workout',
+  'Tomar vitamina B12':       'habits.default_b12',
+  // EN extra
+  'Complete workout':         'habits.default_workout',
+  'Take vitamin B12':         'habits.default_b12',
+  // ES - condiciones de salud
+  'Medir presión arterial':           'habits.cond_bp_check',
+  'Reducir sodio en comidas':         'habits.cond_low_sodium',
+  'Medir glucosa':                    'habits.cond_glucose',
+  'Evitar alimentos fritos':          'habits.cond_no_fried',
+  'Hidratación extra (antijaqueca)':  'habits.cond_water_migraine',
+  'Elevar piernas al descansar':      'habits.cond_elevate_legs',
+  'Rutina fija para dormir':          'habits.cond_sleep_routine',
+  '5 min de respiración profunda':    'habits.cond_breathe',
+  'Estiramiento articulaciones':      'habits.cond_stretch',
+  // EN - health conditions
+  'Check blood pressure':             'habits.cond_bp_check',
+  'Reduce sodium intake':             'habits.cond_low_sodium',
+  'Check glucose levels':             'habits.cond_glucose',
+  'Avoid fried foods':                'habits.cond_no_fried',
+  'Extra hydration (migraine)':       'habits.cond_water_migraine',
+  'Elevate legs when resting':        'habits.cond_elevate_legs',
+  'Fixed sleep routine':              'habits.cond_sleep_routine',
+  '5 min deep breathing':             'habits.cond_breathe',
+  'Joint stretching':                 'habits.cond_stretch',
 }
 
 // Devuelve el nombre del hábito traducido al idioma activo si es un hábito por defecto;
@@ -133,6 +158,10 @@ export function useHabits(profileId) {
     const fp = fitnessData?.fitness_profile || fitnessData || {}
     const preferred = fp.preferred_activities || []
     const sedentaryInterest = fp.sedentary_interest
+    const currentlyExercises = fp.currently_exercises
+    const hasDefinedRoutine = fp.has_defined_routine
+    const dietaryPreference = fp.dietary_preference
+    const healthConditions = fitnessData?.health_conditions || {}
 
     const extraHabits = []
     if (goal === 'gain_muscle') {
@@ -144,8 +173,46 @@ export function useHabits(profileId) {
     if (preferred.includes('gym')) {
       extraHabits.push({ nameKey: 'habits.default_gym', emoji: '🏋️', sort_order: 6 })
     }
-    if (sedentaryInterest === 'walking' || preferred.includes('walking')) {
+    // If user already exercises with a routine, add workout habit
+    if (currentlyExercises && hasDefinedRoutine) {
+      extraHabits.push({ nameKey: 'habits.default_workout', emoji: '💪', sort_order: 6 })
+    }
+    // If user doesn't exercise yet, prioritize short walk
+    if (currentlyExercises === false) {
+      extraHabits.push({ nameKey: 'habits.default_walk_short', emoji: '🚶', sort_order: 2 })
+    } else if (sedentaryInterest === 'walking' || preferred.includes('walking')) {
       extraHabits.push({ nameKey: 'habits.default_walk_short', emoji: '🚶', sort_order: 7 })
+    }
+    // Vegan vitamin B12 habit
+    if (dietaryPreference === 'vegan') {
+      extraHabits.push({ nameKey: 'habits.default_b12', emoji: '💊', sort_order: 8 })
+    }
+
+    // Health condition habits
+    if (healthConditions.high_blood_pressure) {
+      extraHabits.push({ nameKey: 'habits.cond_bp_check',      emoji: '🩺', sort_order: 10 })
+      extraHabits.push({ nameKey: 'habits.cond_low_sodium',    emoji: '🧂', sort_order: 11 })
+    }
+    if (healthConditions.diabetes) {
+      extraHabits.push({ nameKey: 'habits.cond_glucose',       emoji: '🩸', sort_order: 12 })
+    }
+    if (healthConditions.high_cholesterol) {
+      extraHabits.push({ nameKey: 'habits.cond_no_fried',      emoji: '🥗', sort_order: 13 })
+    }
+    if (healthConditions.migraines) {
+      extraHabits.push({ nameKey: 'habits.cond_water_migraine', emoji: '💧', sort_order: 14 })
+    }
+    if (healthConditions.water_retention) {
+      extraHabits.push({ nameKey: 'habits.cond_elevate_legs',  emoji: '🦵', sort_order: 15 })
+    }
+    if (healthConditions.insomnia) {
+      extraHabits.push({ nameKey: 'habits.cond_sleep_routine', emoji: '🌙', sort_order: 16 })
+    }
+    if (healthConditions.anxiety_stress) {
+      extraHabits.push({ nameKey: 'habits.cond_breathe',       emoji: '🧘', sort_order: 17 })
+    }
+    if (healthConditions.joint_pain) {
+      extraHabits.push({ nameKey: 'habits.cond_stretch',       emoji: '🤸', sort_order: 18 })
     }
 
     const baseHabits = DEFAULT_HABIT_KEYS.map(h => ({

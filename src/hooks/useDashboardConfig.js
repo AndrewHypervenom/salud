@@ -17,6 +17,7 @@ export const WIDGET_CATALOG = [
   { id: 'doctor',        label: 'widgets.doctor',         size: 'half' },
   { id: 'streak',        label: 'widgets.streak',         size: 'half' },
   { id: 'craving',       label: 'widgets.craving',        size: 'full' },
+  { id: 'reminders',    label: 'widgets.reminders',      size: 'full' },
 ]
 
 // ── Catálogo completo de rutas personalizables en nav ─────────────────────────

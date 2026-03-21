@@ -30,6 +30,7 @@ export default function ActivitiesStep({
   onSedentaryChange,
   frequency,
   onFrequencyChange,
+  currentlyExercises,
   onNext,
 }) {
   const { t } = useTranslation()
@@ -46,9 +47,11 @@ export default function ActivitiesStep({
   return (
     <div className="flex flex-col gap-5">
       <div className="text-center">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{t('fitness.step_activities')}</h2>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+          {currentlyExercises === false ? t('fitness.step_activities_start') : t('fitness.step_activities')}
+        </h2>
         <p className="text-sm text-gray-500 mt-1">
-          {isSedentary ? t('fitness.sedentary_start_hint') : t('fitness.activities_hint')}
+          {isSedentary ? t('fitness.sedentary_start_hint') : (currentlyExercises === false ? t('fitness.activities_start_hint') : t('fitness.activities_hint'))}
         </p>
       </div>
 

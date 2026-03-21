@@ -25,6 +25,7 @@ export default function ProfileForm() {
 
   const [showPinSetup, setShowPinSetup] = useState(false)
   const [pinSaving, setPinSaving] = useState(false)
+  const [healthConditions, setHealthConditions] = useState({})
 
   const { register, handleSubmit, reset, watch, formState: { errors, isSubmitting } } = useForm({
     defaultValues: {
@@ -70,6 +71,7 @@ export default function ProfileForm() {
         weight_goal_speed: profile.weight_goal_speed || 'moderate',
         water_goal_ml: profile.water_goal_ml || 2000,
       })
+      setHealthConditions(profile.health_conditions || {})
     }
   }, [id, profiles, isEdit, reset, profile])
 
@@ -90,7 +92,7 @@ export default function ProfileForm() {
       water_goal_ml: data.water_goal_ml ? parseInt(data.water_goal_ml) : 2000,
     }
     try {
-      await updateProfile(id, payload)
+      await updateProfile(id, { ...payload, health_conditions: healthConditions })
       navigate('/profiles')
     } catch (err) {
       console.error(err)
@@ -147,6 +149,50 @@ export default function ProfileForm() {
             >
               {profile?.fitness_profile?.completed ? t('common.edit') : t('fitness.complete_now')}
             </button>
+          </div>
+        </Card>
+      )}
+
+      {/* Health Conditions Card */}
+      {isEdit && (
+        <Card>
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-lg">🩺</span>
+            <p className="font-semibold text-gray-900 dark:text-gray-100">{t('fitness.step_health_conditions')}</p>
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">{t('fitness.health_conditions_hint')}</p>
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { id: 'high_blood_pressure', emoji: '🩺' },
+              { id: 'diabetes',            emoji: '🩸' },
+              { id: 'high_cholesterol',    emoji: '🫀' },
+              { id: 'water_retention',     emoji: '💧' },
+              { id: 'joint_pain',          emoji: '🦵' },
+              { id: 'migraines',           emoji: '🤕' },
+              { id: 'digestive_issues',    emoji: '🫃' },
+              { id: 'chronic_fatigue',     emoji: '😮‍💨' },
+              { id: 'anxiety_stress',      emoji: '🧠' },
+              { id: 'insomnia',            emoji: '🌙' },
+            ].map(cond => {
+              const isSelected = !!healthConditions[cond.id]
+              return (
+                <button
+                  key={cond.id}
+                  type="button"
+                  onClick={() => setHealthConditions(prev => ({ ...prev, [cond.id]: !prev[cond.id] }))}
+                  className={`flex items-center gap-2 px-3 py-2.5 rounded-xl border-2 transition-all active:scale-95 text-left ${
+                    isSelected
+                      ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 ring-2 ring-primary-400'
+                      : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800'
+                  }`}
+                >
+                  <span className="text-base flex-shrink-0">{cond.emoji}</span>
+                  <p className={`font-semibold text-xs leading-tight ${isSelected ? 'text-primary-700 dark:text-primary-300' : 'text-gray-800 dark:text-gray-200'}`}>
+                    {t(`fitness.cond_${cond.id}`)}
+                  </p>
+                </button>
+              )
+            })}
           </div>
         </Card>
       )}
