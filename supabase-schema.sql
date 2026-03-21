@@ -64,6 +64,25 @@ create index bp_readings_measured_at_idx on blood_pressure_readings(measured_at 
 create index doctor_questions_profile_id_idx on doctor_questions(profile_id);
 
 -- -------------------------------------------------------------
+-- Registros de ejercicio
+-- -------------------------------------------------------------
+create table exercise_logs (
+  id               uuid        primary key default gen_random_uuid(),
+  profile_id       uuid        not null references profiles(id) on delete cascade,
+  logged_at        timestamptz not null default now(),
+  exercise_type    text        not null check (exercise_type in ('cardio','strength','flexibility','sports','other')),
+  name             text        not null,
+  duration_minutes integer     check (duration_minutes > 0),
+  calories_burned  integer     check (calories_burned >= 0),
+  sets             integer,
+  reps             integer,
+  notes            text,
+  created_at       timestamptz not null default now()
+);
+
+create index exercise_logs_profile_id_idx on exercise_logs(profile_id, logged_at desc);
+
+-- -------------------------------------------------------------
 -- Migraciones — ejecutar en Supabase SQL Editor si la tabla ya existe
 -- -------------------------------------------------------------
 -- ALTER TABLE profiles

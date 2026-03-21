@@ -60,3 +60,35 @@ export function useFoodLogs(profileId) {
 
   return { todayLogs, loading, error, todayCalories, addFoodLog, deleteFoodLog, refetch: fetchTodayLogs }
 }
+
+export function useRecentFoodLogs(profileId, days = 7) {
+  const [recentFoods, setRecentFoods] = useState([])
+  const [loading, setLoading] = useState(false)
+
+  const fetch = useCallback(async () => {
+    if (!profileId) { setRecentFoods([]); return }
+    setLoading(true)
+    const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
+    const { data } = await supabase
+      .from('food_logs')
+      .select('description')
+      .eq('profile_id', profileId)
+      .gte('logged_at', since)
+      .order('logged_at', { ascending: false })
+      .limit(100)
+    if (data) {
+      const freq = {}
+      data.forEach(l => { if (l.description) freq[l.description] = (freq[l.description] || 0) + 1 })
+      setRecentFoods(
+        Object.entries(freq)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 8)
+          .map(([description, count]) => ({ description, count }))
+      )
+    }
+    setLoading(false)
+  }, [profileId, days])
+
+  useEffect(() => { fetch() }, [fetch])
+  return { recentFoods, loading }
+}

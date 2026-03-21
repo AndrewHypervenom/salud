@@ -156,7 +156,100 @@
       "Read labels: look for < 2g saturated fat per serving",
       "Increase fiber gradually to avoid discomfort",
       "Eat slowly and chew well"
-    ]
+    ],
+    "calorie_target": "Calorie goal",
+    "consumed_today": "Consumed today",
+    "burned_today": "Exercise burned",
+    "remaining": "{{n}} kcal remaining",
+    "over": "Exceeded by {{n}} kcal",
+    "no_profile": "Select a profile to see your recommendations.",
+    "frequent_foods": "Your frequent foods (7 days)",
+    "no_frequent_foods": "No recent records. Start logging your meals.",
+    "goal_label": {
+      "lose_weight": "Lose weight",
+      "gain_muscle": "Gain muscle",
+      "maintain": "Maintain weight",
+      "improve_health": "Improve health"
+    },
+    "goal": {
+      "lose_weight": {
+        "eat": [
+          "Lean protein: chicken, turkey, egg whites",
+          "Non-starchy vegetables: spinach, broccoli, cucumber",
+          "Low-GI fruits: apple, berries",
+          "Legumes: lentils, chickpeas (high satiety)",
+          "Water and unsweetened tea"
+        ],
+        "avoid": [
+          "Added sugars and ultra-processed foods",
+          "Caloric drinks: juices, sodas, alcohol",
+          "Excess saturated fat: fried food, cold cuts",
+          "Refined carbs: white bread, excess white rice"
+        ],
+        "tips": [
+          "A 300 kcal/day deficit is your current goal",
+          "Eat protein at every meal to preserve muscle",
+          "Prioritize high-volume, low-calorie foods",
+          "Log everything: small portions add up"
+        ]
+      },
+      "gain_muscle": {
+        "eat": [
+          "High protein: lean meat, eggs, tuna, legumes",
+          "Complex carbs: oats, brown rice, sweet potato",
+          "Healthy fats: avocado, nuts, olive oil",
+          "Dairy or substitutes rich in calcium and protein"
+        ],
+        "avoid": [
+          "Skipping meals (slows protein synthesis)",
+          "Excess simple sugars outside training",
+          "Alcohol (interferes with muscle recovery)"
+        ],
+        "tips": [
+          "A 200 kcal/day surplus is your current goal",
+          "Distribute protein across 4-5 meals (25-40g each)",
+          "Eat carbs before and after training",
+          "Sleep 7-9 hours: that's when muscle grows"
+        ]
+      },
+      "maintain": {
+        "eat": [
+          "Balanced diet: healthy protein, fats and carbs",
+          "Varied fruits and vegetables daily",
+          "Whole grains as your carb base",
+          "Olive oil as your main fat"
+        ],
+        "avoid": [
+          "Ultra-processed foods as a daily habit",
+          "Oversized portions even of healthy foods",
+          "Skipping breakfast (tends to cause overeating)"
+        ],
+        "tips": [
+          "Eat when hungry, stop when satisfied",
+          "Cooking at home is your most powerful tool",
+          "Hydration: 35 ml per kg of body weight per day"
+        ]
+      },
+      "improve_health": {
+        "eat": [
+          "Oily fish 2-3 times/week (omega-3)",
+          "Soluble fiber: oats, apple, legumes (cholesterol)",
+          "Antioxidants: colorful fruits, cacao, green tea",
+          "Probiotics: plain yogurt, kefir"
+        ],
+        "avoid": [
+          "Trans fats: industrial pastries, margarine",
+          "Processed meats: cold cuts, bacon, sausages",
+          "Excess salt (blood pressure)",
+          "Regular alcohol"
+        ],
+        "tips": [
+          "Harvard plate: 50% veggies, 25% protein, 25% whole grains",
+          "Vary your protein sources each week",
+          "A 12h overnight fast supports metabolic health"
+        ]
+      }
+    }
   },
   "exercise": {
     "title": "Gentle Exercise Routine",
@@ -219,7 +312,82 @@
         "intensity": "medium",
         "notes": "Goal: 30 continuous minutes at good pace"
       }
-    ]
+    ],
+    "log_title": "Today's exercise",
+    "add_exercise": "Log exercise",
+    "form_type": "Type",
+    "form_name": "Exercise",
+    "form_duration": "Duration (min)",
+    "form_calories": "Calories burned",
+    "form_sets": "Sets",
+    "form_reps": "Reps",
+    "form_notes": "Notes (optional)",
+    "btn_save": "Save",
+    "btn_cancel": "Cancel",
+    "btn_estimate": "Estimate calories",
+    "burned_today": "Burned today",
+    "minutes_today": "Minutes today",
+    "no_logs": "No exercise logged today.",
+    "no_profile": "Select a profile to log exercise.",
+    "calorie_impact": "Impact on your goal",
+    "calorie_impact_text": "You burned {{burned}} kcal today. You can eat {{burned}} extra kcal.",
+    "recommended_routine": "Recommended routine",
+    "routine_sessions": "{{n}} sessions/week",
+    "routine_focus": "Focus: {{focus}}",
+    "program_8w": "8-week program (beginners)",
+    "type_cardio": "Cardio",
+    "type_strength": "Strength",
+    "type_flexibility": "Flexibility",
+    "type_sports": "Sports",
+    "type_other": "Other",
+    "plan": {
+      "beginner_lw_title": "Cardio + toning (beginner)",
+      "beginner_gm_title": "Full body strength (beginner)",
+      "beginner_ih_title": "Healthy movement (beginner)",
+      "beginner_m_title": "Balanced routine (beginner)",
+      "inter_lw_title": "HIIT + cardio (intermediate)",
+      "inter_gm_title": "Split strength (intermediate)",
+      "inter_ih_title": "Cardio + strength (intermediate)",
+      "inter_m_title": "Active maintenance (intermediate)",
+      "adv_lw_title": "Intense HIIT + weights (advanced)",
+      "adv_gm_title": "Hypertrophy (advanced)",
+      "adv_ih_title": "Performance and health (advanced)",
+      "adv_m_title": "Sustained performance (advanced)",
+      "focus_cardio_fat": "Fat-burning cardio",
+      "focus_strength_full": "Full body strength",
+      "focus_general_fitness": "General fitness",
+      "focus_balance": "Balance and wellness",
+      "focus_hiit_cardio": "HIIT + cardio",
+      "focus_strength_split": "Split strength",
+      "focus_cardio_strength": "Cardio + strength",
+      "focus_hiit_weights": "HIIT + weights",
+      "focus_hypertrophy": "Muscle hypertrophy",
+      "focus_performance": "Performance",
+      "ex": {
+        "brisk_walk": "Brisk walk",
+        "squat": "Squat",
+        "push_up_modified": "Modified push-up (knees)",
+        "push_up": "Push-up",
+        "plank": "Plank",
+        "mountain_climber": "Mountain climber",
+        "lunge": "Lunge",
+        "dumbbell_row": "Dumbbell row",
+        "walk_15min": "15-min walk",
+        "walk_20min": "20-min walk",
+        "stretch_full": "Full body stretch",
+        "yoga_basic": "Basic yoga",
+        "hiit_20min": "20-min HIIT",
+        "hiit_30min": "30-min HIIT",
+        "squat_jump": "Jump squat",
+        "burpee": "Burpee",
+        "bench_press": "Bench press",
+        "deadlift": "Deadlift",
+        "pull_up": "Pull-up",
+        "shoulder_press": "Shoulder press",
+        "run_20min": "20-min run",
+        "run_30min": "30-min run"
+      }
+    }
   },
   "bp": {
     "title": "Blood Pressure",

@@ -156,7 +156,100 @@
       "Leer etiquetas: buscar < 2g grasas saturadas por porción",
       "Aumentar fibra gradualmente para evitar malestar",
       "Comer despacio y masticar bien"
-    ]
+    ],
+    "calorie_target": "Meta calórica",
+    "consumed_today": "Consumido hoy",
+    "burned_today": "Quemado ejercicio",
+    "remaining": "Te quedan {{n}} kcal",
+    "over": "Superaste por {{n}} kcal",
+    "no_profile": "Selecciona un perfil para ver tus recomendaciones.",
+    "frequent_foods": "Tus alimentos frecuentes (7 días)",
+    "no_frequent_foods": "Sin registros recientes. Comienza a registrar tus comidas.",
+    "goal_label": {
+      "lose_weight": "Perder peso",
+      "gain_muscle": "Ganar músculo",
+      "maintain": "Mantener peso",
+      "improve_health": "Mejorar salud"
+    },
+    "goal": {
+      "lose_weight": {
+        "eat": [
+          "Proteína magra: pollo, pavo, claras de huevo",
+          "Verduras no almidonadas: espinaca, brócoli, pepino",
+          "Frutas de bajo índice glucémico: manzana, frutos rojos",
+          "Legumbres: lentejas, garbanzos (saciedad alta)",
+          "Agua y té sin azúcar"
+        ],
+        "avoid": [
+          "Azúcares añadidos y ultraprocesados",
+          "Bebidas calóricas: jugos, refrescos, alcohol",
+          "Grasas saturadas en exceso: frituras, embutidos",
+          "Carbohidratos refinados: pan blanco, arroz blanco en exceso"
+        ],
+        "tips": [
+          "Déficit de 300 kcal/día es tu meta actual",
+          "Come proteína en cada comida para conservar músculo",
+          "Prioriza alimentos de alto volumen y bajo costo calórico",
+          "Registra todo: las pequeñas porciones suman"
+        ]
+      },
+      "gain_muscle": {
+        "eat": [
+          "Proteína alta: carne magra, huevos, atún, legumbres",
+          "Carbohidratos complejos: avena, arroz integral, camote",
+          "Grasas saludables: aguacate, frutos secos, aceite de oliva",
+          "Lácteos o sustitutos ricos en calcio y proteína"
+        ],
+        "avoid": [
+          "Saltarte comidas (frena la síntesis proteica)",
+          "Azúcares simples en exceso fuera del entrenamiento",
+          "Alcohol (interfiere con la recuperación muscular)"
+        ],
+        "tips": [
+          "Superávit de 200 kcal/día es tu meta actual",
+          "Distribuye proteína en 4-5 comidas (25-40g por ingesta)",
+          "Come carbohidratos antes y después de entrenar",
+          "Duerme 7-9 horas: es cuando crece el músculo"
+        ]
+      },
+      "maintain": {
+        "eat": [
+          "Dieta equilibrada: proteína, grasas y carbohidratos saludables",
+          "Frutas y verduras variadas diariamente",
+          "Granos integrales como base de carbohidratos",
+          "Aceite de oliva como grasa principal"
+        ],
+        "avoid": [
+          "Ultraprocesados como hábito diario",
+          "Porciones exageradas aunque sean alimentos sanos",
+          "Saltarte el desayuno (tiende a generar sobreingesta)"
+        ],
+        "tips": [
+          "Come con hambre, para cuando estés satisfecho",
+          "Cocinar en casa es la herramienta más poderosa",
+          "Hidratación: 35 ml por kg de peso corporal al día"
+        ]
+      },
+      "improve_health": {
+        "eat": [
+          "Pescado azul 2-3 veces/semana (omega-3)",
+          "Fibra soluble: avena, manzana, legumbres (colesterol)",
+          "Antioxidantes: frutas de colores, cacao, té verde",
+          "Probióticos: yogur natural, kéfir"
+        ],
+        "avoid": [
+          "Grasas trans: bollería industrial, margarina",
+          "Carnes procesadas: embutidos, tocino, salchichas",
+          "Sal en exceso (presión arterial)",
+          "Alcohol regular"
+        ],
+        "tips": [
+          "Plato Harvard: 50% verdura, 25% proteína, 25% granos integrales",
+          "Varía el origen de tus proteínas cada semana",
+          "Un ayuno de 12h nocturno apoya la salud metabólica"
+        ]
+      }
+    }
   },
   "exercise": {
     "title": "Rutina de Ejercicio Suave",
@@ -219,7 +312,82 @@
         "intensity": "medium",
         "notes": "Meta: 30 min continuos a buen paso"
       }
-    ]
+    ],
+    "log_title": "Ejercicio de hoy",
+    "add_exercise": "Registrar ejercicio",
+    "form_type": "Tipo",
+    "form_name": "Ejercicio",
+    "form_duration": "Duración (min)",
+    "form_calories": "Calorías quemadas",
+    "form_sets": "Series",
+    "form_reps": "Repeticiones",
+    "form_notes": "Notas (opcional)",
+    "btn_save": "Guardar",
+    "btn_cancel": "Cancelar",
+    "btn_estimate": "Estimar calorías",
+    "burned_today": "Quemadas hoy",
+    "minutes_today": "Minutos hoy",
+    "no_logs": "Sin ejercicio registrado hoy.",
+    "no_profile": "Selecciona un perfil para registrar ejercicio.",
+    "calorie_impact": "Impacto en tu meta",
+    "calorie_impact_text": "Quemaste {{burned}} kcal hoy. Puedes comer {{burned}} kcal adicionales.",
+    "recommended_routine": "Rutina recomendada",
+    "routine_sessions": "{{n}} sesiones/semana",
+    "routine_focus": "Enfoque: {{focus}}",
+    "program_8w": "Programa 8 semanas (principiantes)",
+    "type_cardio": "Cardio",
+    "type_strength": "Fuerza",
+    "type_flexibility": "Flexibilidad",
+    "type_sports": "Deporte",
+    "type_other": "Otro",
+    "plan": {
+      "beginner_lw_title": "Cardio + tonificación (principiante)",
+      "beginner_gm_title": "Fuerza corporal completa (principiante)",
+      "beginner_ih_title": "Movimiento saludable (principiante)",
+      "beginner_m_title": "Rutina equilibrada (principiante)",
+      "inter_lw_title": "HIIT + cardio (intermedio)",
+      "inter_gm_title": "Fuerza dividida (intermedio)",
+      "inter_ih_title": "Cardio + fuerza (intermedio)",
+      "inter_m_title": "Mantenimiento activo (intermedio)",
+      "adv_lw_title": "HIIT intenso + pesas (avanzado)",
+      "adv_gm_title": "Hipertrofia (avanzado)",
+      "adv_ih_title": "Rendimiento y salud (avanzado)",
+      "adv_m_title": "Rendimiento sostenido (avanzado)",
+      "focus_cardio_fat": "Cardio para quemar grasa",
+      "focus_strength_full": "Fuerza corporal completa",
+      "focus_general_fitness": "Condición física general",
+      "focus_balance": "Equilibrio y bienestar",
+      "focus_hiit_cardio": "HIIT + cardio",
+      "focus_strength_split": "Fuerza en bloques",
+      "focus_cardio_strength": "Cardio + fuerza",
+      "focus_hiit_weights": "HIIT + pesas",
+      "focus_hypertrophy": "Hipertrofia muscular",
+      "focus_performance": "Rendimiento",
+      "ex": {
+        "brisk_walk": "Caminata rápida",
+        "squat": "Sentadilla",
+        "push_up_modified": "Flexión modificada (rodillas)",
+        "push_up": "Flexión de pecho",
+        "plank": "Plancha",
+        "mountain_climber": "Escalador de montaña",
+        "lunge": "Zancada",
+        "dumbbell_row": "Remo con mancuerna",
+        "walk_15min": "Caminata 15 min",
+        "walk_20min": "Caminata 20 min",
+        "stretch_full": "Estiramiento completo",
+        "yoga_basic": "Yoga básico",
+        "hiit_20min": "HIIT 20 min",
+        "hiit_30min": "HIIT 30 min",
+        "squat_jump": "Sentadilla con salto",
+        "burpee": "Burpee",
+        "bench_press": "Press de banca",
+        "deadlift": "Peso muerto",
+        "pull_up": "Dominada",
+        "shoulder_press": "Press de hombro",
+        "run_20min": "Carrera 20 min",
+        "run_30min": "Carrera 30 min"
+      }
+    }
   },
   "bp": {
     "title": "Presión Arterial",
