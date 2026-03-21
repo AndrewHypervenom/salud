@@ -5,7 +5,7 @@ import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useFoodLogs, useRecentFoodLogs } from '../../hooks/useFoodLogs'
 import { useExerciseLogs } from '../../hooks/useExerciseLogs'
-import { calcBMR, calcTDEE, calcCalorieTarget, getCalorieStatus, CALORIE_COLORS } from '../../lib/formulas'
+import { calcBMR, calcTDEE, calcCalorieTarget, calcExerciseEatBack, getCalorieStatus, CALORIE_COLORS } from '../../lib/formulas'
 import { FridgeAssistant } from '../../components/shared/FridgeAssistant'
 
 function ListSection({ title, items, Icon, iconClass, itemColor }) {
@@ -62,7 +62,8 @@ export default function DietPage() {
   const bmr = calcBMR(profile.weight_kg, profile.height_cm, profile.age, profile.sex)
   const tdee = calcTDEE(bmr, profile.activity)
   const target = calcCalorieTarget(tdee, healthGoal)
-  const adjustedTarget = target + todayCaloriesBurned
+  const { extraCals, eatBackPct } = calcExerciseEatBack(todayCaloriesBurned, healthGoal)
+  const adjustedTarget = target + extraCals
   const remaining = adjustedTarget - todayCalories
   const status = getCalorieStatus(todayCalories, adjustedTarget)
   const colors = CALORIE_COLORS[status]
@@ -107,7 +108,7 @@ export default function DietPage() {
                 <p className="text-white/70 text-xs">{t('diet.adjusted_target_label')}</p>
                 <p className="text-2xl font-bold tabular-nums">{adjustedTarget.toLocaleString()}</p>
                 <p className="text-xs text-yellow-200 flex items-center justify-end gap-1">
-                  <Zap size={10} /> {t('diet.exercise_boost_badge', { n: todayCaloriesBurned })}
+                  <Zap size={10} /> +{extraCals} kcal de ejercicio ({eatBackPct}%)
                 </p>
               </div>
             ) : (
@@ -130,7 +131,7 @@ export default function DietPage() {
           </h2>
           {todayCaloriesBurned > 0 && (
             <span className="ml-auto flex items-center gap-1 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-2 py-0.5 rounded-full font-medium">
-              <Zap size={10} /> {t('diet.exercise_boost_badge', { n: todayCaloriesBurned })}
+              <Zap size={10} /> +{extraCals} kcal ({eatBackPct}%)
             </span>
           )}
         </div>

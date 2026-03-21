@@ -93,6 +93,38 @@ export function calcCalorieTarget(tdee, healthGoal = 'maintain') {
   return Math.max(1200, tdee + adjustment)
 }
 
+/**
+ * Calculates how many extra calories to eat after exercise, based on health goal.
+ *
+ * Why not 100%?
+ * - TDEE already includes an activity multiplier, so the base target is not "sedentary zero"
+ * - For weight loss, eating back all calories defeats the purpose of exercising
+ * - For muscle gain, full replenishment + small surplus is needed
+ *
+ * Returns: { extraCals, eatBackPct, rationale }
+ */
+export function calcExerciseEatBack(caloriesBurned, healthGoal = 'maintain') {
+  if (!caloriesBurned || caloriesBurned <= 0) return { extraCals: 0, eatBackPct: 0, rationale: null }
+
+  const PCT = {
+    lose_weight:    0.40,  // Maintain most of the deficit — exercise is your edge, not a meal ticket
+    maintain:       0.70,  // Partial replenishment — you exercised beyond your normal activity
+    gain_muscle:    1.00,  // Full replenishment — muscle synthesis needs the energy
+    improve_health: 0.55,  // Moderate top-up — focus on quality, not quantity
+  }
+
+  const RATIONALE = {
+    lose_weight:    'lose_weight',
+    maintain:       'maintain',
+    gain_muscle:    'gain_muscle',
+    improve_health: 'improve_health',
+  }
+
+  const pct = PCT[healthGoal] ?? 0.60
+  const extraCals = Math.round(caloriesBurned * pct)
+  return { extraCals, eatBackPct: Math.round(pct * 100), rationale: RATIONALE[healthGoal] }
+}
+
 export function calcCalorieTargetMulti(tdee, goals = []) {
   if (!goals || goals.length === 0) return Math.max(1200, tdee)
   if (goals.length === 1) return calcCalorieTarget(tdee, goals[0])

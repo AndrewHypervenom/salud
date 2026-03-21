@@ -11,7 +11,8 @@ import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useExerciseLogs } from '../../hooks/useExerciseLogs'
 import { useEstimateExercise } from '../../hooks/useEstimateExercise'
-import { EXERCISE_SUGGESTIONS, getWorkoutPlan } from '../../lib/exerciseUtils'
+import { EXERCISE_SUGGESTIONS, getWorkoutPlan, getRecoveryGuidance } from '../../lib/exerciseUtils'
+import { calcExerciseEatBack } from '../../lib/formulas'
 
 // ── Category config ──────────────────────────────────────
 const CATEGORIES = [
@@ -532,29 +533,99 @@ export default function ExercisePage() {
         )}
       </Card>
 
-      {/* ── CALORIE IMPACT CARD ── */}
-      {todayCaloriesBurned > 0 && calTarget > 0 && (
-        <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-4 text-white shadow-lg">
-          <div className="flex items-center gap-2 mb-3">
-            <Zap size={18} strokeWidth={1.75} />
-            <span className="font-bold text-sm">{t('exercise.adjusted_target')}</span>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-green-100">Meta base</span>
-              <span className="font-semibold">{calTarget.toLocaleString()} kcal</span>
+      {/* ── SMART RECOVERY CARD ── */}
+      {todayCaloriesBurned > 0 && profile && (() => {
+        const { extraCals, eatBackPct, rationale } = calcExerciseEatBack(todayCaloriesBurned, healthGoal)
+        const recovery = getRecoveryGuidance(todayLogs, healthGoal)
+        const subtitleKey = `exercise.recovery_subtitle_${recovery?.type ?? 'light'}`
+        const reasonKey = `exercise.recovery_eat_back_reason_${rationale}`
+        const timingKey = `exercise.recovery_timing_${recovery?.timing ?? 'within_2h'}`
+
+        return (
+          <Card className="border border-emerald-200 dark:border-emerald-800 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20">
+            {/* Header */}
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-8 h-8 rounded-xl bg-emerald-500 flex items-center justify-center flex-shrink-0">
+                <Zap size={16} strokeWidth={2} className="text-white" />
+              </div>
+              <div>
+                <p className="font-bold text-emerald-900 dark:text-emerald-100 text-sm">{t('exercise.recovery_title')}</p>
+                <p className="text-xs text-emerald-600 dark:text-emerald-400">{t(subtitleKey)}</p>
+              </div>
             </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-green-100">+ Quemado hoy</span>
-              <span className="font-bold text-yellow-200">+{todayCaloriesBurned} kcal</span>
+
+            {/* Eat-back recommendation */}
+            <div className="mt-3 bg-white/60 dark:bg-black/20 rounded-xl p-3">
+              <p className="font-bold text-emerald-800 dark:text-emerald-200 text-base">
+                {t('exercise.recovery_eat_back', { n: extraCals, pct: eatBackPct })}
+              </p>
+              <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-1 leading-relaxed">
+                {t(reasonKey)}
+              </p>
+              <div className="mt-2 flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400">
+                <span className="font-medium">{t('exercise.calorie_boost')}</span>
+                <div className="text-right">
+                  <span className="text-gray-400">{calTarget.toLocaleString()} </span>
+                  <span className="text-yellow-500 font-bold">+{extraCals}</span>
+                  <span className="text-gray-500"> = </span>
+                  <span className="font-bold text-emerald-700 dark:text-emerald-300">{(calTarget + extraCals).toLocaleString()} kcal</span>
+                </div>
+              </div>
             </div>
-            <div className="border-t border-green-400/50 pt-1.5 flex items-center justify-between">
-              <span className="font-bold">= Tu meta ajustada</span>
-              <span className="text-2xl font-bold tabular-nums">{adjustedTarget.toLocaleString()}</span>
+
+            {/* Macro focus */}
+            {recovery?.macroFocus && (
+              <div className="mt-3">
+                <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide mb-2">
+                  {t('exercise.recovery_macros')}
+                </p>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { label: t('exercise.recovery_protein'), value: recovery.macroFocus.protein_g, color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' },
+                    { label: t('exercise.recovery_carbs'),   value: recovery.macroFocus.carbs_g,   color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' },
+                    { label: t('exercise.recovery_fat'),     value: recovery.macroFocus.fat_g,     color: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300' },
+                  ].map(m => (
+                    <div key={m.label} className={`rounded-xl p-2 text-center ${m.color}`}>
+                      <p className="text-[10px] font-medium opacity-80">{m.label}</p>
+                      <p className="text-sm font-bold">{m.value}g</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Food suggestions */}
+            {recovery?.foods && (
+              <div className="mt-3">
+                <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wide mb-2">
+                  {t('exercise.recovery_foods')}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {recovery.foods.map(food => (
+                    <span key={food} className="text-xs bg-white/70 dark:bg-white/10 text-gray-700 dark:text-gray-300 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-700">
+                      {food}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Hydration + timing */}
+            <div className="mt-3 flex flex-col gap-1.5">
+              {recovery?.hydration && (
+                <p className="text-xs text-emerald-700 dark:text-emerald-400 flex items-start gap-1.5">
+                  <span className="flex-shrink-0">💧</span>
+                  {t('exercise.recovery_hydration')}
+                </p>
+              )}
+              <p className="text-xs font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                <Timer size={12} />
+                {t(timingKey)}
+              </p>
             </div>
-          </div>
-        </div>
-      )}
+          </Card>
+        )
+      })()}
 
       {/* ── RECOMMENDED ROUTINE ── */}
       {workoutPlan && (

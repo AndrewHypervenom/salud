@@ -269,6 +269,59 @@ const WORKOUT_PLANS = {
 }
 
 /**
+ * Analyzes logged exercises and returns a recovery nutrition guidance object.
+ * @param {Array} logs - today's exercise_logs
+ * @param {string} healthGoal
+ * @returns {{ type, macroFocus, foods, hydration, timing }}
+ */
+export function getRecoveryGuidance(logs, healthGoal = 'improve_health') {
+  if (!logs || logs.length === 0) return null
+
+  const totalMinutes = logs.reduce((s, l) => s + (l.duration_minutes || 0), 0)
+
+  // Classify dominant exercise type
+  const typeCounts = { cardio: 0, strength: 0, flexibility: 0, sports: 0, other: 0 }
+  logs.forEach(l => { if (typeCounts[l.exercise_type] !== undefined) typeCounts[l.exercise_type]++ })
+  const dominant = Object.entries(typeCounts).sort((a, b) => b[1] - a[1])[0][0]
+
+  // Cardio or sports = glycogen depletion focus; strength = muscle protein synthesis focus
+  const isCardio = dominant === 'cardio' || dominant === 'sports'
+  const isStrength = dominant === 'strength'
+  const isLight = dominant === 'flexibility' || dominant === 'other'
+
+  const needsElectrolytes = totalMinutes >= 45 && (isCardio || isStrength)
+
+  if (isStrength) {
+    return {
+      type: 'strength',
+      macroFocus: { protein_g: healthGoal === 'gain_muscle' ? '35–45' : '25–35', carbs_g: '30–50', fat_g: '10–15' },
+      foods: ['Pechuga de pollo o pavo', 'Huevos o claras', 'Atún o salmón', 'Arroz integral o papa', 'Leche o yogur natural'],
+      hydration: needsElectrolytes,
+      timing: 'within_60min',
+    }
+  }
+
+  if (isCardio) {
+    return {
+      type: 'cardio',
+      macroFocus: { protein_g: '20–30', carbs_g: '45–65', fat_g: '10–15' },
+      foods: ['Fruta (banano, mango, frutos rojos)', 'Avena o arroz', 'Yogur natural sin azúcar', 'Pollo o huevo', 'Agua con pizca de sal'],
+      hydration: needsElectrolytes,
+      timing: 'within_45min',
+    }
+  }
+
+  // Light exercise (yoga, flexibility)
+  return {
+    type: 'light',
+    macroFocus: { protein_g: '15–20', carbs_g: '20–35', fat_g: '10–20' },
+    foods: ['Fruta de temporada', 'Nueces o aguacate', 'Ensalada con proteína ligera', 'Yogur o kéfir'],
+    hydration: false,
+    timing: 'within_2h',
+  }
+}
+
+/**
  * Returns a personalized workout plan based on experience level and health goal.
  */
 export function getWorkoutPlan(experienceLevel = 'beginner', healthGoal = 'improve_health') {

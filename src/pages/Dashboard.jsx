@@ -13,7 +13,7 @@ import { useWaterLogs } from '../hooks/useWaterLogs'
 import { useFasting } from '../hooks/useFasting'
 import { useWeightLogs } from '../hooks/useWeightLogs'
 import { useDashboardConfig, WIDGET_CATALOG } from '../hooks/useDashboardConfig'
-import { calcBMR, calcTDEE, calcCalorieTarget, calcCalorieTargetMulti, calcMacros, getCalorieStatus, CALORIE_COLORS } from '../lib/formulas'
+import { calcBMR, calcTDEE, calcCalorieTarget, calcCalorieTargetMulti, calcMacros, calcExerciseEatBack, getCalorieStatus, CALORIE_COLORS } from '../lib/formulas'
 import { classifyBP } from '../lib/bpStatus'
 import { NavIcon, WidgetIcon } from '../lib/navIcons'
 import { Sunrise, Sun, Moon, Apple, Droplets, Zap, Heart, Scale, TrendingDown, TrendingUp, Stethoscope, Flame, X, Pencil, PartyPopper, ChevronUp, ChevronDown, CheckCircle } from 'lucide-react'
@@ -647,7 +647,11 @@ export default function Dashboard() {
         : calcCalorieTarget(tdee, profile.health_goal))
     : 0
   const lastBP = readings[0]
-  const adjustedCalTarget = calTarget + (todayCaloriesBurned ?? 0)
+  const { extraCals: exerciseExtraCals } = calcExerciseEatBack(
+    todayCaloriesBurned ?? 0,
+    profile?.health_goal ?? 'improve_health',
+  )
+  const adjustedCalTarget = calTarget + exerciseExtraCals
 
   // ── Pointer-based drag (mouse + touch) ──────────────────
   const handlePointerDown = useCallback((e, id) => {
