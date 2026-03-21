@@ -257,8 +257,8 @@ export default function ExercisePage() {
           </div>
           <div className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-2xl p-3 text-center">
             <Zap size={16} className="text-orange-500 mx-auto mb-1" />
-            <p className={`font-bold text-lg tabular-nums leading-tight mt-0.5 ${canEatToday === 0 ? 'text-red-500' : 'text-orange-600'}`}>
-              {calTarget > 0 ? canEatToday.toLocaleString() : '—'}
+            <p className="font-bold text-lg tabular-nums leading-tight mt-0.5 text-orange-600">
+              {calTarget > 0 ? adjustedTarget.toLocaleString() : '—'}
             </p>
             <p className="text-xs text-gray-400">kcal</p>
             <p className="text-[10px] text-gray-500 mt-0.5">Puedes comer hoy</p>
