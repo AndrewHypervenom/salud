@@ -881,7 +881,8 @@
     "bp": "Presión arterial",
     "weight": "Peso",
     "doctor": "Preguntas médico",
-    "streak": "Racha de hábitos"
+    "streak": "Racha de hábitos",
+    "craving": "¿Tienes un antojo?"
   },
   "fitness": {
     "wizard_title": "Tu Perfil Fitness",

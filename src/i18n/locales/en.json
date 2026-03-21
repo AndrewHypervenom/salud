@@ -881,7 +881,8 @@
     "bp": "Blood pressure",
     "weight": "Weight",
     "doctor": "Doctor questions",
-    "streak": "Habit streak"
+    "streak": "Habit streak",
+    "craving": "Craving Helper"
   },
   "fitness": {
     "wizard_title": "Your Fitness Profile",

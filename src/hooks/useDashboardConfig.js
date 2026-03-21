@@ -16,6 +16,7 @@ export const WIDGET_CATALOG = [
   { id: 'weight',        label: 'widgets.weight',         size: 'half' },
   { id: 'doctor',        label: 'widgets.doctor',         size: 'half' },
   { id: 'streak',        label: 'widgets.streak',         size: 'half' },
+  { id: 'craving',       label: 'widgets.craving',        size: 'full' },
 ]
 
 // ── Catálogo completo de rutas personalizables en nav ─────────────────────────
@@ -37,7 +38,7 @@ export const NAV_CATALOG = [
   { key: 'profiles',         to: '/profiles',         label: 'nav.profiles' },
 ]
 
-const DEFAULT_WIDGETS  = ['calories', 'quick_actions', 'meals', 'macros', 'water', 'fasting', 'habits', 'coach', 'bp', 'weight', 'doctor']
+const DEFAULT_WIDGETS  = ['calories', 'quick_actions', 'meals', 'macros', 'craving', 'water', 'fasting', 'habits', 'coach', 'bp', 'weight', 'doctor']
 const DEFAULT_SHORTCUTS = ['habits', 'food', 'blood-pressure']
 const STORAGE_W = 'dashboard_widget_order_v2'
 const STORAGE_N = 'nav_shortcuts_v2'

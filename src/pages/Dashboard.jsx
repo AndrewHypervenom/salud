@@ -720,6 +720,8 @@ export default function Dashboard() {
         return <MealsWidget todayLogs={todayLogs} calTarget={calTarget} />
       case 'macros':
         return <MacrosWidget todayLogs={todayLogs} calTarget={calTarget} />
+      case 'craving':
+        return <CravingHelper profile={profile} />
       case 'water':
         return <WaterDashWidget profileId={activeProfileId} waterGoalMl={waterGoal} />
       case 'fasting':
@@ -902,12 +904,7 @@ export default function Dashboard() {
           <div key={id} data-widget-id={id}>{content}</div>
         )
 
-        return (
-          <div key={id} className="contents">
-            {widgetNode}
-            {id === 'macros' && profile && <CravingHelper profile={profile} />}
-          </div>
-        )
+        return widgetNode
       })}
 
       {/* ── ADD HIDDEN WIDGETS (edit mode) ─────────────────── */}

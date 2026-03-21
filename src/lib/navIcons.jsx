@@ -2,7 +2,7 @@ import {
   Home, UtensilsCrossed, CheckCircle2, Heart, TrendingUp,
   Droplets, Scale, Zap, ChefHat, Search, Trophy, Flame,
   Salad, Dumbbell, Stethoscope, Users, MoreHorizontal,
-  SlidersHorizontal, BarChart3, Bot,
+  SlidersHorizontal, BarChart3, Bot, Sparkles,
 } from 'lucide-react'
 
 // ── Nav item key → Lucide component ──────────────────────────────────────────
@@ -41,6 +41,7 @@ export const WIDGET_ICON_MAP = {
   weight:        Scale,
   doctor:        Stethoscope,
   streak:        Flame,
+  craving:       Sparkles,
 }
 
 // ── Helper components ─────────────────────────────────────────────────────────
