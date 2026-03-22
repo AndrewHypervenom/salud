@@ -26,7 +26,6 @@ export default function ProfileForm() {
   const [showPinSetup, setShowPinSetup] = useState(false)
   const [showCallmebotGuide, setShowCallmebotGuide] = useState(false)
   const [copiedActivation, setCopiedActivation] = useState(false)
-  const [copiedPhone, setCopiedPhone] = useState(false)
   const [pinSaving, setPinSaving] = useState(false)
   const [healthConditions, setHealthConditions] = useState({})
 
@@ -402,23 +401,17 @@ export default function ProfileForm() {
             {showCallmebotGuide && (
               <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 -mt-1 flex flex-col gap-3">
 
-                {/* Paso 1: copiar número */}
+                {/* Paso 1: ir a la doc oficial */}
                 <div className="flex flex-col gap-1">
                   <p className="text-xs font-semibold text-gray-600 dark:text-gray-300">1. {t('whatsapp.setup_step1_label')}</p>
-                  <div className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded px-2 py-1">
-                    <span className="text-xs font-mono text-gray-800 dark:text-gray-100 flex-1 select-all">+34 644 65 25 19</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard.writeText('+34644652519')
-                        setCopiedPhone(true)
-                        setTimeout(() => setCopiedPhone(false), 2000)
-                      }}
-                      className="text-xs font-medium text-green-600 dark:text-green-400 shrink-0"
-                    >
-                      {copiedPhone ? '✓ ' + t('whatsapp.setup_copied') : t('whatsapp.setup_copy')}
-                    </button>
-                  </div>
+                  <a
+                    href="https://www.callmebot.com/blog/free-api-whatsapp-messages/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs text-primary-600 dark:text-primary-400 underline"
+                  >
+                    {t('whatsapp.setup_step1_docs_link')} ↗
+                  </a>
                   <p className="text-xs text-gray-500 dark:text-gray-400">{t('whatsapp.setup_step1_hint')}</p>
                 </div>
 
