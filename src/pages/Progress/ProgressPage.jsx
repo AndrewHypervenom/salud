@@ -107,6 +107,7 @@ export default function ProgressPage() {
   const profile = profiles.find(p => p.id === activeProfileId)
 
   // Cálculos de objetivo en tiempo real (con ejercicio del día)
+  const todayDateStr = new Date().toLocaleDateString('en-CA') // YYYY-MM-DD
   const bmr = profile ? calcBMR(profile.weight_kg, profile.height_cm, profile.age, profile.sex) : 0
   const tdee = profile ? calcTDEE(bmr, profile.activity) : 0
   const baseCalTarget = calcCalorieTargetFromProfile(profile, tdee)
@@ -115,6 +116,12 @@ export default function ProgressPage() {
     profile?.health_goal ?? 'improve_health',
   )
   const adjustedCalTarget = baseCalTarget + exerciseExtraCals
+
+  // Para el día actual, sustituye los datos del snapshot con los valores en vivo
+  const liveEntry = (a) =>
+    a.analysis_date === todayDateStr
+      ? { ...a, total_calories: todayCalories, cal_target: adjustedCalTarget }
+      : a
 
   if (!profile) {
     return (
@@ -152,10 +159,10 @@ export default function ProgressPage() {
     const diff = (Date.now() - d.getTime()) / (1000 * 60 * 60 * 24)
     return diff <= 30
   })
-  const avg7 = last7.length > 0 ? Math.round(last7.reduce((s, a) => s + a.total_calories, 0) / last7.length) : 0
-  const avg30 = last30.length > 0 ? Math.round(last30.reduce((s, a) => s + a.total_calories, 0) / last30.length) : 0
+  const avg7 = last7.length > 0 ? Math.round(last7.map(liveEntry).reduce((s, a) => s + a.total_calories, 0) / last7.length) : 0
+  const avg30 = last30.length > 0 ? Math.round(last30.map(liveEntry).reduce((s, a) => s + a.total_calories, 0) / last30.length) : 0
   const calTarget = analyses[0]?.cal_target || 0
-  const daysUnderTarget = analyses.filter(a => a.total_calories <= a.cal_target).length
+  const daysUnderTarget = analyses.map(liveEntry).filter(a => a.total_calories <= a.cal_target).length
   const pctUnderTarget = analyses.length > 0 ? Math.round((daysUnderTarget / analyses.length) * 100) : 0
 
   return (
@@ -310,8 +317,9 @@ export default function ProgressPage() {
 
       {/* Weeks view */}
       {view === 'weeks' && weeks.map(({ monday, entries }) => {
-        const weekAvg = Math.round(entries.reduce((s, a) => s + a.total_calories, 0) / entries.length)
-        const weekTarget = entries[0]?.cal_target || 0
+        const liveEntries = entries.map(liveEntry)
+        const weekAvg = Math.round(liveEntries.reduce((s, a) => s + a.total_calories, 0) / liveEntries.length)
+        const weekTarget = liveEntries[0]?.cal_target || 0
         const weekPct = weekTarget > 0 ? Math.round((weekAvg / weekTarget) * 100) : 0
         const trendColor = weekPct > 100 ? 'text-red-500' : weekPct >= 80 ? 'text-amber-500' : 'text-green-600'
 
@@ -325,7 +333,7 @@ export default function ProgressPage() {
                 {t('progress.avg_week_summary', { avg: weekAvg, pct: weekPct })}
               </span>
             </div>
-            {entries.map(a => <DayCard key={a.id} a={a} lang={lang} t={t} />)}
+            {liveEntries.map(a => <DayCard key={a.id} a={a} lang={lang} t={t} />)}
           </div>
         )
       })}
@@ -334,8 +342,9 @@ export default function ProgressPage() {
       {view === 'months' && months.map(({ key, entries }) => {
         const [year, month] = key.split('-')
         const monthName = lang === 'es' ? MONTH_NAMES_ES[parseInt(month) - 1] : MONTH_NAMES_EN[parseInt(month) - 1]
-        const monthAvg = Math.round(entries.reduce((s, a) => s + a.total_calories, 0) / entries.length)
-        const monthTarget = entries[0]?.cal_target || 0
+        const liveEntries = entries.map(liveEntry)
+        const monthAvg = Math.round(liveEntries.reduce((s, a) => s + a.total_calories, 0) / liveEntries.length)
+        const monthTarget = liveEntries[0]?.cal_target || 0
         const monthPct = monthTarget > 0 ? Math.round((monthAvg / monthTarget) * 100) : 0
         const trendColor = monthPct > 100 ? 'text-red-500' : monthPct >= 80 ? 'text-amber-500' : 'text-green-600'
 
@@ -349,13 +358,13 @@ export default function ProgressPage() {
                 {t('progress.avg_month_summary', { avg: monthAvg, n: entries.length })}
               </span>
             </div>
-            {entries.map(a => <DayCard key={a.id} a={a} lang={lang} t={t} />)}
+            {liveEntries.map(a => <DayCard key={a.id} a={a} lang={lang} t={t} />)}
           </div>
         )
       })}
 
       {/* All view */}
-      {view === 'all' && analyses.map(a => <DayCard key={a.id} a={a} lang={lang} t={t} />)}
+      {view === 'all' && analyses.map(liveEntry).map(a => <DayCard key={a.id} a={a} lang={lang} t={t} />)}
       </>}
     </div>
   )
