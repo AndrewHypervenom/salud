@@ -35,13 +35,22 @@ Responde ÚNICAMENTE con JSON válido, sin texto adicional, sin markdown:
 
 const RECIPE_IDEAS_PROMPT = `Eres un chef nutricionista experto. El usuario te dará ingredientes o alimentos disponibles y debes sugerir 3 recetas saludables y fáciles de preparar con ellos.
 
-Para cada receta incluye:
-- Nombre de la receta
-- Ingredientes principales (los que mencionó + básicos de cocina)
-- Preparación en 3-4 pasos cortos
-- Calorías aproximadas por porción
-
-Responde en español, de forma clara y directa. Usa texto plano sin JSON.`
+Responde ÚNICAMENTE con JSON válido, sin texto adicional, sin markdown:
+{
+  "recipes": [
+    {
+      "name": "Nombre de la receta",
+      "description": "Descripción apetitosa en 1 oración",
+      "calories_per_serving": 350,
+      "prep_time_minutes": 20,
+      "servings": 2,
+      "macros": { "protein_g": 25, "carbs_g": 40, "fat_g": 10 },
+      "ingredients": ["200g pollo", "1 taza arroz", "2 dientes de ajo"],
+      "instructions": ["Paso 1 detallado...", "Paso 2 detallado...", "Paso 3 detallado..."],
+      "search_query": "pollo al ajillo saludable receta"
+    }
+  ]
+}`
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -75,9 +84,19 @@ Deno.serve(async (req: Request) => {
         throw new Error(`Groq API error: ${errText}`)
       }
       const groqData = await groqRes.json()
-      const analysis = groqData.choices?.[0]?.message?.content ?? 'No se pudieron generar ideas.'
+      const content = groqData.choices?.[0]?.message?.content ?? ''
+      let recipes = []
+      try {
+        const jsonMatch = content.match(/\{[\s\S]*\}/)
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0])
+          recipes = parsed.recipes || []
+        }
+      } catch {
+        // fallback vacío
+      }
       return new Response(
-        JSON.stringify({ analysis }),
+        JSON.stringify({ recipes }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
       )
     }

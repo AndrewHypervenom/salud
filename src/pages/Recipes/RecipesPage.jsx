@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ChefHat } from 'lucide-react'
+import { ChefHat, ExternalLink, ChevronDown, ChevronUp, BookmarkCheck, Bookmark } from 'lucide-react'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useRecipes } from '../../hooks/useRecipes'
 import { useProfiles } from '../../hooks/useProfiles'
@@ -64,10 +64,143 @@ function RecipeCard({ recipe, onDelete, t }) {
   )
 }
 
+function AIRecipeCard({ recipe, profileId, t }) {
+  const [expanded, setExpanded] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [imgError, setImgError] = useState(false)
+
+  const imageUrl = `https://source.unsplash.com/400x200/?${encodeURIComponent(recipe.search_query + ' food recipe')}`
+  const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(recipe.name + ' receta saludable')}`
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      await supabase.from('recipes').insert([{
+        profile_id: profileId,
+        title: recipe.name,
+        description: recipe.description,
+        meal_type: 'any',
+        calories_per_serving: recipe.calories_per_serving,
+        protein_g: recipe.macros?.protein_g,
+        carbs_g: recipe.macros?.carbs_g,
+        fat_g: recipe.macros?.fat_g,
+        ingredients: recipe.ingredients,
+        instructions: recipe.instructions?.join('\n'),
+        image_url: imgError ? null : imageUrl,
+      }])
+      setSaved(true)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Card className="overflow-hidden p-0">
+      {!imgError && (
+        <img
+          src={imageUrl}
+          alt={recipe.name}
+          onError={() => setImgError(true)}
+          className="w-full h-40 object-cover"
+        />
+      )}
+      <div className="p-4 flex flex-col gap-3">
+        <div>
+          <p className="font-bold text-gray-900 dark:text-gray-100 text-base leading-tight">{recipe.name}</p>
+          {recipe.description && (
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">{recipe.description}</p>
+          )}
+        </div>
+
+        <div className="flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
+          {recipe.prep_time_minutes && (
+            <span className="flex items-center gap-1">⏱ {t('recipes.prep_time_min', { min: recipe.prep_time_minutes })}</span>
+          )}
+          {recipe.calories_per_serving && (
+            <span className="flex items-center gap-1">🔥 {recipe.calories_per_serving} kcal</span>
+          )}
+          {recipe.servings && (
+            <span className="flex items-center gap-1">🍽 {t('recipes.servings_label', { n: recipe.servings })}</span>
+          )}
+        </div>
+
+        {recipe.macros && (
+          <div className="flex gap-3 text-xs">
+            <span className="bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-lg font-medium">
+              P {recipe.macros.protein_g}g
+            </span>
+            <span className="bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 px-2 py-1 rounded-lg font-medium">
+              C {recipe.macros.carbs_g}g
+            </span>
+            <span className="bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 px-2 py-1 rounded-lg font-medium">
+              G {recipe.macros.fat_g}g
+            </span>
+          </div>
+        )}
+
+        <button
+          onClick={() => setExpanded(v => !v)}
+          className="flex items-center justify-between w-full text-xs font-semibold text-primary-600 dark:text-primary-400 py-1 border-t border-gray-100 dark:border-gray-700"
+        >
+          {expanded ? t('recipes.hide_steps') : t('recipes.show_steps')}
+          {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        </button>
+
+        {expanded && (
+          <div className="flex flex-col gap-3 text-sm">
+            {recipe.ingredients?.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">{t('recipes.ingredients_label')}</p>
+                <ul className="list-disc list-inside text-gray-700 dark:text-gray-300 space-y-0.5">
+                  {recipe.ingredients.map((ing, i) => <li key={i} className="text-xs">{ing}</li>)}
+                </ul>
+              </div>
+            )}
+            {recipe.instructions?.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Preparación</p>
+                <ol className="list-decimal list-inside text-gray-700 dark:text-gray-300 space-y-1">
+                  {recipe.instructions.map((step, i) => <li key={i} className="text-xs leading-relaxed">{step}</li>)}
+                </ol>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="flex gap-2 pt-1 border-t border-gray-100 dark:border-gray-700">
+          <a
+            href={googleUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 flex items-center justify-center gap-1.5 py-2 border border-gray-300 dark:border-gray-600 rounded-xl text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          >
+            <ExternalLink size={13} />
+            {t('recipes.view_online')}
+          </a>
+          <button
+            onClick={handleSave}
+            disabled={saved || saving}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-colors ${
+              saved
+                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                : 'bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50'
+            }`}
+          >
+            {saved ? <><BookmarkCheck size={13} /> {t('recipes.recipe_saved')}</> : saving ? <Spinner size="sm" /> : <><Bookmark size={13} /> {t('recipes.save_recipe')}</>}
+          </button>
+        </div>
+      </div>
+    </Card>
+  )
+}
+
 function AIIdeasTab({ profileId, todayLogs }) {
   const { t } = useTranslation()
   const [ingredients, setIngredients] = useState('')
-  const [ideas, setIdeas] = useState('')
+  const [recipes, setRecipes] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
@@ -80,17 +213,17 @@ function AIIdeasTab({ profileId, todayLogs }) {
     if (!ingredients.trim()) return
     setLoading(true)
     setError(null)
-    setIdeas('')
+    setRecipes([])
     try {
       const { data, error: fnErr } = await supabase.functions.invoke('health-coach', {
         body: {
           mode: 'recipe_ideas',
           ingredients: ingredients.trim(),
-          message: t('recipes.ai_prompt', { ingredients: ingredients.trim() }),
         },
       })
       if (fnErr) throw fnErr
-      setIdeas(data?.analysis || data?.recommendations || t('recipes.ai_error'))
+      setRecipes(data?.recipes || [])
+      if (!data?.recipes?.length) setError(t('recipes.ai_error'))
     } catch (e) {
       setError(e.message)
     } finally {
@@ -132,11 +265,13 @@ function AIIdeasTab({ profileId, todayLogs }) {
         <p className="text-sm text-red-600 bg-red-50 dark:bg-red-950/30 rounded-xl px-4 py-3">{error}</p>
       )}
 
-      {ideas && (
-        <Card>
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('recipes.ai_ideas_title')}</p>
-          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">{ideas}</p>
-        </Card>
+      {recipes.length > 0 && (
+        <div className="flex flex-col gap-4">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t('recipes.ai_ideas_title')}</p>
+          {recipes.map((recipe, i) => (
+            <AIRecipeCard key={i} recipe={recipe} profileId={profileId} t={t} />
+          ))}
+        </div>
       )}
     </div>
   )
