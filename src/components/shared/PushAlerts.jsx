@@ -100,6 +100,7 @@ export function PushAlerts({ profileId }) {
       auth: btoa(String.fromCharCode(...new Uint8Array(auth))),
       habits_time: hTime || null,
       food_time: fTime || null,
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     }, { onConflict: 'profile_id,endpoint' })
   }
 
