@@ -5,6 +5,7 @@ import { useProfileContext } from '../../context/ProfileContext'
 import { useBadges, ALL_BADGES, BADGE_CATEGORIES } from '../../hooks/useBadges'
 import { Card } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
+import { BadgeDetailModal } from '../../components/shared/BadgeDetailModal'
 
 const DIFFICULTY_DOT = {
   easy:   'bg-green-400',
@@ -13,7 +14,7 @@ const DIFFICULTY_DOT = {
   elite:  'bg-purple-600',
 }
 
-function BadgeCard({ badge, record, stat, lang }) {
+function BadgeCard({ badge, record, stat, lang, onSelect }) {
   const isUnlocked = !!record
   const label = lang === 'es' ? badge.label_es : badge.label_en
   const desc  = lang === 'es' ? badge.desc_es  : badge.desc_en
@@ -22,7 +23,11 @@ function BadgeCard({ badge, record, stat, lang }) {
 
   if (isUnlocked) {
     return (
-      <div className="flex flex-col items-center text-center p-3 gap-1.5 rounded-2xl bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
+      <button
+        onClick={() => onSelect({ badge, record, stat: stat ?? null })}
+        aria-label={label}
+        className="flex flex-col items-center text-center p-3 gap-1.5 rounded-2xl bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 cursor-pointer active:scale-95 transition-transform focus:outline-none focus:ring-2 focus:ring-yellow-400 w-full"
+      >
         <div className="w-10 h-10 rounded-xl bg-yellow-100 dark:bg-yellow-800/40 flex items-center justify-center text-yellow-600 dark:text-yellow-400">
           {BadgeIcon && <BadgeIcon size={22} strokeWidth={1.75} />}
         </div>
@@ -33,12 +38,16 @@ function BadgeCard({ badge, record, stat, lang }) {
           </p>
         )}
         <span className={`w-2 h-2 rounded-full ${DIFFICULTY_DOT[badge.difficulty]}`} />
-      </div>
+      </button>
     )
   }
 
   return (
-    <div className="flex flex-col items-center text-center p-3 gap-1.5 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 opacity-60">
+    <button
+      onClick={() => onSelect({ badge, record: null, stat: stat ?? null })}
+      aria-label={label}
+      className="flex flex-col items-center text-center p-3 gap-1.5 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 opacity-60 cursor-pointer active:scale-95 transition-transform focus:outline-none focus:ring-2 focus:ring-gray-400 w-full"
+    >
       <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400 dark:text-gray-500">
         {BadgeIcon && <BadgeIcon size={22} strokeWidth={1.75} />}
       </div>
@@ -53,11 +62,11 @@ function BadgeCard({ badge, record, stat, lang }) {
         <Lock size={11} strokeWidth={2} className="text-gray-400" />
         <span className={`w-2 h-2 rounded-full ${DIFFICULTY_DOT[badge.difficulty]}`} />
       </div>
-    </div>
+    </button>
   )
 }
 
-function CategorySection({ category, badges, getBadge, badgeStats, lang, t }) {
+function CategorySection({ category, badges, getBadge, badgeStats, lang, t, onSelect }) {
   const [collapsed, setCollapsed] = useState(false)
   const categoryBadges = badges.filter(b => b.category === category)
   const unlockedCount = categoryBadges.filter(b => getBadge(b.key)).length
@@ -93,6 +102,7 @@ function CategorySection({ category, badges, getBadge, badgeStats, lang, t }) {
               record={getBadge(b.key)}
               stat={badgeStats[b.key]}
               lang={lang}
+              onSelect={onSelect}
             />
           ))}
         </div>
@@ -106,6 +116,7 @@ export default function BadgesPage() {
   const lang = i18n.language?.startsWith('es') ? 'es' : 'en'
   const { activeProfileId } = useProfileContext()
   const { badges, loading, runChecks, badgeStats } = useBadges(activeProfileId)
+  const [selectedBadge, setSelectedBadge] = useState(null)
 
   useEffect(() => {
     if (activeProfileId) runChecks()
@@ -174,9 +185,21 @@ export default function BadgesPage() {
               badgeStats={badgeStats}
               lang={lang}
               t={t}
+              onSelect={setSelectedBadge}
             />
           ))}
         </div>
+      )}
+
+      {selectedBadge && (
+        <BadgeDetailModal
+          badge={selectedBadge.badge}
+          record={selectedBadge.record}
+          stat={selectedBadge.stat}
+          lang={lang}
+          t={t}
+          onClose={() => setSelectedBadge(null)}
+        />
       )}
     </div>
   )

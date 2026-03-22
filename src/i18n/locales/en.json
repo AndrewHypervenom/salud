@@ -501,6 +501,7 @@
   "common": {
     "loading": "Loading...",
     "error": "Error",
+    "close": "Close",
     "cancel": "Cancel",
     "save": "Save",
     "edit": "Edit",
@@ -852,6 +853,11 @@
       "medium": "Medium",
       "hard":   "Hard",
       "elite":  "Elite"
+    },
+    "modal": {
+      "how_to": "How to earn it",
+      "progress": "Your progress",
+      "unlocked_on": "Earned on {{date}}"
     }
   },
   "whatsapp": {
