@@ -6,7 +6,7 @@ import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useAnalysisHistory } from '../../hooks/useAnalysisHistory'
 import { useWeightLogs } from '../../hooks/useWeightLogs'
-import { useFoodLogs } from '../../hooks/useFoodLogs'
+import { useFoodLogs, useFoodLogsByDay } from '../../hooks/useFoodLogs'
 import { useExerciseLogs } from '../../hooks/useExerciseLogs'
 import { calcBMR, calcTDEE, calcCalorieTargetFromProfile, calcExerciseEatBack } from '../../lib/formulas'
 import { Card } from '../../components/ui/Card'
@@ -101,6 +101,7 @@ export default function ProgressPage() {
   const { logs: weightLogs, loading: weightLoading, latestWeight } = useWeightLogs(activeProfileId)
   const { todayCalories } = useFoodLogs(activeProfileId)
   const { todayCaloriesBurned } = useExerciseLogs(activeProfileId)
+  const { foodLogsByDay } = useFoodLogsByDay(activeProfileId)
   const [tab, setTab] = useState('analysis') // 'analysis' | 'weight'
   const [view, setView] = useState('weeks') // 'weeks' | 'months' | 'all'
 
@@ -117,11 +118,18 @@ export default function ProgressPage() {
   )
   const adjustedCalTarget = baseCalTarget + exerciseExtraCals
 
-  // Para el día actual, sustituye los datos del snapshot con los valores en vivo
-  const liveEntry = (a) =>
-    a.analysis_date === todayDateStr
-      ? { ...a, total_calories: todayCalories, cal_target: adjustedCalTarget }
-      : a
+  // Para el día actual, sustituye datos del snapshot con valores en vivo.
+  // Para días pasados, corrige total_calories con los food_logs reales (el snapshot puede estar desactualizado).
+  const liveEntry = (a) => {
+    if (a.analysis_date === todayDateStr) {
+      return { ...a, total_calories: todayCalories, cal_target: adjustedCalTarget }
+    }
+    const dayData = foodLogsByDay[a.analysis_date]
+    if (dayData) {
+      return { ...a, total_calories: dayData.totalCal }
+    }
+    return a
+  }
 
   if (!profile) {
     return (
