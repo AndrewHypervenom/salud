@@ -1,8 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import webpush from 'npm:web-push@3.6.7'
 
-// Esta función se llama cada hora desde el dashboard de Supabase (Scheduled Functions)
-// Envía notificaciones a todos los perfiles cuya hora de recordatorio coincide con la hora actual
+// Corre cada minuto. Compara la hora local del usuario (según su timezone) con la hora guardada.
 
 Deno.serve(async (_req: Request) => {
   const VAPID_PUBLIC  = Deno.env.get('VAPID_PUBLIC_KEY')!
@@ -16,35 +15,36 @@ Deno.serve(async (_req: Request) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   )
 
-  // Hora UTC actual
   const nowUtc = new Date()
-  const currentHour = nowUtc.getUTCHours()
-  const currentMinute = nowUtc.getUTCMinutes()
-  // Solo actuar en el minuto 0 de cada hora para evitar duplicados
-  if (currentMinute > 5) {
-    return new Response(JSON.stringify({ skipped: true }), { status: 200 })
-  }
-
-  // Buscar suscripciones cuya hora (convertida a UTC) coincide con ahora
-  // La hora se guarda en la zona del usuario — hacemos comparación simple por ahora
-  const timeStr = `${String(currentHour).padStart(2, '0')}:00:00`
 
   const { data: subs } = await supabase
     .from('push_subscriptions')
-    .select('endpoint, p256dh, auth, habits_time, food_time, profiles(name)')
-    .or(`habits_time.eq.${timeStr},food_time.eq.${timeStr}`)
+    .select('endpoint, p256dh, auth, habits_time, food_time, timezone, profiles(name)')
+    .not('habits_time', 'is', null)
 
   if (!subs?.length) return new Response(JSON.stringify({ sent: 0 }), { status: 200 })
 
   let sent = 0
   await Promise.all(subs.map(async (s) => {
+    // Hora local del usuario
+    const tz = s.timezone ?? 'America/Costa_Rica'
+    const localTime = new Intl.DateTimeFormat('en-US', {
+      timeZone: tz,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(nowUtc)
+    // localTime es algo como "13:25"
+    const [hh, mm] = localTime.split(':')
+    const localStr = `${hh}:${mm}:00`
+
     const name = (s.profiles as { name: string })?.name ?? ''
     const messages: { title: string; body: string }[] = []
 
-    if (s.habits_time === timeStr) {
+    if (s.habits_time === localStr) {
       messages.push({ title: '🏃 Salud Familiar', body: `${name ? name + ', r' : 'R'}ecuerda registrar tus hábitos de hoy.` })
     }
-    if (s.food_time === timeStr) {
+    if (s.food_time === localStr) {
       messages.push({ title: '🥗 Salud Familiar', body: `${name ? name + ', r' : 'R'}ecuerda registrar tu comida de hoy.` })
     }
 
@@ -57,5 +57,5 @@ Deno.serve(async (_req: Request) => {
     }
   }))
 
-  return new Response(JSON.stringify({ sent }), { status: 200 })
+  return new Response(JSON.stringify({ sent, checked: subs.length }), { status: 200 })
 })
