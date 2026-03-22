@@ -879,6 +879,7 @@
     "setup_step2": "Envíale exactamente este mensaje: I allow callmebot to send me messages",
     "setup_step3": "Recibirás tu API Key en segundos por WhatsApp",
     "setup_step4": "Copia la API Key y pégala en el campo de arriba",
+    "setup_open_wa": "Abrir WhatsApp",
     "setup_note": "Solo necesitas hacer esto una vez por número de teléfono."
   },
   "scanner": {

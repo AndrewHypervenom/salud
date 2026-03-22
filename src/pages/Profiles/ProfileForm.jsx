@@ -401,7 +401,17 @@ export default function ProfileForm() {
               <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 -mt-1">
                 <ol className="text-xs text-gray-700 dark:text-gray-300 space-y-2 list-decimal list-inside">
                   <li>{t('whatsapp.setup_step1')}</li>
-                  <li>{t('whatsapp.setup_step2')}</li>
+                  <li>
+                    {t('whatsapp.setup_step2')}
+                    <a
+                      href="https://wa.me/34644652519?text=I%20allow%20callmebot%20to%20send%20me%20messages"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-2 inline-flex items-center gap-1 bg-green-500 hover:bg-green-600 text-white text-xs font-medium px-2 py-0.5 rounded"
+                    >
+                      📲 {t('whatsapp.setup_open_wa')}
+                    </a>
+                  </li>
                   <li>{t('whatsapp.setup_step3')}</li>
                   <li>{t('whatsapp.setup_step4')}</li>
                 </ol>
