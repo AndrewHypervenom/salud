@@ -4,7 +4,7 @@ self.addEventListener('activate', e => e.waitUntil(clients.claim()))
 self.addEventListener('push', (event) => {
   const data = event.data?.json() ?? {}
   event.waitUntil(
-    self.registration.showNotification(data.title || 'Salud Familiar', {
+    self.registration.showNotification(data.title || 'Nexvida', {
       body: data.body || '',
       icon: '/icon-192.png',
       badge: '/icon-192.png',

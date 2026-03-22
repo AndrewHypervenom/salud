@@ -44,7 +44,7 @@ Deno.serve(async (_req: Request) => {
     if (s.habits_time === localStr) {
       try {
         await webpush.sendNotification(pushSub, JSON.stringify({
-          title: '🏃 Salud Familiar',
+          title: '🏃 Nexvida',
           body: `${name ? name + ', r' : 'R'}ecuerda registrar tus hábitos de hoy.`,
         }))
         console.log('habits push sent')
@@ -57,7 +57,7 @@ Deno.serve(async (_req: Request) => {
     if (s.food_time === localStr) {
       try {
         await webpush.sendNotification(pushSub, JSON.stringify({
-          title: '🥗 Salud Familiar',
+          title: '🥗 Nexvida',
           body: `${name ? name + ', r' : 'R'}ecuerda registrar tu comida de hoy.`,
         }))
         console.log('food push sent')
