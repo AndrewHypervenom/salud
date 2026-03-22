@@ -29,16 +29,25 @@ function RecipeCard({ recipe, onDelete, t }) {
     setDeleting(false)
   }
 
+  const { emoji, from, to } = recipeEmoji(recipe.title, recipe.ingredients || [])
+
   return (
     <div className="relative group">
       <Link to={`/recipes/${recipe.id}`}>
         <Card className="hover:shadow-lg transition-shadow h-full">
-          {recipe.image_url && (
+          {recipe.image_url ? (
             <img
               src={recipe.image_url}
               alt={recipe.title}
               className="w-full h-32 object-cover rounded-xl mb-3 -mt-1"
             />
+          ) : (
+            <div
+              className="w-full h-32 rounded-xl mb-3 -mt-1 flex flex-col items-center justify-center gap-1"
+              style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}
+            >
+              <span style={{ fontSize: 40 }}>{emoji}</span>
+            </div>
           )}
           <div className="flex items-start gap-2 mb-1">
             <p className="font-semibold text-gray-800 dark:text-gray-100 text-sm leading-tight flex-1">{recipe.title}</p>
