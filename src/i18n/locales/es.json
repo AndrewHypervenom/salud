@@ -892,7 +892,8 @@
     "analysis_today": "Análisis de hoy",
     "tomorrow_plan": "📅 Plan para mañana",
     "regenerate_analysis": "Regenerar análisis",
-    "error": "Error al generar análisis"
+    "error": "Error al generar análisis",
+    "updated_toast": "Análisis del Coach IA actualizado"
   },
   "progress": {
     "title": "Progreso",

@@ -892,7 +892,8 @@
     "analysis_today": "Today's analysis",
     "tomorrow_plan": "📅 Tomorrow's plan",
     "regenerate_analysis": "Regenerate analysis",
-    "error": "Error generating analysis"
+    "error": "Error generating analysis",
+    "updated_toast": "AI Coach analysis updated"
   },
   "progress": {
     "title": "Progress",

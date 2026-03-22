@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bot, Dumbbell } from 'lucide-react'
+import { Bot, Dumbbell, Sparkles } from 'lucide-react'
 import { useHealthCoach } from '../../hooks/useHealthCoach'
 import { useBadges } from '../../hooks/useBadges'
 import { Card } from '../ui/Card'
@@ -13,6 +13,14 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
   const { checkAndUnlock } = useBadges(profileId)
   const autoTriggered = useRef(false)
   const reanalyzing = useRef(false)
+  const [showToast, setShowToast] = useState(false)
+  const toastTimer = useRef(null)
+
+  const showUpdatedToast = () => {
+    clearTimeout(toastTimer.current)
+    setShowToast(true)
+    toastTimer.current = setTimeout(() => setShowToast(false), 3500)
+  }
 
   const hasEnoughFood = foodLogs.length >= 3
 
@@ -32,7 +40,7 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
 
     autoTriggered.current = true
     analyze({ profile, calTarget, todayCalories, foodLogs, habits, habitLogs, lastBP })
-      .then(() => checkAndUnlock('first_coach', true))
+      .then(() => { checkAndUnlock('first_coach', true); showUpdatedToast() })
   }, [initialLoading, loading, hasEnoughFood, todayAnalysis])
 
   // Auto-re-analyze whenever food is added after last analysis
@@ -44,6 +52,7 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
 
     reanalyzing.current = true
     analyze({ profile, calTarget, todayCalories, foodLogs, habits, habitLogs, lastBP })
+      .then(() => showUpdatedToast())
       .finally(() => { reanalyzing.current = false })
   }, [initialLoading, loading, isStale])
 
@@ -52,62 +61,80 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
     await checkAndUnlock('first_coach', true)
   }
 
+  const toast = showToast && (
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-3 bg-white dark:bg-gray-800 shadow-2xl rounded-2xl px-5 py-3 animate-slide-down border border-primary-200 dark:border-primary-700">
+      <Sparkles size={20} className="text-primary-500 flex-shrink-0" />
+      <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{t('coach.updated_toast')}</p>
+      <button onClick={() => setShowToast(false)} className="ml-2 text-gray-300 hover:text-gray-500 text-lg leading-none">×</button>
+    </div>
+  )
+
   // Loading initial check from DB
-  if (initialLoading) return null
+  if (initialLoading) return toast ?? null
 
   // Generating
   if (loading) {
     return (
-      <Card className="border border-primary-200 bg-primary-50/50 dark:bg-primary-900/10">
-        <div className="flex items-center gap-3 py-2">
-          <Spinner />
-          <p className="text-sm text-gray-500">{t('coach.generating')}</p>
-        </div>
-      </Card>
+      <>
+        {toast}
+        <Card className="border border-primary-200 bg-primary-50/50 dark:bg-primary-900/10">
+          <div className="flex items-center gap-3 py-2">
+            <Spinner />
+            <p className="text-sm text-gray-500">{t('coach.generating')}</p>
+          </div>
+        </Card>
+      </>
     )
   }
 
   // No analysis yet + less than 3 foods logged
   if (!todayAnalysis && !hasEnoughFood) {
     return (
-      <Card className="border border-dashed border-primary-300 bg-primary-50/50 dark:bg-primary-900/10 dark:border-primary-700">
-        <div className="flex flex-col items-center text-center gap-3 py-2">
-          <Bot size={36} strokeWidth={1.5} className="text-primary-500" />
-          <div>
-            <p className="font-semibold text-gray-800 dark:text-gray-100">{t('coach.title')}</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {t('coach.auto_hint')}
-            </p>
+      <>
+        {toast}
+        <Card className="border border-dashed border-primary-300 bg-primary-50/50 dark:bg-primary-900/10 dark:border-primary-700">
+          <div className="flex flex-col items-center text-center gap-3 py-2">
+            <Bot size={36} strokeWidth={1.5} className="text-primary-500" />
+            <div>
+              <p className="font-semibold text-gray-800 dark:text-gray-100">{t('coach.title')}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                {t('coach.auto_hint')}
+              </p>
+            </div>
+            {error && <p className="text-xs text-red-500">{error}</p>}
+            <Button onClick={handleAnalyze} className="w-full" disabled={foodLogs.length === 0}>
+              {t('coach.analyze_now')}
+            </Button>
           </div>
-          {error && <p className="text-xs text-red-500">{error}</p>}
-          <Button onClick={handleAnalyze} className="w-full" disabled={foodLogs.length === 0}>
-            {t('coach.analyze_now')}
-          </Button>
-        </div>
-      </Card>
+        </Card>
+      </>
     )
   }
 
   // No analysis yet but 3+ foods logged (auto-trigger in progress or failed)
   if (!todayAnalysis) {
     return (
-      <Card className="border border-dashed border-primary-300 bg-primary-50/50 dark:bg-primary-900/10">
-        <div className="flex flex-col items-center text-center gap-3 py-2">
-          <Bot size={36} strokeWidth={1.5} className="text-primary-500" />
-          {error && (
-            <>
-              <p className="text-xs text-red-500">{error}</p>
-              <Button onClick={handleAnalyze} className="w-full">{t('coach.retry')}</Button>
-            </>
-          )}
-        </div>
-      </Card>
+      <>
+        {toast}
+        <Card className="border border-dashed border-primary-300 bg-primary-50/50 dark:bg-primary-900/10">
+          <div className="flex flex-col items-center text-center gap-3 py-2">
+            <Bot size={36} strokeWidth={1.5} className="text-primary-500" />
+            {error && (
+              <>
+                <p className="text-xs text-red-500">{error}</p>
+                <Button onClick={handleAnalyze} className="w-full">{t('coach.retry')}</Button>
+              </>
+            )}
+          </div>
+        </Card>
+      </>
     )
   }
 
   // Analysis exists — show results
   return (
     <div className="flex flex-col gap-3">
+      {toast}
 
       {/* Análisis del día */}
       <Card className="border-l-4 border-primary-500 bg-primary-50 dark:bg-primary-900/20">
