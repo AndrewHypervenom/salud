@@ -22,8 +22,9 @@ REGLAS OBLIGATORIAS:
 5. Máximo 3-4 recomendaciones, ordenadas por urgencia.
 6. Tono motivador y directo, como un coach personal que conoce bien al usuario.
 7. El campo "tomorrow_plan" en el JSON tiene un nombre técnico pero su uso depende del contexto:
-   - Si el campo "DÍA COMPLETO" del usuario dice "No": escribe EXCLUSIVAMENTE el plan para las comidas que FALTAN HOY. Usa frases como "Para el almuerzo...", "Para la cena...". NUNCA uses la palabra "mañana" en este caso.
-   - Si el campo "DÍA COMPLETO" dice "Sí": escribe el plan para mañana con "Mañana desayuna...".
+   - Si "DÍA COMPLETO" es "No": escribe SOLO el plan para las comidas que aún faltan HOY según "Comidas que aún faltan hoy". Usa frases como "Para el almuerzo...", "Para la cena...". Si no hay comidas pendientes, da consejos de hidratación para el resto del día. JAMÁS uses la palabra "mañana" en este caso.
+   - Si "DÍA COMPLETO" es "Sí": escribe el plan para mañana comenzando con "Mañana...".
+   - Si hay "Comidas no registradas (ya pasó su horario)", menciónalas brevemente en el campo "analysis" como reflexión sobre el día, pero NO las sugieras como próximas comidas ya que su horario habitual ya pasó.
 
 Responde ÚNICAMENTE con JSON válido, sin texto adicional, sin markdown:
 {
@@ -174,17 +175,32 @@ Deno.serve(async (req: Request) => {
     const hasDinner = loggedTypes.has('dinner')
     const hasSnack = loggedTypes.has('snack')
 
-    // Determinar qué comidas faltan
-    const pendingMeals: string[] = []
-    if (!hasBreakfast) pendingMeals.push('desayuno')
-    if (!hasLunch) pendingMeals.push('almuerzo')
-    if (!hasSnack && !hasDinner) pendingMeals.push('merienda/snack (opcional)')
-    if (!hasDinner) pendingMeals.push('cena')
+    // Determinar qué comidas faltan (según horario actual) y cuáles ya pasaron sin registrarse
+    const pendingMeals: string[] = []  // Comidas que aún tienen sentido comer hoy
+    const missedMeals: string[] = []   // Comidas cuyo horario habitual ya pasó sin registrarse
 
-    const dayComplete = hasDinner || hour >= 20
+    if (!hasBreakfast) {
+      if (hour < 11) pendingMeals.push('desayuno')
+      else missedMeals.push('desayuno')
+    }
+    if (!hasLunch) {
+      if (hour < 16) pendingMeals.push('almuerzo')
+      else missedMeals.push('almuerzo')
+    }
+    if (!hasSnack && !hasDinner && hour >= 14 && hour < 21) {
+      pendingMeals.push('merienda/snack (opcional)')
+    }
+    if (!hasDinner && hour >= 17) {
+      pendingMeals.push('cena')
+    }
+
+    const dayComplete = hasDinner || hour >= 21
     const pendingMealsText = pendingMeals.length > 0
-      ? `Comidas que aún faltan hoy: ${pendingMeals.join(', ')}`
-      : 'Ya registró todas las comidas principales del día.'
+      ? `Comidas que aún faltan hoy (según horario actual): ${pendingMeals.join(', ')}`
+      : 'No quedan comidas pendientes para el resto del día.'
+    const missedMealsText = missedMeals.length > 0
+      ? `Comidas no registradas (ya pasó su horario habitual): ${missedMeals.join(', ')}`
+      : ''
 
     const mealSummary = (foodLogs as FoodLog[]).length === 0
       ? 'No registró ninguna comida hoy.'
@@ -204,7 +220,7 @@ Deno.serve(async (req: Request) => {
     const userDataPrompt = `
 HORA ACTUAL: ${hour}:00
 ${pendingMealsText}
-DÍA COMPLETO: ${dayComplete ? 'Sí (orientar plan de mañana)' : 'No (orientar comidas pendientes de hoy)'}
+${missedMealsText ? missedMealsText + '\n' : ''}DÍA COMPLETO: ${dayComplete ? 'Sí (orientar plan de mañana)' : 'No (orientar comidas pendientes de hoy)'}
 
 DATOS DEL USUARIO:
 - Nombre: ${profile.name}
