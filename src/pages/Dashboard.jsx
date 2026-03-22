@@ -13,7 +13,7 @@ import { useWaterLogs } from '../hooks/useWaterLogs'
 import { useFasting } from '../hooks/useFasting'
 import { useWeightLogs } from '../hooks/useWeightLogs'
 import { useDashboardConfig, WIDGET_CATALOG } from '../hooks/useDashboardConfig'
-import { calcBMR, calcTDEE, calcCalorieTargetFromProfile, calcCalorieTarget, calcCalorieTargetMulti, calcMacros, calcExerciseEatBack, getCalorieStatus, CALORIE_COLORS } from '../lib/formulas'
+import { calcBMR, calcTDEE, calcCalorieTargetFromProfile, calcCalorieTarget, calcCalorieTargetMulti, calcMacros, calcExerciseEatBack, getCalorieStatus, CALORIE_COLORS, getExerciseDayInfo, calcPlannedExerciseBonus } from '../lib/formulas'
 import { classifyBP } from '../lib/bpStatus'
 import { NavIcon, WidgetIcon } from '../lib/navIcons'
 import { Sunrise, Sun, Moon, Apple, Droplets, Zap, Heart, Scale, TrendingDown, TrendingUp, Stethoscope, Flame, X, Pencil, PartyPopper, ChevronUp, ChevronDown, CheckCircle } from 'lucide-react'
@@ -46,7 +46,7 @@ const GOAL_LABELS = {
   maintain:       'dashboard.goal_maintain',
 }
 
-function CaloriesWidget({ todayCalories, calTarget, baseCalTarget, todayCaloriesBurned, exerciseExtraCals, profile, activeGoals }) {
+function CaloriesWidget({ todayCalories, calTarget, baseCalTarget, todayCaloriesBurned, exerciseExtraCals, plannedBonus, hypotheticalBonus, exerciseDayInfo, profile, activeGoals }) {
   const { t } = useTranslation()
   // Porcentaje vs objetivo BASE (sin ejercicio) para reflejar cuánto del goal diario se ha consumido
   const effectiveBase = (baseCalTarget > 0 ? baseCalTarget : calTarget)
@@ -122,13 +122,34 @@ function CaloriesWidget({ todayCalories, calTarget, baseCalTarget, todayCalories
         </div>
       </div>
 
-      {/* Exercise boost row */}
+      {/* Ejercicio ya registrado hoy */}
       {exerciseExtraCals > 0 && (
         <div className="mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-700/60 flex items-center gap-2">
           <Zap size={13} strokeWidth={2} className="text-green-500 flex-shrink-0" />
           <p className="text-xs text-green-600 dark:text-green-400 font-medium flex-1">
             +{exerciseExtraCals} kcal por ejercicio incluidas
           </p>
+        </div>
+      )}
+
+      {/* Banner día de entreno / descanso — solo si tiene rutina y sin ejercicio registrado */}
+      {exerciseDayInfo?.hasRoutine && exerciseExtraCals === 0 && (
+        <div className="mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-700/60 flex items-center gap-2">
+          {exerciseDayInfo.isExerciseDay ? (
+            <>
+              <span className="text-sm flex-shrink-0">🏋️</span>
+              <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium flex-1">
+                {t('dashboard.exercise_day_banner', { n: plannedBonus })}
+              </p>
+            </>
+          ) : (
+            <>
+              <span className="text-sm flex-shrink-0">😴</span>
+              <p className="text-xs text-sky-600 dark:text-sky-400 font-medium flex-1">
+                {t('dashboard.rest_day_banner', { n: hypotheticalBonus })}
+              </p>
+            </>
+          )}
         </div>
       )}
     </Card>
@@ -654,6 +675,23 @@ export default function Dashboard() {
   )
   const adjustedCalTarget = calTarget + exerciseExtraCals
 
+  // ── Exercise day / rest day adaptive target ───────────────────────────────
+  const exerciseDayInfo = getExerciseDayInfo(profile?.fitness_profile)
+  const alreadyLoggedExercise = (todayCaloriesBurned ?? 0) > 0
+
+  const { plannedBonus: hypotheticalBonus } = calcPlannedExerciseBonus(
+    profile?.fitness_profile,
+    profile?.weight_kg,
+    profile?.health_goal ?? 'improve_health',
+  )
+
+  // Only apply planned bonus if today is a training day AND no exercise logged yet
+  const plannedBonus = (exerciseDayInfo.isExerciseDay && !alreadyLoggedExercise)
+    ? hypotheticalBonus
+    : 0
+
+  const finalCalTarget = Math.max(1200, adjustedCalTarget + plannedBonus)
+
   // ── Pointer-based drag (mouse + touch) ──────────────────
   const handlePointerDown = useCallback((e, id) => {
     e.preventDefault()
@@ -721,7 +759,7 @@ export default function Dashboard() {
 
     switch (id) {
       case 'calories':
-        return <CaloriesWidget todayCalories={todayCalories} calTarget={adjustedCalTarget} baseCalTarget={calTarget} todayCaloriesBurned={todayCaloriesBurned} exerciseExtraCals={exerciseExtraCals} profile={profile} activeGoals={activeGoals} />
+        return <CaloriesWidget todayCalories={todayCalories} calTarget={finalCalTarget} baseCalTarget={calTarget} todayCaloriesBurned={todayCaloriesBurned} exerciseExtraCals={exerciseExtraCals} plannedBonus={plannedBonus} hypotheticalBonus={hypotheticalBonus} exerciseDayInfo={exerciseDayInfo} profile={profile} activeGoals={activeGoals} />
       case 'quick_actions':
         return <QuickActionsWidget />
       case 'meals':

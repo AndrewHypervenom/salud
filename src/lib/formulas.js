@@ -1,3 +1,5 @@
+import { EXERCISE_METS } from './exerciseUtils'
+
 // Mifflin-St Jeor BMR formula
 // Male:   BMR = 10*w + 6.25*h - 5*a + 5
 // Female: BMR = 10*w + 6.25*h - 5*a - 161
@@ -142,4 +144,41 @@ export function calcCalorieTargetMulti(tdee, goals = []) {
   if (goals.length === 1) return calcCalorieTarget(tdee, goals[0])
   const total = goals.reduce((sum, g) => sum + (HEALTH_GOAL_ADJUSTMENTS[g] ?? 0), 0)
   return Math.max(1200, tdee + Math.round(total / goals.length))
+}
+
+/**
+ * Determines if today is an exercise or rest day based on the user's defined routine.
+ * Only applies if currently_exercises && has_defined_routine && routine_days.length > 0.
+ * @returns {{ isExerciseDay: boolean, isRestDay: boolean, hasRoutine: boolean }}
+ */
+export function getExerciseDayInfo(fitnessProfile) {
+  const fp = fitnessProfile
+  const hasRoutine = !!(fp?.currently_exercises && fp?.has_defined_routine && fp?.routine_days?.length > 0)
+  if (!hasRoutine) return { isExerciseDay: false, isRestDay: false, hasRoutine: false }
+
+  const DAY_MAP = {
+    domingo: 0, lunes: 1, martes: 2, miercoles: 3,
+    jueves: 4, viernes: 5, sabado: 6,
+  }
+  const todayIndex = new Date().getDay()
+  const isExerciseDay = fp.routine_days.some(d => DAY_MAP[d] === todayIndex)
+  return { isExerciseDay, isRestDay: !isExerciseDay, hasRoutine: true }
+}
+
+/**
+ * Estimates the calorie bonus for a planned exercise session using MET × weight × duration,
+ * then applies calcExerciseEatBack to respect the user's health goal.
+ * @returns {{ plannedBonus: number, estimatedBurn: number }}
+ */
+export function calcPlannedExerciseBonus(fitnessProfile, weightKg, healthGoal = 'maintain') {
+  const fp = fitnessProfile
+  if (!fp || !weightKg) return { plannedBonus: 0, estimatedBurn: 0 }
+
+  const activity = (fp.preferred_activities?.[0] ?? 'default').toLowerCase().trim()
+  const met = EXERCISE_METS[activity] ?? EXERCISE_METS.default
+  const durationMin = fp.session_duration_min ?? 40
+
+  const estimatedBurn = Math.round(met * weightKg * (durationMin / 60))
+  const { extraCals: plannedBonus } = calcExerciseEatBack(estimatedBurn, healthGoal)
+  return { plannedBonus, estimatedBurn }
 }

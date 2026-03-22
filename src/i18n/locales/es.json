@@ -112,7 +112,9 @@
     "habits_of": "de {{n}} hábitos",
     "doctor_short": "Médico",
     "exercise_boost": "+{{n}} kcal por ejercicio",
-    "calories_adjusted": "Meta ajustada por ejercicio"
+    "calories_adjusted": "Meta ajustada por ejercicio",
+    "exercise_day_banner": "Día de entreno · +{{n}} kcal disponibles",
+    "rest_day_banner": "Día de descanso · {{n}} kcal menos que en día de entreno"
   },
   "calories": {
     "title": "Calorías Diarias",

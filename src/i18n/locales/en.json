@@ -112,7 +112,9 @@
     "habits_of": "of {{n}} habits",
     "doctor_short": "Doctor",
     "exercise_boost": "+{{n}} kcal from exercise",
-    "calories_adjusted": "Target adjusted by exercise"
+    "calories_adjusted": "Target adjusted by exercise",
+    "exercise_day_banner": "Training day · +{{n}} kcal available",
+    "rest_day_banner": "Rest day · {{n}} fewer kcal than a training day"
   },
   "calories": {
     "title": "Daily Calories",
