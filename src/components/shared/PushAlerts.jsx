@@ -4,6 +4,15 @@ import { supabase } from '../../lib/supabase'
 
 const VAPID_PUBLIC_KEY = 'BB_0FP02fjuNGQmRJTp39X6ILCIxHc_rIaH3dVJnCH8gBS_N9Jh4dwRNDWnTFtSzgkVk7xbY2wsV9uEMD1KRiz4'
 
+const COMPATIBLE_BROWSERS = 'Chrome, Edge, Firefox, Safari (macOS) o Brave'
+
+function getIncompatibleReason() {
+  const ua = navigator.userAgent
+  if (ua.includes('OPR/') || ua.includes('Opera')) return `Opera no es compatible con notificaciones push. Usa ${COMPATIBLE_BROWSERS}.`
+  if (ua.includes('UCBrowser')) return `UC Browser no es compatible con notificaciones push. Usa ${COMPATIBLE_BROWSERS}.`
+  return null
+}
+
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
   const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
@@ -36,6 +45,8 @@ export function PushAlerts({ profileId }) {
   const [testResult, setTestResult] = useState('')
 
   useEffect(() => {
+    const incompatible = getIncompatibleReason()
+    if (incompatible) { setPushError(incompatible); setLoading(false); return }
     const ok = 'serviceWorker' in navigator && 'PushManager' in window
     setSupported(ok)
     if (!ok) { setLoading(false); return }
@@ -100,10 +111,10 @@ export function PushAlerts({ profileId }) {
     } catch (e) {
       console.error('Subscribe error', e)
       if (e.name === 'AbortError') {
-        const isOpera = navigator.userAgent.includes('OPR/') || navigator.userAgent.includes('Opera')
-        setPushError(isOpera
-          ? 'Opera no es compatible con notificaciones push. Usa Chrome, Edge o Firefox.'
-          : `Error del servicio push: ${e.message}. Verifica conexión o prueba en otro navegador.`)
+        const isBrave = navigator.brave !== undefined
+        setPushError(isBrave
+          ? `Brave bloqueó el servicio push. Ve a brave://settings/privacy y activa "Usar servicios de Google para mensajes push". O usa ${COMPATIBLE_BROWSERS}.`
+          : `Este navegador no pudo conectar con el servicio push. Usa ${COMPATIBLE_BROWSERS}.`)
       } else if (e.name === 'NotAllowedError') {
         setPushError('Permiso de notificaciones denegado.')
       } else {
@@ -165,6 +176,10 @@ export function PushAlerts({ profileId }) {
     }
     setTimeout(() => setTestResult(''), 4000)
   }
+
+  if (pushError && !supported) return (
+    <p className="text-xs text-red-500 dark:text-red-400">{pushError}</p>
+  )
 
   if (!supported) return null
 
