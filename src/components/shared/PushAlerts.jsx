@@ -100,7 +100,10 @@ export function PushAlerts({ profileId }) {
     } catch (e) {
       console.error('Subscribe error', e)
       if (e.name === 'AbortError') {
-        setPushError(`Error del servicio push: ${e.message}. Verifica conexión o prueba en otra red.`)
+        const isOpera = navigator.userAgent.includes('OPR/') || navigator.userAgent.includes('Opera')
+        setPushError(isOpera
+          ? 'Opera no es compatible con notificaciones push. Usa Chrome, Edge o Firefox.'
+          : `Error del servicio push: ${e.message}. Verifica conexión o prueba en otro navegador.`)
       } else if (e.name === 'NotAllowedError') {
         setPushError('Permiso de notificaciones denegado.')
       } else {
