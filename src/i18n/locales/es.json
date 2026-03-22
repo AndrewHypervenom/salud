@@ -660,7 +660,9 @@
     "quick_small_bottle": "Botella pequeña",
     "quick_large_bottle": "Botella grande",
     "ml_placeholder": "ml personalizados...",
-    "add_btn": "Agregar"
+    "add_btn": "Agregar",
+    "edit_shortcuts": "Personalizar atajos",
+    "save_shortcuts": "Guardar"
   },
   "weight": {
     "title": "Control de Peso",

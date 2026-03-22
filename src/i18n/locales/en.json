@@ -660,7 +660,9 @@
     "quick_small_bottle": "Small bottle",
     "quick_large_bottle": "Large bottle",
     "ml_placeholder": "Custom amount (ml)...",
-    "add_btn": "Add"
+    "add_btn": "Add",
+    "edit_shortcuts": "Customize shortcuts",
+    "save_shortcuts": "Save"
   },
   "weight": {
     "title": "Weight Tracking",

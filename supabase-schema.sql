@@ -203,6 +203,14 @@ create policy "allow_delete_attempts" on login_attempts
 -- -------------------------------------------------------------
 -- ALTER TABLE profiles
 --   ADD COLUMN IF NOT EXISTS fitness_profile JSONB NOT NULL DEFAULT '{}';
+
+-- -------------------------------------------------------------
+-- Migración: atajos de agregar rápido de agua por perfil
+-- Ejecutar en Supabase SQL Editor
+-- -------------------------------------------------------------
+-- ALTER TABLE profiles ADD COLUMN IF NOT EXISTS water_quick_1_ml integer DEFAULT 250;
+-- ALTER TABLE profiles ADD COLUMN IF NOT EXISTS water_quick_2_ml integer DEFAULT 500;
+-- ALTER TABLE profiles ADD COLUMN IF NOT EXISTS water_quick_3_ml integer DEFAULT 750;
 --
 -- -- Ampliar CHECK para incluir el nuevo objetivo 'improve_health'
 -- ALTER TABLE profiles DROP CONSTRAINT IF EXISTS profiles_health_goal_check;
