@@ -3,9 +3,12 @@ CREATE EXTENSION IF NOT EXISTS pg_cron;
 CREATE EXTENSION IF NOT EXISTS pg_net;
 
 -- Eliminar schedule anterior si existe (idempotente)
-SELECT cron.unschedule('check-reminders-every-minute') WHERE EXISTS (
-  SELECT 1 FROM cron.job WHERE jobname = 'check-reminders-every-minute'
-);
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'check-reminders-every-minute') THEN
+    PERFORM cron.unschedule('check-reminders-every-minute');
+  END IF;
+END $$;
 
 -- Llamar a check-reminders cada minuto
 SELECT cron.schedule(

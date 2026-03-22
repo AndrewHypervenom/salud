@@ -12,4 +12,5 @@ CREATE TABLE IF NOT EXISTS push_subscriptions (
 );
 
 ALTER TABLE push_subscriptions ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "public access" ON push_subscriptions;
 CREATE POLICY "public access" ON push_subscriptions FOR ALL USING (true);
