@@ -167,7 +167,7 @@ export default function WaterPage() {
                     min="25"
                     max="2000"
                     step="25"
-                    className="flex-1 px-3 py-2 text-sm text-center font-semibold border border-black/10 dark:border-white/10 bg-black/4 dark:bg-white/6 dark:text-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400/50"
+                    className="flex-1 px-3 py-2 text-sm text-center font-semibold border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400/50"
                   />
                   <span className="text-xs text-ios-gray w-5">ml</span>
                 </div>
@@ -207,7 +207,7 @@ export default function WaterPage() {
             placeholder={t('water.ml_placeholder')}
             min="1"
             max="2000"
-            className="flex-1 px-3 py-2 text-sm border border-black/10 dark:border-white/10 bg-black/4 dark:bg-white/6 dark:text-gray-200 rounded-xl focus:outline-none"
+            className="flex-1 px-3 py-2 text-sm border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400/50"
             onKeyDown={e => e.key === 'Enter' && handleCustom()}
           />
           <button

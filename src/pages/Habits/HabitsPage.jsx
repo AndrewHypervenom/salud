@@ -181,7 +181,7 @@ export default function HabitsPage() {
             value={newName}
             onChange={e => setNewName(e.target.value)}
             placeholder={t('habits.habit_name')}
-            className="flex-1 px-4 py-2.5 border border-black/10 dark:border-white/10 bg-black/4 dark:bg-white/6 dark:text-gray-200 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:border-ios-cyan/50"
+            className="flex-1 px-4 py-2.5 border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-zinc-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-ios-cyan/50"
           />
           <button
             type="submit"

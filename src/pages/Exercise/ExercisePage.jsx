@@ -353,7 +353,7 @@ export default function ExercisePage() {
                     clearEstimate()
                   }}
                   placeholder="30"
-                  className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-400"
                 />
               </div>
               <div>
@@ -367,7 +367,7 @@ export default function ExercisePage() {
                     value={form.calories_burned}
                     onChange={e => setForm(prev => ({ ...prev, calories_burned: e.target.value }))}
                     placeholder="0"
-                    className="flex-1 text-sm border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 min-w-0"
+                    className="flex-1 text-sm border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 min-w-0 focus:outline-none focus:ring-2 focus:ring-primary-400"
                   />
                   <button
                     type="button"
@@ -438,7 +438,7 @@ export default function ExercisePage() {
                   value={form.sets}
                   onChange={e => setForm(prev => ({ ...prev, sets: e.target.value }))}
                   placeholder="3"
-                  className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-400"
                 />
               </div>
               <div>
@@ -451,7 +451,7 @@ export default function ExercisePage() {
                   value={form.reps}
                   onChange={e => setForm(prev => ({ ...prev, reps: e.target.value }))}
                   placeholder="12"
-                  className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-400"
                 />
               </div>
             </div>
@@ -466,7 +466,7 @@ export default function ExercisePage() {
                 value={form.notes}
                 onChange={e => setForm(prev => ({ ...prev, notes: e.target.value }))}
                 placeholder={t('exercise.form_notes')}
-                className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                className="w-full text-sm border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2.5 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-400"
               />
             </div>
 
