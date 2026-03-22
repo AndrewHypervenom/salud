@@ -20,7 +20,7 @@ Deno.serve(async (_req: Request) => {
   const { data: subs, error } = await supabase
     .from('push_subscriptions')
     .select('endpoint, p256dh, auth, habits_time, food_time, timezone, profiles(name)')
-    .not('habits_time', 'is', null)
+    .or('habits_time.not.is.null,food_time.not.is.null')
 
   console.log('subs:', subs?.length ?? 0, 'error:', error?.message ?? 'none')
 

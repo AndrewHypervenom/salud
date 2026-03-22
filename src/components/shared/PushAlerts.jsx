@@ -11,6 +11,17 @@ function urlBase64ToUint8Array(base64String) {
   return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)))
 }
 
+async function validateVapidKey(key) {
+  try {
+    const bytes = urlBase64ToUint8Array(key)
+    if (bytes.length !== 65 || bytes[0] !== 0x04) return false
+    await crypto.subtle.importKey('raw', bytes, { name: 'ECDH', namedCurve: 'P-256' }, false, [])
+    return true
+  } catch {
+    return false
+  }
+}
+
 export function PushAlerts({ profileId }) {
   const { t } = useTranslation()
   const [supported, setSupported] = useState(false)
@@ -21,6 +32,8 @@ export function PushAlerts({ profileId }) {
   const [habitsTime, setHabitsTime] = useState('')
   const [foodTime, setFoodTime] = useState('')
   const [saved, setSaved] = useState(false)
+  const [pushError, setPushError] = useState('')
+  const [testResult, setTestResult] = useState('')
 
   useEffect(() => {
     const ok = 'serviceWorker' in navigator && 'PushManager' in window
@@ -58,13 +71,26 @@ export function PushAlerts({ profileId }) {
 
   const enable = async () => {
     setLoading(true)
+    setPushError('')
     try {
       const perm = await Notification.requestPermission()
       setPermission(perm)
       if (perm !== 'granted') return
 
+      // Verificar que la VAPID key sea válida antes de intentar
+      const keyValid = await validateVapidKey(VAPID_PUBLIC_KEY)
+      if (!keyValid) {
+        setPushError('VAPID key inválida — revisar configuración.')
+        return
+      }
+
       const reg = await navigator.serviceWorker.register('/sw.js')
       await navigator.serviceWorker.ready
+
+      // Limpiar suscripción antigua si existe (puede ser de una key anterior)
+      const existingSub = await reg.pushManager.getSubscription()
+      if (existingSub) await existingSub.unsubscribe()
+
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
@@ -73,6 +99,13 @@ export function PushAlerts({ profileId }) {
       await saveSubscription(sub, habitsTime, foodTime)
     } catch (e) {
       console.error('Subscribe error', e)
+      if (e.name === 'AbortError') {
+        setPushError(`Error del servicio push: ${e.message}. Verifica conexión o prueba en otra red.`)
+      } else if (e.name === 'NotAllowedError') {
+        setPushError('Permiso de notificaciones denegado.')
+      } else {
+        setPushError(`${e.name}: ${e.message}`)
+      }
     } finally {
       setLoading(false)
     }
@@ -87,6 +120,8 @@ export function PushAlerts({ profileId }) {
     setSubscription(null)
     setHabitsTime('')
     setFoodTime('')
+    setPushError('')
+    setTestResult('')
     setLoading(false)
   }
 
@@ -113,6 +148,21 @@ export function PushAlerts({ profileId }) {
     setSaving(false)
   }
 
+  const testNotification = async () => {
+    setTestResult('Enviando...')
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const { data, error } = await supabase.functions.invoke('send-push', {
+        body: { profile_id: profileId, title: '🔔 Prueba', body: 'La notificación push funciona correctamente.' },
+      })
+      if (error) throw error
+      setTestResult(`Enviada (${data?.sent ?? 0} dispositivo/s)`)
+    } catch (e) {
+      setTestResult(`Error: ${e.message}`)
+    }
+    setTimeout(() => setTestResult(''), 4000)
+  }
+
   if (!supported) return null
 
   if (loading) return (
@@ -134,6 +184,7 @@ export function PushAlerts({ profileId }) {
       >
         🔔 {t('push.enable')}
       </button>
+      {pushError && <p className="text-xs text-red-500 dark:text-red-400">{pushError}</p>}
     </div>
   )
 
@@ -179,6 +230,14 @@ export function PushAlerts({ profileId }) {
         }`}
       >
         {saved ? `✓ ${t('push.saved')}` : t('push.save_times')}
+      </button>
+
+      <button
+        onClick={testNotification}
+        disabled={!!testResult}
+        className="w-full py-2 rounded-xl text-xs font-medium border border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+      >
+        {testResult || '🧪 Probar notificación'}
       </button>
     </div>
   )
