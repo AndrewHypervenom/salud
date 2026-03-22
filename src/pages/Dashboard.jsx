@@ -46,9 +46,12 @@ const GOAL_LABELS = {
   maintain:       'dashboard.goal_maintain',
 }
 
-function CaloriesWidget({ todayCalories, calTarget, todayCaloriesBurned, exerciseExtraCals, profile, activeGoals }) {
+function CaloriesWidget({ todayCalories, calTarget, baseCalTarget, todayCaloriesBurned, exerciseExtraCals, profile, activeGoals }) {
   const { t } = useTranslation()
-  const pct = calTarget > 0 ? Math.min((todayCalories / calTarget) * 100, 100) : 0
+  // Porcentaje vs objetivo BASE (sin ejercicio) para reflejar cuánto del goal diario se ha consumido
+  const effectiveBase = (baseCalTarget > 0 ? baseCalTarget : calTarget)
+  const pct = effectiveBase > 0 ? (todayCalories / effectiveBase) * 100 : 0
+  // Status/colores basados en calTarget ajustado (con ejercicio) → solo rojo si supera el budget total
   const status = getCalorieStatus(todayCalories, calTarget)
   const colors = CALORIE_COLORS[status]
   const left = calTarget - todayCalories
@@ -94,7 +97,7 @@ function CaloriesWidget({ todayCalories, calTarget, todayCaloriesBurned, exercis
 
       {/* Ring + stats */}
       <div className="flex items-center gap-5">
-        <ProgressRing percent={pct} size={88} strokeWidth={7} color={ringColor} trackColor="rgba(0,0,0,0.06)">
+        <ProgressRing percent={Math.min(pct, 100)} size={88} strokeWidth={7} color={ringColor} trackColor="rgba(0,0,0,0.06)">
           <div className="text-center">
             <p className={`text-lg font-bold leading-none ${calTextColor}`}>{Math.round(pct)}%</p>
           </div>
@@ -108,7 +111,7 @@ function CaloriesWidget({ todayCalories, calTarget, todayCaloriesBurned, exercis
           <div className="mt-3 h-1.5 w-full bg-zinc-100 dark:bg-zinc-700/60 rounded-full overflow-hidden">
             <div
               className="h-1.5 rounded-full transition-all duration-700"
-              style={{ width: `${pct}%`, backgroundColor: ringColor }}
+              style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: ringColor }}
             />
           </div>
           <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1.5">
@@ -717,7 +720,7 @@ export default function Dashboard() {
 
     switch (id) {
       case 'calories':
-        return <CaloriesWidget todayCalories={todayCalories} calTarget={adjustedCalTarget} todayCaloriesBurned={todayCaloriesBurned} exerciseExtraCals={exerciseExtraCals} profile={profile} activeGoals={activeGoals} />
+        return <CaloriesWidget todayCalories={todayCalories} calTarget={adjustedCalTarget} baseCalTarget={calTarget} todayCaloriesBurned={todayCaloriesBurned} exerciseExtraCals={exerciseExtraCals} profile={profile} activeGoals={activeGoals} />
       case 'quick_actions':
         return <QuickActionsWidget />
       case 'meals':
@@ -735,7 +738,7 @@ export default function Dashboard() {
       case 'habits':
         return <HabitsWidget habits={habits} habitLogs={habitLogs} />
       case 'coach':
-        return <CoachWidget profileId={activeProfileId} profile={profile} calTarget={calTarget}
+        return <CoachWidget profileId={activeProfileId} profile={profile} calTarget={adjustedCalTarget}
           todayCalories={todayCalories} todayLogs={todayLogs} habits={habits} habitLogs={habitLogs} lastBP={lastBP} />
       case 'bp':
         return <BPWidget readings={readings} />

@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
-import { TrendingUp, BarChart3, Scale, Bot, Dumbbell, ChevronUp, ChevronDown } from 'lucide-react'
+import { TrendingUp, BarChart3, Scale, Bot, Dumbbell, ChevronUp, ChevronDown, Flame, Zap } from 'lucide-react'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useAnalysisHistory } from '../../hooks/useAnalysisHistory'
 import { useWeightLogs } from '../../hooks/useWeightLogs'
+import { useFoodLogs } from '../../hooks/useFoodLogs'
+import { useExerciseLogs } from '../../hooks/useExerciseLogs'
+import { calcBMR, calcTDEE, calcCalorieTargetFromProfile, calcExerciseEatBack } from '../../lib/formulas'
 import { Card } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
 import { WeightChart } from '../../components/ui/WeightChart'
@@ -96,10 +99,22 @@ export default function ProgressPage() {
   const { profiles } = useProfiles()
   const { analyses, loading, weeks, months } = useAnalysisHistory(activeProfileId)
   const { logs: weightLogs, loading: weightLoading, latestWeight } = useWeightLogs(activeProfileId)
+  const { todayCalories } = useFoodLogs(activeProfileId)
+  const { todayCaloriesBurned } = useExerciseLogs(activeProfileId)
   const [tab, setTab] = useState('analysis') // 'analysis' | 'weight'
   const [view, setView] = useState('weeks') // 'weeks' | 'months' | 'all'
 
   const profile = profiles.find(p => p.id === activeProfileId)
+
+  // Cálculos de objetivo en tiempo real (con ejercicio del día)
+  const bmr = profile ? calcBMR(profile.weight_kg, profile.height_cm, profile.age, profile.sex) : 0
+  const tdee = profile ? calcTDEE(bmr, profile.activity) : 0
+  const baseCalTarget = calcCalorieTargetFromProfile(profile, tdee)
+  const { extraCals: exerciseExtraCals = 0 } = calcExerciseEatBack(
+    todayCaloriesBurned ?? 0,
+    profile?.health_goal ?? 'improve_health',
+  )
+  const adjustedCalTarget = baseCalTarget + exerciseExtraCals
 
   if (!profile) {
     return (
@@ -209,6 +224,47 @@ export default function ProgressPage() {
 
       {/* Tab: Análisis IA */}
       {tab === 'analysis' && <>
+      {/* Tarjeta Hoy — datos en tiempo real */}
+      {baseCalTarget > 0 && (() => {
+        const pct = (todayCalories / baseCalTarget) * 100
+        const isOver = todayCalories > adjustedCalTarget
+        const isWarn = !isOver && todayCalories > baseCalTarget
+        const barColor = isOver ? 'bg-red-400' : isWarn ? 'bg-amber-400' : 'bg-primary-500'
+        const textColor = isOver ? 'text-red-500' : isWarn ? 'text-amber-500' : 'text-primary-600'
+        return (
+          <Card className="border border-primary-200 dark:border-primary-800">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Flame size={15} strokeWidth={1.75} className="text-orange-500" />
+                <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                  {lang === 'es' ? 'Hoy' : 'Today'}
+                </span>
+                <span className="text-xs text-gray-400 dark:text-gray-500">
+                  · {lang === 'es' ? 'en tiempo real' : 'live'}
+                </span>
+              </div>
+              <span className={`text-sm font-bold ${textColor}`}>{Math.round(pct)}%</span>
+            </div>
+            <div className="flex items-end gap-2 mb-2">
+              <span className={`text-2xl font-bold tabular-nums ${textColor}`}>{todayCalories}</span>
+              <span className="text-sm text-gray-400 dark:text-gray-500 mb-0.5">
+                / {adjustedCalTarget} kcal
+              </span>
+            </div>
+            <div className="h-2 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div className={`h-2 rounded-full transition-all duration-500 ${barColor}`} style={{ width: `${Math.min(pct, 100)}%` }} />
+            </div>
+            {exerciseExtraCals > 0 && (
+              <div className="flex items-center gap-1.5 mt-2">
+                <Zap size={12} strokeWidth={2} className="text-green-500" />
+                <span className="text-xs text-green-600 dark:text-green-400 font-medium">
+                  +{exerciseExtraCals} kcal {lang === 'es' ? 'por ejercicio' : 'from exercise'}
+                </span>
+              </div>
+            )}
+          </Card>
+        )
+      })()}
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-2">
         <Card className="text-center py-3">
