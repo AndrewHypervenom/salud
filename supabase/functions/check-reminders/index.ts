@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import webpush from 'https://esm.sh/web-push@3.6.7'
+import webpush from 'npm:web-push@3.6.7'
 
 Deno.serve(async (_req: Request) => {
   console.log('check-reminders fired at', new Date().toISOString())
@@ -34,7 +34,7 @@ Deno.serve(async (_req: Request) => {
     }).format(nowUtc).replace('24:', '00:')
 
     const [hh, mm] = localTime.split(':')
-    const localStr = `${hh.padStart(2, '0')}:${mm}:00`
+    const localStr = `${hh.padStart(2, '0')}:${mm.padStart(2, '0')}:00`
 
     console.log(`tz=${tz} local=${localStr} habits=${s.habits_time} food=${s.food_time}`)
 
