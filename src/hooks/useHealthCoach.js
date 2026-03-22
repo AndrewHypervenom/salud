@@ -47,6 +47,7 @@ export function useHealthCoach(profileId) {
         pending: pendingHabits.map(h => `${h.emoji} ${h.name}`),
       },
       lastBP: lastBP || null,
+      currentHour: new Date().getHours(),
     }
 
     try {

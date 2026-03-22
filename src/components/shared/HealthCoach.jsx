@@ -22,7 +22,9 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
     toastTimer.current = setTimeout(() => setShowToast(false), 3500)
   }
 
-  const hasEnoughFood = foodLogs.length >= 3
+  const hasEnoughFood = foodLogs.length >= 1
+  const currentHour = new Date().getHours()
+  const planLabel = currentHour < 20 ? t('coach.rest_of_day_plan') : t('coach.tomorrow_plan')
 
   // Detect if food was logged AFTER the last analysis
   const lastLogTime = foodLogs.length > 0
@@ -162,11 +164,11 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
         </Card>
       ))}
 
-      {/* Plan de mañana */}
+      {/* Plan para el resto del día o mañana */}
       {todayAnalysis.tomorrow_plan && (
         <Card className="border-l-4 border-amber-400 bg-amber-50 dark:bg-amber-900/20">
           <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 uppercase tracking-wide mb-1">
-            {t('coach.tomorrow_plan')}
+            {planLabel}
           </p>
           <p className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed">
             {todayAnalysis.tomorrow_plan}

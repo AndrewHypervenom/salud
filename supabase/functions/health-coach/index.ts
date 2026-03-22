@@ -6,31 +6,30 @@ const corsHeaders = {
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 const MODEL = 'llama-3.3-70b-versatile'
 
-const SYSTEM_PROMPT = `Eres un coach de salud y nutrición experto, directo y sin rodeos. Tu única misión es ayudar al usuario a BAJAR DE PESO de manera efectiva, sostenible y segura.
+const SYSTEM_PROMPT = `Eres un coach de salud y nutrición personalizado que guía al usuario EN TIEMPO REAL durante su día alimenticio. Recibirás los datos de lo que ya comió, la hora actual y las calorías restantes, y tu misión es orientar las PRÓXIMAS comidas del día de forma concreta.
 
-Recibirás los datos del día del usuario y deberás generar un análisis personalizado y recomendaciones concretas.
+COMPORTAMIENTO SEGÚN LA HORA DEL DÍA:
+- MAÑANA (antes de las 12h): Orientar almuerzo y cena. Calcular presupuesto calórico restante y proponer platos específicos.
+- MEDIODÍA (12h-16h): Orientar merienda y cena. Ajustar recomendaciones según lo consumido.
+- TARDE/NOCHE (después de las 16h): Cerrar el día. Si queda presupuesto, proponer cena ligera. Si se pasó, recomendar hidratación y plan de mañana.
 
 REGLAS OBLIGATORIAS:
-1. Sé directo y honesto. Si comió de más, díselo claramente pero con respeto.
-2. Siempre da consejos ESPECÍFICOS y ACCIONABLES con cantidades concretas.
-3. Si consumió más calorías de su meta: SIEMPRE incluye recomendación de suero casero (agua + limón + sal) para recuperación.
-4. Si el objetivo es bajar de peso: menciona siempre el déficit calórico como herramienta.
-5. Prioriza hidratación: el agua es clave para bajar de peso y eliminar toxinas.
-6. Máximo 4 recomendaciones, ordenadas por importancia.
-7. El plan de mañana debe ser CONCRETO: menciona alimentos específicos y porciones.
-8. Tono: como un entrenador personal exigente pero que quiere lo mejor para ti.
-
-RECETA SUERO CASERO (usar cuando sea relevante):
-"Mezcla en 1 litro de agua: jugo de 1 limón + 1/4 cucharadita de sal + opcionalmente 1 cucharadita de azúcar o miel. Bébelo en 1-2 horas."
+1. Calcula siempre las calorías restantes (meta − consumido) y basate en ese presupuesto para recomendar.
+2. Propón platos CONCRETOS con nombre y porción aproximada (ej: "sopa de pollo 300 ml ≈ 180 kcal").
+3. Si el usuario ya superó su meta calórica: no sugieras más comida, recomienda hidratación y movimiento ligero.
+4. Adapta al objetivo del usuario (bajar de peso, mantener, ganar músculo).
+5. Máximo 3-4 recomendaciones, ordenadas por urgencia.
+6. Tono motivador y directo, como un coach personal que conoce bien al usuario.
+7. El campo "tomorrow_plan": si es de día (antes de las 20h), úsalo para el RESTO DEL DÍA DE HOY. Si es de noche (20h+), úsalo para el plan de MAÑANA.
 
 Responde ÚNICAMENTE con JSON válido, sin texto adicional, sin markdown:
 {
-  "analysis": "2 oraciones máximo. Análisis honesto del día.",
+  "analysis": "2 oraciones máximo. Resumen honesto de cómo va el día: calorías consumidas, restantes y tendencia.",
   "recommendations": [
-    { "icon": "emoji", "title": "Título corto", "text": "Consejo detallado con cantidades específicas" }
+    { "icon": "emoji", "title": "Título corto", "text": "Recomendación concreta con plato específico y calorías aproximadas" }
   ],
-  "tomorrow_plan": "Plan concreto para mañana: desayuno, almuerzo y cena específicos. Máx 3 oraciones.",
-  "motivation": "Frase motivacional corta y honesta. Máx 1 oración."
+  "tomorrow_plan": "Plan concreto para las próximas comidas de hoy (o para mañana si es de noche). Menciona platos y porciones. Máx 3 oraciones.",
+  "motivation": "Frase motivacional corta. Máx 1 oración."
 }`
 
 const RECIPE_IDEAS_PROMPT = `Eres un chef nutricionista experto. El usuario te dará ingredientes o alimentos disponibles y debes sugerir 3 recetas saludables y fáciles de preparar con ellos.
@@ -159,7 +158,12 @@ Deno.serve(async (req: Request) => {
       )
     }
 
-    const { profile, calTarget, todayCalories, foodLogs, habitsCompleted, habitsTotal, habitNames, lastBP } = body
+    const { profile, calTarget, todayCalories, foodLogs, habitsCompleted, habitsTotal, habitNames, lastBP, currentHour } = body
+
+    const hour = typeof currentHour === 'number' ? currentHour : new Date().getHours()
+    const timeLabel = hour < 12 ? 'Mañana' : hour < 16 ? 'Mediodía/tarde' : hour < 20 ? 'Tarde' : 'Noche'
+    const nextMealLabel = hour < 10 ? 'Almuerzo y cena' : hour < 14 ? 'Merienda y cena' : hour < 18 ? 'Cena' : 'Nada más (noche)'
+    const remaining = calTarget - todayCalories
 
     const mealSummary = foodLogs.length === 0
       ? 'No registró ninguna comida hoy.'
@@ -169,28 +173,31 @@ Deno.serve(async (req: Request) => {
 
     const deficit = calTarget - todayCalories
     const deficitText = deficit >= 0
-      ? `Déficit de ${deficit} kcal (¡bien! está por debajo de la meta)`
-      : `Exceso de ${Math.abs(deficit)} kcal (superó la meta por ${Math.abs(deficit)} kcal)`
+      ? `Le quedan ${deficit} kcal disponibles para el resto del día`
+      : `Superó la meta por ${Math.abs(deficit)} kcal — no recomendar más comida`
 
     const bpText = lastBP
       ? `Última presión arterial: ${lastBP.systolic}/${lastBP.diastolic} mmHg`
       : 'Sin mediciones de presión arterial.'
 
     const userDataPrompt = `
+HORA ACTUAL: ${hour}:00 — ${timeLabel}
+PRÓXIMAS COMIDAS A ORIENTAR: ${nextMealLabel}
+
 DATOS DEL USUARIO:
 - Nombre: ${profile.name}
 - Edad: ${profile.age} años | Sexo: ${profile.sex === 'male' ? 'Masculino' : 'Femenino'}
 - Peso: ${profile.weight_kg} kg | Estatura: ${profile.height_cm} cm
 - Actividad: ${profile.activity}
-- Objetivo: ${profile.health_goal === 'lose_weight' ? 'BAJAR DE PESO' : profile.health_goal === 'gain_muscle' ? 'Ganar músculo' : 'Mantener peso'}
+- Objetivo: ${profile.health_goal === 'lose_weight' ? 'BAJAR DE PESO' : profile.health_goal === 'gain_muscle' ? 'Ganar músculo' : profile.health_goal === 'improve_health' ? 'Mejorar salud' : 'Mantener peso'}
 - Notas médicas: ${profile.notes || 'Ninguna'}
 
 CALORÍAS HOY:
-- Consumidas: ${todayCalories} kcal
-- Meta ajustada: ${calTarget} kcal
-- ${deficitText}
+- Consumidas: ${todayCalories} kcal de ${calTarget} kcal meta
+- Restantes: ${remaining} kcal
+- Estado: ${deficitText}
 
-COMIDAS DE HOY:
+COMIDAS REGISTRADAS HOY:
 ${mealSummary}
 
 HÁBITOS:

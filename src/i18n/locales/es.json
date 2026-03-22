@@ -884,13 +884,14 @@
   "coach": {
     "title": "Coach IA",
     "generating": "Generando análisis de tu día...",
-    "auto_hint": "El análisis se genera automáticamente al registrar 3 comidas. También puedes analizarlo ahora.",
+    "auto_hint": "El coach te guía tras cada comida. Registra tu primera comida del día para empezar.",
     "analyze_now": "✨ Analizar mi día ahora",
     "retry": "Reintentar análisis",
     "stale_warning": "Registraste comida después del análisis.",
     "regenerate": "Regenerar",
     "analysis_today": "Análisis de hoy",
     "tomorrow_plan": "📅 Plan para mañana",
+    "rest_of_day_plan": "🕐 Plan para el resto del día",
     "regenerate_analysis": "Regenerar análisis",
     "error": "Error al generar análisis",
     "updated_toast": "Análisis del Coach IA actualizado"
