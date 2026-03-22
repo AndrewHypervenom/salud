@@ -196,11 +196,7 @@ export default function HabitsPage() {
 
       {/* Notificaciones push */}
       <Card>
-        <PushAlerts
-          habitsText={habitsMessage}
-          foodText={null}
-          summaryText={habitsMessage}
-        />
+        <PushAlerts profileId={activeProfileId} />
       </Card>
     </div>
   )

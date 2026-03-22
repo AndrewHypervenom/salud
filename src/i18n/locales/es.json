@@ -861,13 +861,16 @@
     }
   },
   "push": {
-    "title": "Recordatorios",
+    "title": "Recordatorios diarios",
     "enable": "Activar notificaciones",
-    "send_habits": "Recordatorio de hábitos",
-    "send_food": "Recordatorio de comida",
-    "send_summary": "Resumen del día",
-    "sent": "¡Enviado!",
-    "denied": "Las notificaciones están bloqueadas. Actívalas en la configuración del navegador."
+    "loading": "Cargando...",
+    "denied": "Las notificaciones están bloqueadas. Actívalas en la configuración del navegador.",
+    "disable": "Desactivar",
+    "schedule_hint": "Elige a qué hora quieres recibir el recordatorio cada día.",
+    "habits_time": "Hábitos",
+    "food_time": "Comida",
+    "save_times": "Guardar horarios",
+    "saved": "¡Guardado!"
   },
   "whatsapp": {
     "title": "Alertas WhatsApp",

@@ -861,13 +861,16 @@
     }
   },
   "push": {
-    "title": "Reminders",
+    "title": "Daily reminders",
     "enable": "Enable notifications",
-    "send_habits": "Habits reminder",
-    "send_food": "Food reminder",
-    "send_summary": "Day summary",
-    "sent": "Sent!",
-    "denied": "Notifications are blocked. Enable them in your browser settings."
+    "loading": "Loading...",
+    "denied": "Notifications are blocked. Enable them in your browser settings.",
+    "disable": "Disable",
+    "schedule_hint": "Choose what time you want to receive your daily reminder.",
+    "habits_time": "Habits",
+    "food_time": "Food",
+    "save_times": "Save schedule",
+    "saved": "Saved!"
   },
   "whatsapp": {
     "title": "WhatsApp Alerts",

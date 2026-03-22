@@ -221,11 +221,7 @@ export default function FoodPage() {
 
       {/* Notificaciones push */}
       <Card>
-        <PushAlerts
-          habitsText={null}
-          foodText={foodSummary}
-          summaryText={daySummary}
-        />
+        <PushAlerts profileId={activeProfileId} />
       </Card>
     </div>
   )
