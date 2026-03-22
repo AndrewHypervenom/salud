@@ -6,13 +6,12 @@ const corsHeaders = {
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 const MODEL = 'llama-3.3-70b-versatile'
 
-const SYSTEM_PROMPT = `Eres un coach de salud y nutrición personalizado que guía al usuario EN TIEMPO REAL durante su día alimenticio. Recibirás los datos de lo que ya comió, la hora actual y las calorías restantes, y tu misión es orientar las PRÓXIMAS comidas del día de forma concreta.
+function buildSystemPrompt(dayComplete: boolean, pendingMeals: string[], hour: number): string {
+  const planFieldInstruction = dayComplete
+    ? `"tomorrow_plan": "Plan de alimentación para MAÑANA. Empieza con 'Mañana desayuna...'. Incluye desayuno, almuerzo y cena con platos concretos y porciones. Máx 3 oraciones."`
+    : `"tomorrow_plan": "Plan para las próximas comidas de HOY (son las ${hour}:00): ${pendingMeals.length > 0 ? pendingMeals.join(', ') : 'hidratación y descanso'}. Empieza directamente con la comida más próxima (ej: 'Para la cena te recomiendo...'). NUNCA menciones mañana ni el día siguiente. Máx 3 oraciones."`
 
-COMPORTAMIENTO SEGÚN LAS COMIDAS YA REGISTRADAS:
-- Recibirás la lista exacta de comidas que el usuario AÚN NO ha registrado hoy ("Comidas que aún faltan").
-- Orienta SOLO las comidas que faltan, con platos concretos y calorías aproximadas que quepan en el presupuesto restante.
-- Si ya registró cena o el día está completo: orienta el plan de MAÑANA.
-- NUNCA sugieras una comida que ya fue registrada.
+  return `Eres un coach de salud y nutrición personalizado que guía al usuario EN TIEMPO REAL durante su día alimenticio.
 
 REGLAS OBLIGATORIAS:
 1. Calcula siempre las calorías restantes (meta − consumido) y basate en ese presupuesto para recomendar.
@@ -21,10 +20,7 @@ REGLAS OBLIGATORIAS:
 4. Adapta al objetivo del usuario (bajar de peso, mantener, ganar músculo).
 5. Máximo 3-4 recomendaciones, ordenadas por urgencia.
 6. Tono motivador y directo, como un coach personal que conoce bien al usuario.
-7. El campo "tomorrow_plan" en el JSON tiene un nombre técnico pero su uso depende del contexto:
-   - Si "DÍA COMPLETO" es "No": escribe SOLO el plan para las comidas que aún faltan HOY según "Comidas que aún faltan hoy". Usa frases como "Para el almuerzo...", "Para la cena...". Si no hay comidas pendientes, da consejos de hidratación para el resto del día. JAMÁS uses la palabra "mañana" en este caso.
-   - Si "DÍA COMPLETO" es "Sí": escribe el plan para mañana comenzando con "Mañana...".
-   - Si hay "Comidas no registradas (ya pasó su horario)", menciónalas brevemente en el campo "analysis" como reflexión sobre el día, pero NO las sugieras como próximas comidas ya que su horario habitual ya pasó.
+7. NUNCA sugieras una comida que ya fue registrada hoy.
 
 Responde ÚNICAMENTE con JSON válido, sin texto adicional, sin markdown:
 {
@@ -32,9 +28,10 @@ Responde ÚNICAMENTE con JSON válido, sin texto adicional, sin markdown:
   "recommendations": [
     { "icon": "emoji", "title": "Título corto", "text": "Recomendación concreta con plato específico y calorías aproximadas" }
   ],
-  "tomorrow_plan": "CRÍTICO: Si DÍA COMPLETO es NO → escribe el plan para las comidas que FALTAN HOY (almuerzo, cena, snack según corresponda). NUNCA escribas 'mañana' si el día no está completo. Si DÍA COMPLETO es SÍ → escribe el plan para mañana. Menciona platos concretos con porciones. Máx 3 oraciones.",
+  ${planFieldInstruction},
   "motivation": "Frase motivacional corta. Máx 1 oración."
 }`
+}
 
 const RECIPE_IDEAS_PROMPT = `Eres un chef nutricionista experto. El usuario te dará ingredientes o alimentos disponibles y debes sugerir 3 recetas saludables y fáciles de preparar con ellos.
 
@@ -245,12 +242,6 @@ HÁBITOS:
 
 SALUD:
 - ${bpText}
-
-INSTRUCCIÓN OBLIGATORIA PARA EL CAMPO "tomorrow_plan":
-${dayComplete
-  ? '→ El día está COMPLETO. Escribe el plan para MAÑANA. Comienza con "Mañana desayuna...".'
-  : `→ El día NO está completo. Son las ${hour}:00. Escribe SOLO sobre las comidas que faltan HOY: ${pendingMeals.length > 0 ? pendingMeals.join(', ') : 'hidratación y descanso'}. PROHIBIDO mencionar "mañana" o planear el día siguiente. Si no hay comidas pendientes, recomienda hidratación.`
-}
 `
 
     const groqRes = await fetch(GROQ_API_URL, {
@@ -262,7 +253,7 @@ ${dayComplete
       body: JSON.stringify({
         model: MODEL,
         messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'system', content: buildSystemPrompt(dayComplete, pendingMeals, hour) },
           { role: 'user', content: userDataPrompt },
         ],
         temperature: 0.6,
