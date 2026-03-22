@@ -860,6 +860,15 @@
       "unlocked_on": "Obtenido el {{date}}"
     }
   },
+  "push": {
+    "title": "Recordatorios",
+    "enable": "Activar notificaciones",
+    "send_habits": "Recordatorio de hábitos",
+    "send_food": "Recordatorio de comida",
+    "send_summary": "Resumen del día",
+    "sent": "¡Enviado!",
+    "denied": "Las notificaciones están bloqueadas. Actívalas en la configuración del navegador."
+  },
   "whatsapp": {
     "title": "Alertas WhatsApp",
     "send_habits": "Recordatorio de hábitos",

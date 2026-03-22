@@ -13,7 +13,6 @@ import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
 import PinSetupStep from '../Onboarding/PinSetupStep'
-import { supabase } from '../../lib/supabase'
 
 export default function ProfileForm() {
   const { t } = useTranslation()
@@ -25,19 +24,6 @@ export default function ProfileForm() {
   const isEdit = !!id
 
   const [showPinSetup, setShowPinSetup] = useState(false)
-  const [showCallmebotGuide, setShowCallmebotGuide] = useState(false)
-  const [copiedActivation, setCopiedActivation] = useState(false)
-  const [copiedPhone, setCopiedPhone] = useState(false)
-  const [callmebotNumber, setCallmebotNumber] = useState(null)
-  const [callmebotNumberLoading, setCallmebotNumberLoading] = useState(false)
-
-  const fetchCallmebotNumber = async () => {
-    if (callmebotNumber) return
-    setCallmebotNumberLoading(true)
-    const { data } = await supabase.functions.invoke('get-callmebot-number')
-    if (data?.number) setCallmebotNumber(data)
-    setCallmebotNumberLoading(false)
-  }
   const [pinSaving, setPinSaving] = useState(false)
   const [healthConditions, setHealthConditions] = useState({})
 
@@ -380,101 +366,6 @@ export default function ProfileForm() {
               placeholder="Colesterol 205, triglicéridos 161..."
               {...register('notes')}
             />
-          </div>
-
-          {/* Sección 5 — Notificaciones */}
-          <div className="border-t border-gray-100 dark:border-gray-700 pt-4 flex flex-col gap-3">
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-              📱 {t('profile.section_notifications')}
-            </p>
-            <Input
-              label={t('whatsapp.phone')}
-              type="tel"
-              placeholder="506XXXXXXXX"
-              {...register('phone_whatsapp')}
-            />
-            <p className="text-xs text-gray-400 -mt-2">{t('whatsapp.phone_hint')}</p>
-            <Input
-              label={t('whatsapp.api_key')}
-              placeholder="123456"
-              {...register('callmebot_api_key')}
-            />
-            <p className="text-xs text-gray-400 -mt-2">{t('whatsapp.api_key_hint')}</p>
-
-            {/* Guía de configuración CallMeBot */}
-            <button
-              type="button"
-              onClick={() => { setShowCallmebotGuide(v => !v); fetchCallmebotNumber() }}
-              className="text-xs text-primary-600 dark:text-primary-400 font-medium text-left flex items-center gap-1 -mt-1"
-            >
-              <span>{t('whatsapp.setup_guide_title')}</span>
-              <span>{showCallmebotGuide ? '▾' : '▸'}</span>
-            </button>
-            {showCallmebotGuide && (
-              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 -mt-1 flex flex-col gap-3">
-
-                {/* Paso 1: número obtenido automáticamente */}
-                <div className="flex flex-col gap-1">
-                  <p className="text-xs font-semibold text-gray-600 dark:text-gray-300">1. {t('whatsapp.setup_step1_label')}</p>
-                  {callmebotNumberLoading && (
-                    <div className="flex items-center gap-2 text-xs text-gray-400">
-                      <Spinner size="sm" /> {t('whatsapp.setup_loading')}
-                    </div>
-                  )}
-                  {!callmebotNumberLoading && callmebotNumber && (
-                    <div className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded px-2 py-1">
-                      <span className="text-xs font-mono text-gray-800 dark:text-gray-100 flex-1 select-all">{callmebotNumber.display}</span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          navigator.clipboard.writeText(callmebotNumber.number)
-                          setCopiedPhone(true)
-                          setTimeout(() => setCopiedPhone(false), 2000)
-                        }}
-                        className="text-xs font-medium text-green-600 dark:text-green-400 shrink-0"
-                      >
-                        {copiedPhone ? '✓ ' + t('whatsapp.setup_copied') : t('whatsapp.setup_copy')}
-                      </button>
-                    </div>
-                  )}
-                  {!callmebotNumberLoading && !callmebotNumber && (
-                    <a
-                      href="https://www.callmebot.com/blog/free-api-whatsapp-messages/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-primary-600 dark:text-primary-400 underline"
-                    >
-                      {t('whatsapp.setup_step1_docs_link')} ↗
-                    </a>
-                  )}
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{t('whatsapp.setup_step1_hint')}</p>
-                </div>
-
-                {/* Paso 2: copiar mensaje */}
-                <div className="flex flex-col gap-1">
-                  <p className="text-xs font-semibold text-gray-600 dark:text-gray-300">2. {t('whatsapp.setup_step2_label')}</p>
-                  <div className="flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded px-2 py-1">
-                    <span className="text-xs font-mono text-gray-800 dark:text-gray-100 flex-1 select-all italic">I allow callmebot to send me messages</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        navigator.clipboard.writeText('I allow callmebot to send me messages')
-                        setCopiedActivation(true)
-                        setTimeout(() => setCopiedActivation(false), 2000)
-                      }}
-                      className="text-xs font-medium text-green-600 dark:text-green-400 shrink-0"
-                    >
-                      {copiedActivation ? '✓ ' + t('whatsapp.setup_copied') : t('whatsapp.setup_copy')}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Paso 3 */}
-                <p className="text-xs text-gray-600 dark:text-gray-300">3. {t('whatsapp.setup_step3')}</p>
-
-                <p className="text-xs text-gray-500 dark:text-gray-400 italic">{t('whatsapp.setup_note')}</p>
-              </div>
-            )}
           </div>
 
           <Button type="submit" disabled={isSubmitting} className="w-full">

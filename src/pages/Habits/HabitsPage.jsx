@@ -8,7 +8,7 @@ import { useHabits, getHabitDisplayName } from '../../hooks/useHabits'
 import { useBadges } from '../../hooks/useBadges'
 import { Card } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
-import { WhatsAppAlerts } from '../../components/shared/WhatsAppAlerts'
+import { PushAlerts } from '../../components/shared/PushAlerts'
 
 export default function HabitsPage() {
   const { t } = useTranslation()
@@ -194,25 +194,14 @@ export default function HabitsPage() {
         </form>
       </Card>
 
-      {/* WhatsApp alerts */}
-      {profile?.phone_whatsapp && (
-        <Card>
-          <WhatsAppAlerts
-            profile={profile}
-            habitsText={habitsMessage}
-            foodText={null}
-            summaryText={habitsMessage}
-          />
-        </Card>
-      )}
-
-      {!profile?.phone_whatsapp && (
-        <div className="text-center py-2">
-          <Link to={`/profiles/${activeProfileId}/edit`} className="text-sm font-medium underline" style={{ color: '#5AC8F5' }}>
-            {t('whatsapp.configure')}
-          </Link>
-        </div>
-      )}
+      {/* Notificaciones push */}
+      <Card>
+        <PushAlerts
+          habitsText={habitsMessage}
+          foodText={null}
+          summaryText={habitsMessage}
+        />
+      </Card>
     </div>
   )
 }

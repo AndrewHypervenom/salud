@@ -860,6 +860,15 @@
       "unlocked_on": "Earned on {{date}}"
     }
   },
+  "push": {
+    "title": "Reminders",
+    "enable": "Enable notifications",
+    "send_habits": "Habits reminder",
+    "send_food": "Food reminder",
+    "send_summary": "Day summary",
+    "sent": "Sent!",
+    "denied": "Notifications are blocked. Enable them in your browser settings."
+  },
   "whatsapp": {
     "title": "WhatsApp Alerts",
     "send_habits": "Habits reminder",

@@ -11,7 +11,7 @@ import { calcBMR, calcTDEE, calcCalorieTarget, calcMacros, getCalorieStatus, CAL
 import { Card } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
 import { FoodEntryForm } from './FoodEntryForm'
-import { WhatsAppAlerts } from '../../components/shared/WhatsAppAlerts'
+import { PushAlerts } from '../../components/shared/PushAlerts'
 import { BadgeNotification } from '../../components/shared/BadgeNotification'
 
 const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack']
@@ -219,25 +219,14 @@ export default function FoodPage() {
         ))
       )}
 
-      {/* WhatsApp alerts */}
-      {profile?.phone_whatsapp && (
-        <Card>
-          <WhatsAppAlerts
-            profile={profile}
-            habitsText={null}
-            foodText={foodSummary}
-            summaryText={daySummary}
-          />
-        </Card>
-      )}
-
-      {!profile?.phone_whatsapp && (
-        <div className="text-center py-2">
-          <Link to={`/profiles/${activeProfileId}/edit`} className="text-sm text-primary-600 underline">
-            {t('whatsapp.configure')}
-          </Link>
-        </div>
-      )}
+      {/* Notificaciones push */}
+      <Card>
+        <PushAlerts
+          habitsText={null}
+          foodText={foodSummary}
+          summaryText={daySummary}
+        />
+      </Card>
     </div>
   )
 }
