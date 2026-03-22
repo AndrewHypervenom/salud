@@ -6,27 +6,25 @@ const corsHeaders = {
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 const MODEL = 'llama-3.3-70b-versatile'
 
-function buildSystemPrompt(dayComplete: boolean, pendingMeals: string[], hour: number): string {
+function buildSystemPrompt(dayComplete: boolean, nextMeal: string): string {
   const planFieldInstruction = dayComplete
-    ? `"tomorrow_plan": "Plan de alimentación para MAÑANA. Empieza con 'Mañana desayuna...'. Incluye desayuno, almuerzo y cena con platos concretos y porciones. Máx 3 oraciones."`
-    : `"tomorrow_plan": "Plan para las próximas comidas de HOY (son las ${hour}:00): ${pendingMeals.length > 0 ? pendingMeals.join(', ') : 'hidratación y descanso'}. Empieza directamente con la comida más próxima (ej: 'Para la cena te recomiendo...'). NUNCA menciones mañana ni el día siguiente. Máx 3 oraciones."`
+    ? `"tomorrow_plan": "Plan para mañana. Empieza con 'Mañana desayuna...'. Sugiere desayuno, almuerzo y cena con platos y porciones concretas. Máx 3 oraciones."`
+    : `"tomorrow_plan": "Recomendación para ${nextMeal} de hoy. Sugiere 1-2 opciones concretas con nombre del plato, porción y calorías aproximadas. Empieza con 'Para ${nextMeal}...'. Máx 2 oraciones."`
 
-  return `Eres un coach de salud y nutrición personalizado que guía al usuario EN TIEMPO REAL durante su día alimenticio.
+  return `Eres un coach de salud y nutrición personalizado.
 
-REGLAS OBLIGATORIAS:
-1. Calcula siempre las calorías restantes (meta − consumido) y basate en ese presupuesto para recomendar.
-2. Propón platos CONCRETOS con nombre y porción aproximada (ej: "sopa de pollo 300 ml ≈ 180 kcal").
-3. Si el usuario ya superó su meta calórica: no sugieras más comida, recomienda hidratación y movimiento ligero.
+REGLAS:
+1. Basa tus recomendaciones en las calorías restantes del usuario (meta − consumido).
+2. Propón platos CONCRETOS con nombre y porción (ej: "arroz con pollo 300g ≈ 420 kcal").
+3. Si el usuario superó su meta calórica: no sugieras más comida, recomienda hidratación.
 4. Adapta al objetivo del usuario (bajar de peso, mantener, ganar músculo).
-5. Máximo 3-4 recomendaciones, ordenadas por urgencia.
-6. Tono motivador y directo, como un coach personal que conoce bien al usuario.
-7. NUNCA sugieras una comida que ya fue registrada hoy.
+5. Tono motivador y directo.
 
 Responde ÚNICAMENTE con JSON válido, sin texto adicional, sin markdown:
 {
-  "analysis": "2 oraciones máximo. Resumen honesto de cómo va el día: calorías consumidas, restantes y tendencia.",
+  "analysis": "Máx 2 oraciones. Resumen de calorías consumidas y restantes hoy.",
   "recommendations": [
-    { "icon": "emoji", "title": "Título corto", "text": "Recomendación concreta con plato específico y calorías aproximadas" }
+    { "icon": "emoji", "title": "Título corto", "text": "Recomendación concreta con plato y calorías aproximadas" }
   ],
   ${planFieldInstruction},
   "motivation": "Frase motivacional corta. Máx 1 oración."
@@ -170,34 +168,21 @@ Deno.serve(async (req: Request) => {
     const hasBreakfast = loggedTypes.has('breakfast')
     const hasLunch = loggedTypes.has('lunch')
     const hasDinner = loggedTypes.has('dinner')
-    const hasSnack = loggedTypes.has('snack')
 
-    // Determinar qué comidas faltan (según horario actual) y cuáles ya pasaron sin registrarse
-    const pendingMeals: string[] = []  // Comidas que aún tienen sentido comer hoy
-    const missedMeals: string[] = []   // Comidas cuyo horario habitual ya pasó sin registrarse
-
-    if (!hasBreakfast) {
-      if (hour < 11) pendingMeals.push('desayuno')
-      else missedMeals.push('desayuno')
-    }
-    if (!hasLunch) {
-      if (hour < 16) pendingMeals.push('almuerzo')
-      else missedMeals.push('almuerzo')
-    }
-    if (!hasSnack && !hasDinner && hour >= 14 && hour < 21) {
-      pendingMeals.push('merienda/snack (opcional)')
-    }
-    if (!hasDinner && hour >= 17) {
-      pendingMeals.push('cena')
-    }
-
+    // El servidor decide cuál es la próxima comida — el LLM solo ejecuta esa instrucción
     const dayComplete = hasDinner || hour >= 21
-    const pendingMealsText = pendingMeals.length > 0
-      ? `Comidas que aún faltan hoy (según horario actual): ${pendingMeals.join(', ')}`
-      : 'No quedan comidas pendientes para el resto del día.'
-    const missedMealsText = missedMeals.length > 0
-      ? `Comidas no registradas (ya pasó su horario habitual): ${missedMeals.join(', ')}`
-      : ''
+
+    let nextMeal: string
+    if (dayComplete) {
+      nextMeal = 'mañana'
+    } else if (hasLunch) {
+      nextMeal = 'la cena'
+    } else if (hasBreakfast) {
+      nextMeal = 'el almuerzo'
+    } else {
+      // Nada registrado aún — usar la hora para decidir
+      nextMeal = hour < 11 ? 'el desayuno' : hour < 16 ? 'el almuerzo' : 'la cena'
+    }
 
     const mealSummary = (foodLogs as FoodLog[]).length === 0
       ? 'No registró ninguna comida hoy.'
@@ -216,8 +201,7 @@ Deno.serve(async (req: Request) => {
 
     const userDataPrompt = `
 HORA ACTUAL: ${hour}:00
-${pendingMealsText}
-${missedMealsText ? missedMealsText + '\n' : ''}DÍA COMPLETO: ${dayComplete ? 'Sí (orientar plan de mañana)' : 'No (orientar comidas pendientes de hoy)'}
+PRÓXIMA COMIDA A ORIENTAR: ${nextMeal}
 
 DATOS DEL USUARIO:
 - Nombre: ${profile.name}
@@ -253,7 +237,7 @@ SALUD:
       body: JSON.stringify({
         model: MODEL,
         messages: [
-          { role: 'system', content: buildSystemPrompt(dayComplete, pendingMeals, hour) },
+          { role: 'system', content: buildSystemPrompt(dayComplete, nextMeal) },
           { role: 'user', content: userDataPrompt },
         ],
         temperature: 0.6,
