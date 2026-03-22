@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { supabase } from '../lib/supabase'
 
 function parseProduct(product) {
   if (!product) return null
@@ -21,6 +22,8 @@ export function useFoodSearch() {
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [aiResult, setAiResult] = useState(null)
+  const [aiLoading, setAiLoading] = useState(false)
 
   const searchByName = useCallback(async (query) => {
     if (!query?.trim()) return
@@ -73,12 +76,56 @@ export function useFoodSearch() {
     }
   }, [])
 
-  const clearResults = () => { setResults([]); setError(null) }
+  const searchByNameWithAI = useCallback(async (query) => {
+    if (!query?.trim()) return
+    setLoading(true)
+    setError(null)
+    setResults([])
+    setAiResult(null)
+    setAiLoading(true)
+
+    // Llamada IA en paralelo con OpenFoodFacts
+    const aiPromise = supabase.functions
+      .invoke('analyze-food', { body: { mode: 'query', query: query.trim() } })
+      .then(({ data }) => {
+        if (data && data.name && !data.error) setAiResult(data)
+      })
+      .catch(() => { /* silencioso si IA falla */ })
+      .finally(() => setAiLoading(false))
+
+    const offPromise = (async () => {
+      try {
+        const params = new URLSearchParams({
+          search_terms: query.trim(),
+          search_simple: '1',
+          action: 'process',
+          json: '1',
+          page_size: '20',
+          fields: 'code,product_name,product_name_es,generic_name,brands,nutriments,image_front_small_url,serving_size',
+        })
+        const res = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?${params}`)
+        if (!res.ok) throw new Error('Error de red')
+        const data = await res.json()
+        const parsed = (data.products || [])
+          .map(p => parseProduct(p))
+          .filter(p => p && p.name && p.name !== 'Producto desconocido')
+        setResults(parsed)
+      } catch (e) {
+        setError(e.message)
+      } finally {
+        setLoading(false)
+      }
+    })()
+
+    await Promise.all([aiPromise, offPromise])
+  }, [])
+
+  const clearResults = () => { setResults([]); setError(null); setAiResult(null) }
 
   const injectResults = useCallback((items) => {
     setResults(items)
     setError(null)
   }, [])
 
-  return { results, loading, error, searchByName, searchByBarcode, clearResults, injectResults }
+  return { results, loading, error, aiResult, aiLoading, searchByName, searchByNameWithAI, searchByBarcode, clearResults, injectResults }
 }

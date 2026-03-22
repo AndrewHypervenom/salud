@@ -42,11 +42,11 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { imageUrl, description: textDescription, correction, mode } = await req.json()
+    const { imageUrl, description: textDescription, correction, mode, query } = await req.json()
 
-    if (!imageUrl && !textDescription) {
+    if (!imageUrl && !textDescription && !query) {
       return new Response(
-        JSON.stringify({ error: 'imageUrl or description is required' }),
+        JSON.stringify({ error: 'imageUrl, description, or query is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
       )
     }
@@ -57,7 +57,35 @@ Deno.serve(async (req: Request) => {
 
     let result = null
 
-    if (imageUrl) {
+    if (mode === 'query' && query) {
+      // ── Modo búsqueda: datos nutricionales por 100g del alimento consultado ──
+      const queryContent = await groqChat(MODEL_TEXT, [{
+        role: 'user',
+        content: `Eres un nutricionista experto con acceso a tablas nutricionales (USDA, BEDCA, FAO). Da los valores nutricionales por 100g del alimento: "${query}".
+Responde SOLO con JSON válido sin markdown ni texto adicional:
+{"name":"nombre oficial del alimento en español","calories_per_100g":NUMERO,"protein_g":NUMERO,"carbs_g":NUMERO,"fat_g":NUMERO,"fiber_g":NUMERO}
+Reglas:
+- Todos los valores deben ser números enteros
+- nombre en español, oficial y preciso
+- Si el alimento tiene preparaciones distintas, asume la más común (hervido, cocido, natural)
+- Si no conoces el alimento, usa 0 en todos los valores`,
+      }], 256, 15000)
+
+      const raw = parseJson(queryContent)
+      if (raw) {
+        const g = (a: string, b: string, c: string) =>
+          (raw[a] ?? raw[b] ?? raw[c] ?? 0) as number
+        result = {
+          name:              String(raw.name || raw.product_name || query),
+          calories_per_100g: g('calories_per_100g', 'calories', 'energy_kcal'),
+          protein_g:         g('protein_g', 'proteins_g', 'protein'),
+          carbs_g:           g('carbs_g', 'carbohydrates_g', 'carbs'),
+          fat_g:             g('fat_g', 'fats_g', 'fat'),
+          fiber_g:           g('fiber_g', 'fibre_g', 'fiber'),
+          source:            'ai',
+        }
+      }
+    } else if (imageUrl) {
       if (mode === 'label') {
         // ── Modo etiqueta: leer tabla nutricional por 100g ──
         const labelContent = await groqChat(MODEL_VISION, [{

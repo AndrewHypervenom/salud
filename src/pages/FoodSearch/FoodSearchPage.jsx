@@ -961,7 +961,7 @@ export default function FoodSearchPage() {
   const { activeProfileId } = useProfileContext()
   const { profiles } = useProfiles()
   const profile = profiles.find(p => p.id === activeProfileId)
-  const { results, loading, error, searchByName, searchByBarcode, clearResults, injectResults } = useFoodSearch()
+  const { results, loading, error, aiResult, aiLoading, searchByNameWithAI, searchByBarcode, clearResults, injectResults } = useFoodSearch()
   const { searchByBarcode: searchLocal, listByProfile } = useCustomProducts()
   const { newBadge, clearNewBadge } = useBadges(activeProfileId)
 
@@ -989,7 +989,7 @@ export default function FoodSearchPage() {
   const macros = calTarget ? calcMacros(calTarget) : null
 
   const handleSearch = () => {
-    if (query.trim()) searchByName(query)
+    if (query.trim()) searchByNameWithAI(query)
   }
 
   const handleScan = async (code) => {
@@ -1086,9 +1086,9 @@ export default function FoodSearchPage() {
               placeholder={t('food_search.search_placeholder')}
               className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary-500"
             />
-            <button onClick={handleSearch} disabled={!query.trim() || loading}
+            <button onClick={handleSearch} disabled={!query.trim() || loading || aiLoading}
               className="px-4 py-3 bg-primary-600 text-white rounded-xl font-semibold text-sm disabled:opacity-40 hover:bg-primary-700 transition-colors">
-              {loading ? <Spinner size="sm" /> : '🔍'}
+              {(loading || aiLoading) ? <Spinner size="sm" /> : '🔍'}
             </button>
           </div>
 
@@ -1097,8 +1097,37 @@ export default function FoodSearchPage() {
             <p className="text-sm text-red-600 bg-red-50 dark:bg-red-950/30 rounded-xl px-4 py-3">{error}</p>
           )}
 
-          {/* Loading — skeletons */}
-          {loading && (
+          {/* Resultado IA — aparece primero en cuanto llega */}
+          {aiLoading && !aiResult && (
+            <div className="h-24 bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800/30 rounded-2xl animate-pulse" />
+          )}
+          {aiResult && (
+            <div className="flex flex-col gap-1">
+              <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+                🤖 IA · resultado instantáneo
+              </p>
+              <div className="ring-2 ring-emerald-400 dark:ring-emerald-500 rounded-2xl">
+                <ResultItem
+                  item={{
+                    barcode: '__ai__',
+                    name: aiResult.name,
+                    brand: '',
+                    image_url: null,
+                    serving_size: '100g',
+                    calories_per_100g: aiResult.calories_per_100g,
+                    protein_g: aiResult.protein_g,
+                    carbs_g: aiResult.carbs_g,
+                    fat_g: aiResult.fat_g,
+                    fiber_g: aiResult.fiber_g,
+                  }}
+                  onAdd={handleAdd}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Loading skeletons de OpenFoodFacts — solo si ya mostré el resultado IA o aún no hay nada */}
+          {loading && !aiResult && (
             <div className="flex flex-col gap-3">
               {[0, 1, 2].map(i => (
                 <div key={i} className="h-24 bg-gray-100 dark:bg-gray-800 rounded-2xl animate-pulse" />
@@ -1106,10 +1135,19 @@ export default function FoodSearchPage() {
             </div>
           )}
 
-          {/* Resultados */}
+          {/* Spinner secundario cuando ya hay resultado IA pero aún carga OpenFoodFacts */}
+          {loading && aiResult && (
+            <div className="flex items-center gap-2 py-1">
+              <Spinner size="sm" />
+              <p className="text-xs text-gray-400">Buscando más opciones…</p>
+            </div>
+          )}
+
+          {/* Resultados de OpenFoodFacts */}
           {!loading && results.length > 0 && (
             <div className="flex flex-col gap-3">
-              <p className="text-xs text-gray-400">{results.length} resultado{results.length !== 1 ? 's' : ''}</p>
+              {aiResult && <p className="text-xs text-gray-400 font-semibold">Productos encontrados ({results.length})</p>}
+              {!aiResult && <p className="text-xs text-gray-400">{results.length} resultado{results.length !== 1 ? 's' : ''}</p>}
               {results.map((item, i) => (
                 <ResultItem key={item.barcode || i} item={item} onAdd={handleAdd} />
               ))}
@@ -1117,7 +1155,7 @@ export default function FoodSearchPage() {
           )}
 
           {/* Sin resultados */}
-          {!loading && !error && results.length === 0 && query && !scanned && (
+          {!loading && !aiLoading && !error && results.length === 0 && !aiResult && query && !scanned && (
             <div className="flex flex-col items-center py-12 text-center gap-3">
               <span className="text-5xl">🔍</span>
               <p className="text-gray-400 text-sm">{t('food_search.no_results')}</p>
