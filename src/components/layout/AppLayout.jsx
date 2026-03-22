@@ -1,9 +1,15 @@
 import { Outlet } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { TopBar } from './TopBar'
 import { Sidebar } from './Sidebar'
 import { BottomNav } from './BottomNav'
+import { BadgeCelebration, useBadgeCelebration } from '../shared/BadgeCelebration'
 
 export default function AppLayout() {
+  const { i18n } = useTranslation()
+  const lang = i18n.language?.startsWith('es') ? 'es' : 'en'
+  const { celebrationBadge, dismiss } = useBadgeCelebration()
+
   return (
     <div className="min-h-screen bg-[var(--bg)]">
       <TopBar />
@@ -16,6 +22,14 @@ export default function AppLayout() {
         </main>
       </div>
       <BottomNav />
+
+      {celebrationBadge && (
+        <BadgeCelebration
+          badge={celebrationBadge}
+          lang={lang}
+          onDismiss={dismiss}
+        />
+      )}
     </div>
   )
 }

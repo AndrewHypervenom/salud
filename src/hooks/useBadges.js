@@ -772,7 +772,10 @@ export function useBadges(profileId) {
       if (error) return null
       setBadges(prev => [...prev, data])
       const badgeDef = ALL_BADGES.find(b => b.key === key)
-      if (badgeDef) setNewBadge(badgeDef)
+      if (badgeDef) {
+        setNewBadge(badgeDef)
+        window.dispatchEvent(new CustomEvent('badge-unlocked', { detail: badgeDef }))
+      }
       return data
     } catch {
       return null
@@ -787,7 +790,10 @@ export function useBadges(profileId) {
       await fetchBadges()
       const last = result.newlyUnlocked[result.newlyUnlocked.length - 1]
       const def = ALL_BADGES.find(b => b.key === last.badge_key)
-      if (def) setNewBadge(def)
+      if (def) {
+        setNewBadge(def)
+        window.dispatchEvent(new CustomEvent('badge-unlocked', { detail: def }))
+      }
     }
     if (result?.stats) setBadgeStats(result.stats)
   }, [profileId, fetchBadges])
