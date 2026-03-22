@@ -245,6 +245,12 @@ HÁBITOS:
 
 SALUD:
 - ${bpText}
+
+INSTRUCCIÓN OBLIGATORIA PARA EL CAMPO "tomorrow_plan":
+${dayComplete
+  ? '→ El día está COMPLETO. Escribe el plan para MAÑANA. Comienza con "Mañana desayuna...".'
+  : `→ El día NO está completo. Son las ${hour}:00. Escribe SOLO sobre las comidas que faltan HOY: ${pendingMeals.length > 0 ? pendingMeals.join(', ') : 'hidratación y descanso'}. PROHIBIDO mencionar "mañana" o planear el día siguiente. Si no hay comidas pendientes, recomienda hidratación.`
+}
 `
 
     const groqRes = await fetch(GROQ_API_URL, {
