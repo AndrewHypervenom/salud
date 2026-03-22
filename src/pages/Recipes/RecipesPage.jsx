@@ -70,8 +70,13 @@ function AIRecipeCard({ recipe, profileId, t }) {
   const [saving, setSaving] = useState(false)
   const [imgError, setImgError] = useState(false)
 
-  const imageUrl = `https://source.unsplash.com/400x200/?${encodeURIComponent(recipe.search_query + ' food recipe')}`
-  const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(recipe.name + ' receta saludable')}`
+  // Prioridad: imagen real de TheMealDB → fallback Unsplash
+  const fallbackImageUrl = `https://source.unsplash.com/400x200/?${encodeURIComponent((recipe.search_query || recipe.name) + ' food')}`
+  const displayImage = (!imgError && recipe.image_url) ? recipe.image_url : (!imgError ? fallbackImageUrl : null)
+
+  // Link prioridad: fuente real TheMealDB → YouTube → Google search
+  const linkUrl = recipe.source_url || recipe.youtube_url
+    || `https://www.google.com/search?q=${encodeURIComponent(recipe.name + ' receta saludable')}`
 
   const handleSave = async () => {
     setSaving(true)
@@ -87,7 +92,7 @@ function AIRecipeCard({ recipe, profileId, t }) {
         fat_g: recipe.macros?.fat_g,
         ingredients: recipe.ingredients,
         instructions: recipe.instructions?.join('\n'),
-        image_url: imgError ? null : imageUrl,
+        image_url: recipe.image_url || null,
       }])
       setSaved(true)
     } catch (e) {
@@ -99,13 +104,20 @@ function AIRecipeCard({ recipe, profileId, t }) {
 
   return (
     <Card className="overflow-hidden p-0">
-      {!imgError && (
+      {displayImage && (
         <img
-          src={imageUrl}
+          src={displayImage}
           alt={recipe.name}
           onError={() => setImgError(true)}
-          className="w-full h-40 object-cover"
+          className="w-full h-44 object-cover"
         />
+      )}
+      {recipe.source_url && (
+        <div className="px-4 pt-2">
+          <span className="inline-flex items-center gap-1 text-xs bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full font-medium">
+            ✓ Receta real de internet
+          </span>
+        </div>
       )}
       <div className="p-4 flex flex-col gap-3">
         <div>
@@ -172,7 +184,7 @@ function AIRecipeCard({ recipe, profileId, t }) {
 
         <div className="flex gap-2 pt-1 border-t border-gray-100 dark:border-gray-700">
           <a
-            href={googleUrl}
+            href={linkUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 flex items-center justify-center gap-1.5 py-2 border border-gray-300 dark:border-gray-600 rounded-xl text-xs font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"

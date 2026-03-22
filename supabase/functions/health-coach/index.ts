@@ -39,7 +39,7 @@ Responde ÚNICAMENTE con JSON válido, sin texto adicional, sin markdown:
 {
   "recipes": [
     {
-      "name": "Nombre de la receta",
+      "name": "Nombre de la receta en español",
       "description": "Descripción apetitosa en 1 oración",
       "calories_per_serving": 350,
       "prep_time_minutes": 20,
@@ -47,7 +47,8 @@ Responde ÚNICAMENTE con JSON válido, sin texto adicional, sin markdown:
       "macros": { "protein_g": 25, "carbs_g": 40, "fat_g": 10 },
       "ingredients": ["200g pollo", "1 taza arroz", "2 dientes de ajo"],
       "instructions": ["Paso 1 detallado...", "Paso 2 detallado...", "Paso 3 detallado..."],
-      "search_query": "pollo al ajillo saludable receta"
+      "search_query": "pollo al ajillo receta",
+      "search_query_en": "garlic chicken"
     }
   ]
 }`
@@ -85,7 +86,7 @@ Deno.serve(async (req: Request) => {
       }
       const groqData = await groqRes.json()
       const content = groqData.choices?.[0]?.message?.content ?? ''
-      let recipes = []
+      let recipes: Record<string, unknown>[] = []
       try {
         const jsonMatch = content.match(/\{[\s\S]*\}/)
         if (jsonMatch) {
@@ -95,8 +96,35 @@ Deno.serve(async (req: Request) => {
       } catch {
         // fallback vacío
       }
+
+      // Enriquecer con TheMealDB: imágenes reales + links a la fuente
+      const enriched = await Promise.all(recipes.map(async (recipe) => {
+        try {
+          const term = (recipe.search_query_en as string) || (recipe.name as string)
+          const res = await fetch(
+            `https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(term)}`,
+            { signal: AbortSignal.timeout(4000) }
+          )
+          if (res.ok) {
+            const mdb = await res.json()
+            const meal = mdb.meals?.[0]
+            if (meal) {
+              return {
+                ...recipe,
+                image_url: meal.strMealThumb || null,
+                source_url: meal.strSource || `https://www.themealdb.com/meal/${meal.idMeal}`,
+                youtube_url: meal.strYoutube || null,
+              }
+            }
+          }
+        } catch {
+          // TheMealDB no respondió a tiempo, se usa la receta tal como está
+        }
+        return recipe
+      }))
+
       return new Response(
-        JSON.stringify({ recipes }),
+        JSON.stringify({ recipes: enriched }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
       )
     }
