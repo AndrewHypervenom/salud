@@ -8,10 +8,11 @@ const MODEL = 'llama-3.3-70b-versatile'
 
 const SYSTEM_PROMPT = `Eres un coach de salud y nutrición personalizado que guía al usuario EN TIEMPO REAL durante su día alimenticio. Recibirás los datos de lo que ya comió, la hora actual y las calorías restantes, y tu misión es orientar las PRÓXIMAS comidas del día de forma concreta.
 
-COMPORTAMIENTO SEGÚN LA HORA DEL DÍA:
-- MAÑANA (antes de las 12h): Orientar almuerzo y cena. Calcular presupuesto calórico restante y proponer platos específicos.
-- MEDIODÍA (12h-16h): Orientar merienda y cena. Ajustar recomendaciones según lo consumido.
-- TARDE/NOCHE (después de las 16h): Cerrar el día. Si queda presupuesto, proponer cena ligera. Si se pasó, recomendar hidratación y plan de mañana.
+COMPORTAMIENTO SEGÚN LAS COMIDAS YA REGISTRADAS:
+- Recibirás la lista exacta de comidas que el usuario AÚN NO ha registrado hoy ("Comidas que aún faltan").
+- Orienta SOLO las comidas que faltan, con platos concretos y calorías aproximadas que quepan en el presupuesto restante.
+- Si ya registró cena o el día está completo: orienta el plan de MAÑANA.
+- NUNCA sugieras una comida que ya fue registrada.
 
 REGLAS OBLIGATORIAS:
 1. Calcula siempre las calorías restantes (meta − consumido) y basate en ese presupuesto para recomendar.
@@ -161,28 +162,47 @@ Deno.serve(async (req: Request) => {
     const { profile, calTarget, todayCalories, foodLogs, habitsCompleted, habitsTotal, habitNames, lastBP, currentHour } = body
 
     const hour = typeof currentHour === 'number' ? currentHour : new Date().getHours()
-    const timeLabel = hour < 12 ? 'Mañana' : hour < 16 ? 'Mediodía/tarde' : hour < 20 ? 'Tarde' : 'Noche'
-    const nextMealLabel = hour < 10 ? 'Almuerzo y cena' : hour < 14 ? 'Merienda y cena' : hour < 18 ? 'Cena' : 'Nada más (noche)'
     const remaining = calTarget - todayCalories
 
-    const mealSummary = foodLogs.length === 0
+    // Detectar qué comidas ya fueron registradas
+    type FoodLog = { meal_type: string; description: string; calories_estimated: number }
+    const loggedTypes = new Set((foodLogs as FoodLog[]).map((l) => l.meal_type))
+    const hasBreakfast = loggedTypes.has('breakfast')
+    const hasLunch = loggedTypes.has('lunch')
+    const hasDinner = loggedTypes.has('dinner')
+    const hasSnack = loggedTypes.has('snack')
+
+    // Determinar qué comidas faltan
+    const pendingMeals: string[] = []
+    if (!hasBreakfast) pendingMeals.push('desayuno')
+    if (!hasLunch) pendingMeals.push('almuerzo')
+    if (!hasSnack && !hasDinner) pendingMeals.push('merienda/snack (opcional)')
+    if (!hasDinner) pendingMeals.push('cena')
+
+    const dayComplete = hasDinner || hour >= 20
+    const pendingMealsText = pendingMeals.length > 0
+      ? `Comidas que aún faltan hoy: ${pendingMeals.join(', ')}`
+      : 'Ya registró todas las comidas principales del día.'
+
+    const mealSummary = (foodLogs as FoodLog[]).length === 0
       ? 'No registró ninguna comida hoy.'
-      : foodLogs.map((l: { meal_type: string; description: string; calories_estimated: number }) =>
+      : (foodLogs as FoodLog[]).map((l) =>
           `- ${l.meal_type}: ${l.description} (${l.calories_estimated || 0} kcal)`
         ).join('\n')
 
     const deficit = calTarget - todayCalories
     const deficitText = deficit >= 0
       ? `Le quedan ${deficit} kcal disponibles para el resto del día`
-      : `Superó la meta por ${Math.abs(deficit)} kcal — no recomendar más comida`
+      : `Superó la meta por ${Math.abs(deficit)} kcal — no recomendar más comida pesada`
 
     const bpText = lastBP
       ? `Última presión arterial: ${lastBP.systolic}/${lastBP.diastolic} mmHg`
       : 'Sin mediciones de presión arterial.'
 
     const userDataPrompt = `
-HORA ACTUAL: ${hour}:00 — ${timeLabel}
-PRÓXIMAS COMIDAS A ORIENTAR: ${nextMealLabel}
+HORA ACTUAL: ${hour}:00
+${pendingMealsText}
+DÍA COMPLETO: ${dayComplete ? 'Sí (orientar plan de mañana)' : 'No (orientar comidas pendientes de hoy)'}
 
 DATOS DEL USUARIO:
 - Nombre: ${profile.name}

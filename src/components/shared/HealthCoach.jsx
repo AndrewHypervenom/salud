@@ -24,7 +24,9 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
 
   const hasEnoughFood = foodLogs.length >= 1
   const currentHour = new Date().getHours()
-  const planLabel = currentHour < 20 ? t('coach.rest_of_day_plan') : t('coach.tomorrow_plan')
+  const hasDinner = foodLogs.some(l => l.meal_type === 'dinner')
+  const dayComplete = hasDinner || currentHour >= 20
+  const planLabel = dayComplete ? t('coach.tomorrow_plan') : t('coach.rest_of_day_plan')
 
   // Detect if food was logged AFTER the last analysis
   const lastLogTime = foodLogs.length > 0
