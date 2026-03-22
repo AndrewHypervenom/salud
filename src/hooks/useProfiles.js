@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 
-export function useProfiles() {
+export function useProfiles(profileId) {
   const [profiles, setProfiles] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -9,14 +9,17 @@ export function useProfiles() {
   const fetchProfiles = useCallback(async () => {
     setLoading(true)
     setError(null)
-    const { data, error: err } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: true })
+    let query = supabase.from('profiles').select('*')
+    if (profileId) {
+      query = query.eq('id', profileId)
+    } else {
+      query = query.order('created_at', { ascending: true })
+    }
+    const { data, error: err } = await query
     if (err) setError(err.message)
     else setProfiles(data || [])
     setLoading(false)
-  }, [])
+  }, [profileId])
 
   useEffect(() => {
     fetchProfiles()

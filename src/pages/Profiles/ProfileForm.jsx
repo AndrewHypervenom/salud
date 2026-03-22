@@ -18,8 +18,8 @@ export default function ProfileForm() {
   const { t } = useTranslation()
   const { id } = useParams()
   const navigate = useNavigate()
-  const { profiles, loading, updateProfile } = useProfiles()
-  const { setActiveProfileId } = useProfileContext()
+  const { profiles, loading, updateProfile } = useProfiles(id || undefined)
+  const { activeProfileId, setActiveProfileId } = useProfileContext()
   const { isUnlocked, unlockProfile } = useAuth()
   const isEdit = !!id
 
@@ -47,10 +47,26 @@ export default function ProfileForm() {
 
   const profile = profiles.find(p => p.id === id)
 
+  // Gate: solo se puede editar el perfil activo propio
+  useEffect(() => {
+    if (isEdit && activeProfileId && id !== activeProfileId) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [isEdit, id, activeProfileId, navigate])
+
   // Gate: editing a PIN-protected profile requires it to be unlocked
   useEffect(() => {
     if (isEdit && profile && profile.access_code && !isUnlocked(id)) {
-      navigate(`/profiles/${id}/unlock`, { replace: true })
+      navigate('/login/pin', {
+        replace: true,
+        state: {
+          profileId: profile.id,
+          profileName: profile.name,
+          accessCode: profile.access_code,
+          phone: profile.phone_whatsapp,
+          redirectTo: `/profiles/${profile.id}/edit`,
+        }
+      })
     }
   }, [isEdit, profile, id, isUnlocked, navigate])
 
