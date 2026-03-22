@@ -97,28 +97,47 @@ Deno.serve(async (req: Request) => {
         // fallback vacío
       }
 
-      // Enriquecer con TheMealDB: imágenes reales + links a la fuente
+      // Enriquecer con TheMealDB: buscar por nombre y luego por ingrediente
+      async function fetchMealDB(url: string) {
+        const res = await fetch(url, { signal: AbortSignal.timeout(5000) })
+        if (!res.ok) return null
+        const data = await res.json()
+        return data.meals?.[0] || null
+      }
+
+      const mainIngredient = (ingredients as string).split(/[,\n]/)[0].trim()
+
       const enriched = await Promise.all(recipes.map(async (recipe) => {
         try {
-          const term = (recipe.search_query_en as string) || (recipe.name as string)
-          const res = await fetch(
-            `https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(term)}`,
-            { signal: AbortSignal.timeout(4000) }
-          )
-          if (res.ok) {
-            const mdb = await res.json()
-            const meal = mdb.meals?.[0]
-            if (meal) {
-              return {
-                ...recipe,
-                image_url: meal.strMealThumb || null,
-                source_url: meal.strSource || `https://www.themealdb.com/meal/${meal.idMeal}`,
-                youtube_url: meal.strYoutube || null,
+          const nameEn = (recipe.search_query_en as string) || ''
+          // 1. Buscar por nombre en inglés
+          let meal = nameEn
+            ? await fetchMealDB(`https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(nameEn)}`)
+            : null
+          // 2. Si no encontró, buscar por ingrediente principal en inglés
+          if (!meal) {
+            const filterRes = await fetch(
+              `https://www.themealdb.com/api/json/v1/1/filter.php?i=${encodeURIComponent(mainIngredient)}`,
+              { signal: AbortSignal.timeout(5000) }
+            )
+            if (filterRes.ok) {
+              const filterData = await filterRes.json()
+              const firstId = filterData.meals?.[0]?.idMeal
+              if (firstId) {
+                meal = await fetchMealDB(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${firstId}`)
               }
             }
           }
+          if (meal) {
+            return {
+              ...recipe,
+              image_url: meal.strMealThumb || null,
+              source_url: meal.strSource || `https://www.themealdb.com/meal/${meal.idMeal}`,
+              youtube_url: meal.strYoutube || null,
+            }
+          }
         } catch {
-          // TheMealDB no respondió a tiempo, se usa la receta tal como está
+          // TheMealDB no respondió, continuar sin imagen
         }
         return recipe
       }))

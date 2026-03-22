@@ -64,15 +64,33 @@ function RecipeCard({ recipe, onDelete, t }) {
   )
 }
 
+function recipeEmoji(name = '', ingredients = []) {
+  const text = (name + ' ' + ingredients.join(' ')).toLowerCase()
+  if (/pollo|chicken|pechuga|muslo/.test(text)) return { emoji: '🍗', from: '#f97316', to: '#ea580c' }
+  if (/carne|beef|res|bistec|steak|cerdo|pork/.test(text)) return { emoji: '🥩', from: '#dc2626', to: '#b91c1c' }
+  if (/pescado|fish|salmon|atún|tuna|camarón|shrimp/.test(text)) return { emoji: '🐟', from: '#0ea5e9', to: '#0284c7' }
+  if (/pasta|espagueti|spaghetti|fideos|noodle/.test(text)) return { emoji: '🍝', from: '#d97706', to: '#b45309' }
+  if (/sopa|soup|caldo|stew|estofado/.test(text)) return { emoji: '🍲', from: '#16a34a', to: '#15803d' }
+  if (/ensalada|salad|verde|lechuga/.test(text)) return { emoji: '🥗', from: '#22c55e', to: '#16a34a' }
+  if (/huevo|egg|tortilla|omelette/.test(text)) return { emoji: '🍳', from: '#eab308', to: '#ca8a04' }
+  if (/arroz|rice/.test(text)) return { emoji: '🍚', from: '#a3e635', to: '#65a30d' }
+  if (/sandwich|burger|hamburguesa|wrap/.test(text)) return { emoji: '🥪', from: '#f59e0b', to: '#d97706' }
+  if (/tacos|burrito|mexicano/.test(text)) return { emoji: '🌮', from: '#f97316', to: '#c2410c' }
+  if (/pizza/.test(text)) return { emoji: '🍕', from: '#ef4444', to: '#dc2626' }
+  if (/curry|india|masala/.test(text)) return { emoji: '🍛', from: '#f59e0b', to: '#b45309' }
+  if (/vegetariano|vegano|tofu|lenteja|garbanzo/.test(text)) return { emoji: '🥦', from: '#10b981', to: '#047857' }
+  return { emoji: '🍽', from: '#8b5cf6', to: '#7c3aed' }
+}
+
 function AIRecipeCard({ recipe, profileId, t }) {
   const [expanded, setExpanded] = useState(false)
   const [saved, setSaved] = useState(false)
   const [saving, setSaving] = useState(false)
   const [imgError, setImgError] = useState(false)
 
-  // Prioridad: imagen real de TheMealDB → fallback Unsplash
-  const fallbackImageUrl = `https://source.unsplash.com/400x200/?${encodeURIComponent((recipe.search_query || recipe.name) + ' food')}`
-  const displayImage = (!imgError && recipe.image_url) ? recipe.image_url : (!imgError ? fallbackImageUrl : null)
+  const { emoji, from, to } = recipeEmoji(recipe.name, recipe.ingredients || [])
+  // Imagen real de TheMealDB; si falla o no existe → placeholder con emoji
+  const displayImage = !imgError && recipe.image_url ? recipe.image_url : null
 
   // Link prioridad: fuente real TheMealDB → YouTube → Google search
   const linkUrl = recipe.source_url || recipe.youtube_url
@@ -104,13 +122,21 @@ function AIRecipeCard({ recipe, profileId, t }) {
 
   return (
     <Card className="overflow-hidden p-0">
-      {displayImage && (
+      {displayImage ? (
         <img
           src={displayImage}
           alt={recipe.name}
           onError={() => setImgError(true)}
           className="w-full h-44 object-cover"
         />
+      ) : (
+        <div
+          className="w-full h-44 flex flex-col items-center justify-center gap-2"
+          style={{ background: `linear-gradient(135deg, ${from}, ${to})` }}
+        >
+          <span style={{ fontSize: 64 }}>{emoji}</span>
+          <span className="text-white text-sm font-semibold text-center px-4 leading-tight drop-shadow">{recipe.name}</span>
+        </div>
       )}
       {recipe.source_url && (
         <div className="px-4 pt-2">
