@@ -21,7 +21,9 @@ REGLAS OBLIGATORIAS:
 4. Adapta al objetivo del usuario (bajar de peso, mantener, ganar músculo).
 5. Máximo 3-4 recomendaciones, ordenadas por urgencia.
 6. Tono motivador y directo, como un coach personal que conoce bien al usuario.
-7. El campo "tomorrow_plan": si es de día (antes de las 20h), úsalo para el RESTO DEL DÍA DE HOY. Si es de noche (20h+), úsalo para el plan de MAÑANA.
+7. El campo "tomorrow_plan" en el JSON tiene un nombre técnico pero su uso depende del contexto:
+   - Si el campo "DÍA COMPLETO" del usuario dice "No": escribe EXCLUSIVAMENTE el plan para las comidas que FALTAN HOY. Usa frases como "Para el almuerzo...", "Para la cena...". NUNCA uses la palabra "mañana" en este caso.
+   - Si el campo "DÍA COMPLETO" dice "Sí": escribe el plan para mañana con "Mañana desayuna...".
 
 Responde ÚNICAMENTE con JSON válido, sin texto adicional, sin markdown:
 {
@@ -29,7 +31,7 @@ Responde ÚNICAMENTE con JSON válido, sin texto adicional, sin markdown:
   "recommendations": [
     { "icon": "emoji", "title": "Título corto", "text": "Recomendación concreta con plato específico y calorías aproximadas" }
   ],
-  "tomorrow_plan": "Plan concreto para las próximas comidas de hoy (o para mañana si es de noche). Menciona platos y porciones. Máx 3 oraciones.",
+  "tomorrow_plan": "CRÍTICO: Si DÍA COMPLETO es NO → escribe el plan para las comidas que FALTAN HOY (almuerzo, cena, snack según corresponda). NUNCA escribas 'mañana' si el día no está completo. Si DÍA COMPLETO es SÍ → escribe el plan para mañana. Menciona platos concretos con porciones. Máx 3 oraciones.",
   "motivation": "Frase motivacional corta. Máx 1 oración."
 }`
 
