@@ -271,7 +271,7 @@ function MacrosWidget({ todayLogs, calTarget }) {
   )
 }
 
-function WaterDashWidget({ profileId, waterGoalMl }) {
+function WaterDashWidget({ profileId, waterGoalMl, quickAddMl = 250 }) {
   const { t } = useTranslation()
   const { todayTotal, todayPercent, addWater } = useWaterLogs(profileId, waterGoalMl)
   const ringColor = todayPercent >= 100 ? '#10B981' : '#0EA5E9'
@@ -279,7 +279,7 @@ function WaterDashWidget({ profileId, waterGoalMl }) {
   const handleAdd = async (e) => {
     e.preventDefault()
     e.stopPropagation()
-    try { await addWater(250) } catch {}
+    try { await addWater(quickAddMl) } catch {}
   }
 
   return (
@@ -295,6 +295,7 @@ function WaterDashWidget({ profileId, waterGoalMl }) {
           </div>
           <button
             onClick={handleAdd}
+            title={`+${quickAddMl}ml`}
             className="w-7 h-7 rounded-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center text-sm font-bold active:scale-90 transition-all flex-shrink-0"
           >
             +
@@ -732,7 +733,7 @@ export default function Dashboard() {
       case 'reminders':
         return <RemindersWidget profile={profile} />
       case 'water':
-        return <WaterDashWidget profileId={activeProfileId} waterGoalMl={waterGoal} />
+        return <WaterDashWidget profileId={activeProfileId} waterGoalMl={waterGoal} quickAddMl={profile.water_quick_1_ml ?? 250} />
       case 'fasting':
         return <FastingDashWidget profileId={activeProfileId} />
       case 'habits':
