@@ -341,7 +341,7 @@ export default function RecipesPage() {
     )
   }
 
-  const filtered = mealFilter ? recipes.filter(r => r.meal_type === mealFilter || r.meal_type === 'any') : recipes
+  const filtered = mealFilter ? recipes.filter(r => r.meal_type === mealFilter) : recipes
 
   return (
     <div className="flex flex-col gap-4">
