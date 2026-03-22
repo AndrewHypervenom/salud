@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { RefrigeratorIcon, Sparkles, X, Plus, ChevronDown, ChevronUp, Clock, Flame, Beef, RefreshCw } from 'lucide-react'
+import { RefrigeratorIcon, Sparkles, X, Plus, ChevronDown, ChevronUp, Clock, Flame, Beef, RefreshCw, BookmarkPlus, Check } from 'lucide-react'
 import { Card } from '../ui/Card'
 import { supabase } from '../../lib/supabase'
 
@@ -36,14 +36,43 @@ function RecipeSkeleton() {
   )
 }
 
-function RecipeCard({ recipe, index, t }) {
+function RecipeCard({ recipe, index, t, onSave }) {
   const [showSteps, setShowSteps] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
   const grad = RECIPE_GRADIENTS[index % RECIPE_GRADIENTS.length]
   const accent = RECIPE_ACCENT[index % RECIPE_ACCENT.length]
 
+  async function handleSave() {
+    setSaving(true)
+    try {
+      await onSave(recipe)
+      setSaved(true)
+    } catch {
+      // no-op
+    } finally {
+      setSaving(false)
+    }
+  }
+
   return (
     <div className={`bg-gradient-to-br ${grad} ${accent.border} border rounded-2xl p-4`}>
-      <h3 className="font-bold text-gray-900 dark:text-gray-100 text-base mb-2">{recipe.name}</h3>
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <h3 className="font-bold text-gray-900 dark:text-gray-100 text-base">{recipe.name}</h3>
+        {onSave && (
+          <button
+            onClick={handleSave}
+            disabled={saving || saved}
+            title={saved ? t('diet.recipe_saved') : t('diet.recipe_save')}
+            className="flex-shrink-0 p-1.5 rounded-lg transition-colors disabled:opacity-60 hover:bg-white/50 dark:hover:bg-black/20"
+          >
+            {saved
+              ? <Check size={15} className="text-green-500" />
+              : <BookmarkPlus size={15} className="text-gray-400 dark:text-gray-500" />
+            }
+          </button>
+        )}
+      </div>
 
       {/* Pills */}
       <div className="flex flex-wrap gap-1.5 mb-3">
@@ -164,6 +193,21 @@ export function FridgeAssistant({ profile, calTarget, remainingCalories }) {
     setError(null)
   }
 
+  async function saveRecipeToDb(recipe) {
+    const { error } = await supabase.from('recipes').insert([{
+      profile_id: profile?.id,
+      title: recipe.name,
+      meal_type: 'any',
+      calories_per_serving: recipe.calories_per_serving ?? null,
+      protein_g: recipe.macros?.protein_g ?? null,
+      carbs_g: recipe.macros?.carbs_g ?? null,
+      fat_g: recipe.macros?.fat_g ?? null,
+      ingredients: recipe.ingredients_used ?? [],
+      instructions: recipe.instructions?.join('\n') ?? null,
+    }])
+    if (error) throw error
+  }
+
   return (
     <Card>
       {/* Header */}
@@ -269,7 +313,7 @@ export function FridgeAssistant({ profile, calTarget, remainingCalories }) {
       {recipes && !loading && (
         <div className="flex flex-col gap-3 mt-1">
           {recipes.map((recipe, i) => (
-            <RecipeCard key={i} recipe={recipe} index={i} t={t} />
+            <RecipeCard key={i} recipe={recipe} index={i} t={t} onSave={profile?.id ? saveRecipeToDb : null} />
           ))}
           <button
             onClick={handleReset}

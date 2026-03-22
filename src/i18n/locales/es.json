@@ -183,6 +183,8 @@
     "fridge_try_again": "Intentar con otros ingredientes",
     "fridge_quick_title": "Ingredientes rápidos",
     "fridge_max_reached": "Máximo 15 ingredientes",
+    "recipe_save": "Guardar en mis recetas",
+    "recipe_saved": "¡Guardada!",
     "recipe_prep_time": "{{n}} min",
     "recipe_calories": "{{n}} kcal",
     "recipe_protein": "{{n}}g prot",
