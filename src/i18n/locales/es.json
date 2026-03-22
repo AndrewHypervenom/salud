@@ -871,9 +871,15 @@
     "not_configured": "Configura tu número WhatsApp en tu perfil para activar las alertas.",
     "configure": "Configurar WhatsApp",
     "phone": "Número WhatsApp",
-    "phone_hint": "Formato internacional: 506XXXXXXXX",
+    "phone_hint": "Formato internacional sin '+'. Ejemplo: 50688887777",
     "api_key": "API Key de CallMeBot",
-    "api_key_hint": "Obténla enviando un mensaje a CallMeBot"
+    "api_key_hint": "Obténla siguiendo los pasos de abajo",
+    "setup_guide_title": "¿Cómo obtengo mi API Key?",
+    "setup_step1": "Abre WhatsApp y agrega este contacto: +34 644 65 25 19",
+    "setup_step2": "Envíale exactamente este mensaje: I allow callmebot to send me messages",
+    "setup_step3": "Recibirás tu API Key en segundos por WhatsApp",
+    "setup_step4": "Copia la API Key y pégala en el campo de arriba",
+    "setup_note": "Solo necesitas hacer esto una vez por número de teléfono."
   },
   "scanner": {
     "camera_error": "No se pudo acceder a la cámara: {{msg}}",

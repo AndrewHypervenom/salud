@@ -24,6 +24,7 @@ export default function ProfileForm() {
   const isEdit = !!id
 
   const [showPinSetup, setShowPinSetup] = useState(false)
+  const [showCallmebotGuide, setShowCallmebotGuide] = useState(false)
   const [pinSaving, setPinSaving] = useState(false)
   const [healthConditions, setHealthConditions] = useState({})
 
@@ -386,6 +387,27 @@ export default function ProfileForm() {
               {...register('callmebot_api_key')}
             />
             <p className="text-xs text-gray-400 -mt-2">{t('whatsapp.api_key_hint')}</p>
+
+            {/* Guía de configuración CallMeBot */}
+            <button
+              type="button"
+              onClick={() => setShowCallmebotGuide(v => !v)}
+              className="text-xs text-primary-600 dark:text-primary-400 font-medium text-left flex items-center gap-1 -mt-1"
+            >
+              <span>{t('whatsapp.setup_guide_title')}</span>
+              <span>{showCallmebotGuide ? '▾' : '▸'}</span>
+            </button>
+            {showCallmebotGuide && (
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 -mt-1">
+                <ol className="text-xs text-gray-700 dark:text-gray-300 space-y-2 list-decimal list-inside">
+                  <li>{t('whatsapp.setup_step1')}</li>
+                  <li>{t('whatsapp.setup_step2')}</li>
+                  <li>{t('whatsapp.setup_step3')}</li>
+                  <li>{t('whatsapp.setup_step4')}</li>
+                </ol>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 italic">{t('whatsapp.setup_note')}</p>
+              </div>
+            )}
           </div>
 
           <Button type="submit" disabled={isSubmitting} className="w-full">
