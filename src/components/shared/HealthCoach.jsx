@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Bot, AlertTriangle, Dumbbell } from 'lucide-react'
+import { Bot, Dumbbell } from 'lucide-react'
 import { useHealthCoach } from '../../hooks/useHealthCoach'
 import { useBadges } from '../../hooks/useBadges'
 import { Card } from '../ui/Card'
@@ -12,8 +12,9 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
   const { todayAnalysis, loading, initialLoading, error, analyze } = useHealthCoach(profileId)
   const { checkAndUnlock } = useBadges(profileId)
   const autoTriggered = useRef(false)
+  const reanalyzing = useRef(false)
 
-  const hasDinner = foodLogs.some(l => l.meal_type === 'dinner')
+  const hasEnoughFood = foodLogs.length >= 3
 
   // Detect if food was logged AFTER the last analysis
   const lastLogTime = foodLogs.length > 0
@@ -21,18 +22,30 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
     : 0
   const isStale = todayAnalysis && lastLogTime > new Date(todayAnalysis.updated_at).getTime()
 
-  // Auto-trigger once when dinner is logged and no analysis exists
+  // Auto-trigger initial analysis when 3+ foods are logged
   useEffect(() => {
     if (initialLoading) return
-    if (autoTriggered.current) return
-    if (!hasDinner) return
-    if (todayAnalysis) return
     if (loading) return
+    if (!hasEnoughFood) return
+    if (todayAnalysis) return
+    if (autoTriggered.current) return
 
     autoTriggered.current = true
     analyze({ profile, calTarget, todayCalories, foodLogs, habits, habitLogs, lastBP })
       .then(() => checkAndUnlock('first_coach', true))
-  }, [initialLoading, hasDinner, todayAnalysis, loading])
+  }, [initialLoading, loading, hasEnoughFood, todayAnalysis])
+
+  // Auto-re-analyze whenever food is added after last analysis
+  useEffect(() => {
+    if (initialLoading) return
+    if (loading) return
+    if (!isStale) return
+    if (reanalyzing.current) return
+
+    reanalyzing.current = true
+    analyze({ profile, calTarget, todayCalories, foodLogs, habits, habitLogs, lastBP })
+      .finally(() => { reanalyzing.current = false })
+  }, [initialLoading, loading, isStale])
 
   const handleAnalyze = async () => {
     await analyze({ profile, calTarget, todayCalories, foodLogs, habits, habitLogs, lastBP })
@@ -54,8 +67,8 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
     )
   }
 
-  // No analysis yet + no dinner logged
-  if (!todayAnalysis && !hasDinner) {
+  // No analysis yet + less than 3 foods logged
+  if (!todayAnalysis && !hasEnoughFood) {
     return (
       <Card className="border border-dashed border-primary-300 bg-primary-50/50 dark:bg-primary-900/10 dark:border-primary-700">
         <div className="flex flex-col items-center text-center gap-3 py-2">
@@ -75,7 +88,7 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
     )
   }
 
-  // No analysis yet but dinner is logged (auto-trigger in progress or failed)
+  // No analysis yet but 3+ foods logged (auto-trigger in progress or failed)
   if (!todayAnalysis) {
     return (
       <Card className="border border-dashed border-primary-300 bg-primary-50/50 dark:bg-primary-900/10">
@@ -95,17 +108,6 @@ export function HealthCoach({ profileId, profile, calTarget, todayCalories, food
   // Analysis exists — show results
   return (
     <div className="flex flex-col gap-3">
-      {/* Stale warning */}
-      {isStale && (
-        <button
-          onClick={handleAnalyze}
-          className="flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-300 rounded-xl px-4 py-2 text-sm text-amber-700 dark:text-amber-300 w-full text-left"
-        >
-          <AlertTriangle size={16} strokeWidth={1.75} className="flex-shrink-0" />
-          <span className="flex-1">{t('coach.stale_warning')}</span>
-          <span className="font-semibold underline">{t('coach.regenerate')}</span>
-        </button>
-      )}
 
       {/* Análisis del día */}
       <Card className="border-l-4 border-primary-500 bg-primary-50 dark:bg-primary-900/20">

@@ -884,7 +884,7 @@
   "coach": {
     "title": "Coach IA",
     "generating": "Generando análisis de tu día...",
-    "auto_hint": "El análisis se genera automáticamente al registrar la cena. También puedes analizarlo ahora.",
+    "auto_hint": "El análisis se genera automáticamente al registrar 3 comidas. También puedes analizarlo ahora.",
     "analyze_now": "✨ Analizar mi día ahora",
     "retry": "Reintentar análisis",
     "stale_warning": "Registraste comida después del análisis.",

@@ -884,7 +884,7 @@
   "coach": {
     "title": "AI Coach",
     "generating": "Generating your day's analysis...",
-    "auto_hint": "Analysis is generated automatically when you log dinner. You can also analyze now.",
+    "auto_hint": "Analysis is generated automatically after logging 3 meals. You can also analyze now.",
     "analyze_now": "✨ Analyze my day now",
     "retry": "Retry analysis",
     "stale_warning": "You logged food after the analysis.",
