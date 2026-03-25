@@ -28,6 +28,14 @@ export default function FastingPage() {
   const [savingEdit, setSavingEdit] = useState(false)
   const [reaction, setReaction] = useState('idle')
   const [celebrating, setCelebrating] = useState(false)
+  const [mascotType, setMascotType] = useState(
+    () => localStorage.getItem('nexvida-mascot') || 'cat'
+  )
+
+  const handleMascotChange = (type) => {
+    setMascotType(type)
+    localStorage.setItem('nexvida-mascot', type)
+  }
 
   // Auto-clear reaction after animation
   useEffect(() => {
@@ -65,11 +73,14 @@ export default function FastingPage() {
     setEnding(false)
   }
 
+  // datetime-local value is local time without TZ — convert to UTC ISO before saving
+  const localToUTC = (s) => s ? new Date(s).toISOString() : null
+
   const handleEditSave = async () => {
     if (!editingId) return
     setSavingEdit(true)
     try {
-      await editTimes(editingId, editStart, editEnd || null)
+      await editTimes(editingId, localToUTC(editStart), localToUTC(editEnd) || null)
       setEditingId(null)
     } catch (e) { console.error(e) }
     setSavingEdit(false)
@@ -131,6 +142,7 @@ export default function FastingPage() {
           editStart={editStart}
           editEnd={editEnd}
           savingEdit={savingEdit}
+          mascotType={mascotType}
           onEnd={handleEnd}
           onStartEdit={() => startEdit(activeSession)}
           onCancelEdit={() => setEditingId(null)}
@@ -144,6 +156,8 @@ export default function FastingPage() {
           setTargetHours={setTargetHours}
           handleStart={handleStart}
           starting={starting}
+          mascotType={mascotType}
+          onMascotChange={handleMascotChange}
         />
       )}
 

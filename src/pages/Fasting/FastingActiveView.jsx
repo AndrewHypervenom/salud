@@ -20,6 +20,7 @@ export default function FastingActiveView({
   editStart,
   editEnd,
   savingEdit,
+  mascotType = 'cat',
   onEnd,
   onStartEdit,
   onCancelEdit,
@@ -62,7 +63,7 @@ export default function FastingActiveView({
         }}
       >
         {/* Mascot */}
-        <FastingMascot phaseIndex={phaseIndex} reaction={reaction} sleeping={false} />
+        <FastingMascot phaseIndex={phaseIndex} reaction={reaction} sleeping={false} mascotType={mascotType} />
 
         {/* Progress ring */}
         <FastingProgressRingGradient percent={activePercent} size={200} strokeWidth={16} phaseIndex={phaseIndex}>

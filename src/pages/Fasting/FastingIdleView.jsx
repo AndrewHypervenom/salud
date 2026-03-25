@@ -7,14 +7,19 @@ import { useTheme } from '../../context/ThemeContext'
 
 const TARGET_OPTIONS = [12, 14, 16, 18, 20, 24]
 
-// Returns the phase index that best represents a given target duration
 function previewPhase(targetHours) {
-  // Preview the phase they'll eventually reach near the end of their fast
-  const midpoint = targetHours * 0.6
-  return getPhaseIndex(midpoint)
+  return getPhaseIndex(targetHours * 0.6)
 }
 
-export default function FastingIdleView({ targetHours, setTargetHours, handleStart, starting }) {
+const MASCOTS = [
+  { id: 'cat', emoji: '🐱', label: 'Gato' },
+  { id: 'dog', emoji: '🐶', label: 'Perro' },
+]
+
+export default function FastingIdleView({
+  targetHours, setTargetHours, handleStart, starting,
+  mascotType = 'cat', onMascotChange,
+}) {
   const { t } = useTranslation()
   const { isDark } = useTheme()
   const phaseIdx = previewPhase(targetHours)
@@ -22,15 +27,41 @@ export default function FastingIdleView({ targetHours, setTargetHours, handleSta
 
   return (
     <div
-      className="flex flex-col items-center gap-6 rounded-3xl p-6 transition-all duration-700"
+      className="flex flex-col items-center gap-5 rounded-3xl p-6 transition-all duration-700"
       style={{
         background: `linear-gradient(160deg, ${isDark ? phase.bgDark[0] : phase.bgLight[0]} 0%, ${isDark ? phase.bgDark[1] : phase.bgLight[1]} 100%)`,
       }}
     >
+      {/* Selector de mascota */}
+      <div className="flex items-center gap-2 self-end">
+        <span className="ios-caption2 text-gray-400 mr-1">Mascota</span>
+        {MASCOTS.map(m => (
+          <button
+            key={m.id}
+            onClick={() => onMascotChange?.(m.id)}
+            className="transition-all duration-200 active:scale-90"
+            style={{
+              fontSize: 28,
+              lineHeight: 1,
+              filter: mascotType === m.id ? 'none' : 'grayscale(0.7) opacity(0.45)',
+              transform: mascotType === m.id ? 'scale(1.15)' : 'scale(1)',
+            }}
+            aria-label={m.label}
+          >
+            {m.emoji}
+          </button>
+        ))}
+      </div>
+
       {/* Mascota dormida */}
-      <div className="flex flex-col items-center gap-1 pt-2">
-        <FastingMascot phaseIndex={phaseIdx} sleeping reaction="idle" />
-        <p className="ios-caption mt-1">{t('fasting.no_active')}</p>
+      <div className="flex flex-col items-center gap-1">
+        <FastingMascot
+          phaseIndex={phaseIdx}
+          sleeping
+          reaction="idle"
+          mascotType={mascotType}
+        />
+        <p className="ios-caption">{t('fasting.no_active')}</p>
       </div>
 
       {/* Título */}
