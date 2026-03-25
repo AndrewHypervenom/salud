@@ -242,37 +242,22 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, dailyM
                 </p>
               </div>
             </div>
-            <div className="flex flex-wrap gap-1.5">
-              {t('food.correction_chips', { returnObjects: true }).map(chip => (
-                <button
-                  key={chip}
-                  type="button"
-                  onClick={() => setCorrection(prev => prev ? `${prev}, ${chip}` : chip)}
-                  className="px-2.5 py-1 text-xs bg-white dark:bg-gray-700 border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400 rounded-full hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
-                >
-                  {chip}
-                </button>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={correction}
-                onChange={e => setCorrection(e.target.value)}
-                placeholder={t('food.correction_placeholder')}
-                className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 rounded-xl focus:outline-none focus:border-amber-500"
-                onKeyDown={e => e.key === 'Enter' && correction.trim() && handleRecalculate(correction)}
-              />
-              <button
-                type="button"
-                onClick={() => handleRecalculate(correction)}
-                disabled={!correction.trim() || recalculating}
-                className="px-4 py-2 bg-amber-500 text-white rounded-xl text-sm font-semibold disabled:opacity-40 hover:bg-amber-600 transition-colors flex items-center gap-1.5 whitespace-nowrap"
-              >
-                {recalculating ? <Spinner size="sm" /> : <RefreshCw size={14} strokeWidth={2} />}
-                {!recalculating && <span>{t('food.recalculate_btn')}</span>}
-              </button>
-            </div>
+            <textarea
+              rows={3}
+              value={correction}
+              onChange={e => setCorrection(e.target.value)}
+              placeholder={t('food.correction_placeholder')}
+              className="w-full px-3 py-2.5 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 rounded-xl focus:outline-none focus:border-amber-500 resize-none leading-relaxed"
+            />
+            <button
+              type="button"
+              onClick={() => handleRecalculate(correction)}
+              disabled={!correction.trim() || recalculating}
+              className="w-full py-2.5 bg-amber-500 text-white rounded-xl text-sm font-semibold disabled:opacity-40 hover:bg-amber-600 active:bg-amber-700 transition-colors flex items-center justify-center gap-2"
+            >
+              {recalculating ? <Spinner size="sm" /> : <RefreshCw size={15} strokeWidth={2} />}
+              <span>{recalculating ? t('food.recalculating') : t('food.recalculate_btn')}</span>
+            </button>
           </div>
         </>
       ) : (
