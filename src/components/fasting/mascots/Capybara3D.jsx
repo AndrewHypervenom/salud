@@ -38,17 +38,17 @@ export default function Capybara3D({ phaseColor, darkPhaseColor, glowColor, stat
     if (earMatRef.current) earMatRef.current.color.copy(bodyColorRef.current)
 
     if (reaction === 'dancing') {
-      rootRef.current.position.y = Math.abs(Math.sin(t * 5.5)) * 0.16
-      rootRef.current.rotation.y = Math.sin(t * 3.5) * 0.35
-      rootRef.current.rotation.z = Math.sin(t * 5.5) * 0.07
+      rootRef.current.position.y = Math.abs(Math.sin(t * 5.5)) * 0.22
+      rootRef.current.rotation.y = Math.sin(t * 3.5) * 0.48
+      rootRef.current.rotation.z = Math.sin(t * 5.5) * 0.09
     } else if (reaction === 'waving') {
       rootRef.current.position.y = Math.sin(t * 3) * 0.08
       rootRef.current.rotation.y = 0
       rootRef.current.rotation.z = 0
-      if (waveRef.current) waveRef.current.rotation.z = Math.sin(t * 7) * 0.55 - 0.15
+      if (waveRef.current) waveRef.current.rotation.z = Math.sin(t * 7) * 0.75 - 0.25
     } else {
-      const speed = sleeping ? 0.75 : 1.3
-      const amp = sleeping ? 0.02 : 0.05
+      const speed = sleeping ? 0.65 : 1.1
+      const amp = sleeping ? 0.032 : 0.075
       rootRef.current.position.y = Math.sin(t * speed) * amp
       rootRef.current.rotation.z = Math.sin(t * speed) * 0.018
       rootRef.current.rotation.y += (0 - rootRef.current.rotation.y) * 0.05
@@ -100,19 +100,19 @@ export default function Capybara3D({ phaseColor, darkPhaseColor, glowColor, stat
       {/* Cuerpo — gordo y redondeado */}
       <mesh rotation={[0, 0, Math.PI / 2]}>
         <capsuleGeometry args={[0.52, 0.88, 8, 16]} />
-        <meshStandardMaterial ref={bodyMatRef} color={phaseColor} roughness={0.22} metalness={0.03} />
+        <meshStandardMaterial ref={bodyMatRef} color={phaseColor} roughness={0.38} metalness={0.0} emissive={phaseColor} emissiveIntensity={0.08} />
       </mesh>
 
       {/* Cabeza — esfera aplastada */}
       <mesh position={[0.75, 0.16, 0]} scale={[1.0, 0.88, 0.96]}>
         <sphereGeometry args={[0.44, 20, 20]} />
-        <meshStandardMaterial ref={headMatRef} color={phaseColor} roughness={0.22} metalness={0.03} />
+        <meshStandardMaterial ref={headMatRef} color={phaseColor} roughness={0.38} metalness={0.0} emissive={phaseColor} emissiveIntensity={0.11} />
       </mesh>
 
       {/* Hocico cuadrado — lo icónico del capibara */}
       <mesh position={[1.12, -0.02, 0]} scale={[0.9, 0.7, 0.85]}>
         <boxGeometry args={[0.4, 0.35, 0.5]} />
-        <meshStandardMaterial ref={muzzleMatRef} color={darkPhaseColor} roughness={0.28} metalness={0.01} />
+        <meshStandardMaterial ref={muzzleMatRef} color={darkPhaseColor} roughness={0.55} metalness={0.0} />
       </mesh>
 
       {/* Nariz */}
@@ -124,47 +124,52 @@ export default function Capybara3D({ phaseColor, darkPhaseColor, glowColor, stat
       {/* Orejas — pequeñas y redondeadas */}
       <mesh position={[0.62, 0.6, -0.3]} scale={[0.7, 1.0, 0.7]}>
         <sphereGeometry args={[0.13, 12, 12]} />
-        <meshStandardMaterial ref={earMatRef} color={phaseColor} roughness={0.22} metalness={0.03} />
+        <meshStandardMaterial ref={earMatRef} color={phaseColor} roughness={0.38} metalness={0.0} />
       </mesh>
       <mesh position={[0.62, 0.6, 0.3]} scale={[0.7, 1.0, 0.7]}>
         <sphereGeometry args={[0.13, 12, 12]} />
-        <meshStandardMaterial color={phaseColor} roughness={0.22} metalness={0.03} />
+        <meshStandardMaterial color={phaseColor} roughness={0.38} metalness={0.0} />
       </mesh>
 
       {/* Pata delantera izquierda — waveRef */}
       <mesh ref={waveRef} position={[0.46, -0.56, -0.4]} rotation={[0.2, 0, 0.3]}>
         <capsuleGeometry args={[0.095, 0.24, 5, 8]} />
-        <meshStandardMaterial ref={legMatRef} color={darkPhaseColor} roughness={0.28} metalness={0.02} />
+        <meshStandardMaterial ref={legMatRef} color={darkPhaseColor} roughness={0.45} metalness={0.0} />
       </mesh>
       {/* Pata delantera derecha */}
       <mesh position={[0.46, -0.56, 0.4]} rotation={[-0.2, 0, 0.3]}>
         <capsuleGeometry args={[0.095, 0.24, 5, 8]} />
-        <meshStandardMaterial color={darkPhaseColor} roughness={0.28} metalness={0.02} />
+        <meshStandardMaterial color={darkPhaseColor} roughness={0.45} metalness={0.0} />
       </mesh>
       {/* Pata trasera izquierda */}
       <mesh position={[-0.44, -0.56, -0.38]} rotation={[0.2, 0, -0.3]}>
         <capsuleGeometry args={[0.095, 0.22, 5, 8]} />
-        <meshStandardMaterial color={darkPhaseColor} roughness={0.28} metalness={0.02} />
+        <meshStandardMaterial color={darkPhaseColor} roughness={0.45} metalness={0.0} />
       </mesh>
       {/* Pata trasera derecha */}
       <mesh position={[-0.44, -0.56, 0.38]} rotation={[-0.2, 0, -0.3]}>
         <capsuleGeometry args={[0.095, 0.22, 5, 8]} />
-        <meshStandardMaterial color={darkPhaseColor} roughness={0.28} metalness={0.02} />
+        <meshStandardMaterial color={darkPhaseColor} roughness={0.45} metalness={0.0} />
       </mesh>
 
       {/* Ojo izquierdo */}
       <group position={[1.02, 0.3, -0.26]} scale={[1, eyeScaleY, 1]}>
         <mesh>
           <sphereGeometry args={[0.13, 14, 14]} />
-          <meshStandardMaterial color="white" roughness={0.05} metalness={0.1} />
+          <meshStandardMaterial color="white" roughness={0.06} metalness={0.0} />
         </mesh>
         <mesh position={[0.07, 0, 0]}>
           <sphereGeometry args={[0.075, 10, 10]} />
-          <meshStandardMaterial color="#2d1b05" roughness={0.3} />
+          <meshStandardMaterial color="#2d1b05" roughness={0.04} metalness={0.0} />
         </mesh>
         <mesh position={[0.1, 0.04, 0.04]}>
           <sphereGeometry args={[0.028, 8, 8]} />
-          <meshStandardMaterial color="white" roughness={0.0} metalness={0.2} />
+          <meshStandardMaterial color="white" roughness={0.0} metalness={0.0} emissive="white" emissiveIntensity={0.4} />
+            </mesh>
+            {/* Segundo catchlight — detalle Pixar */}
+            <mesh position={[0.09, 0.03, -0.03]}>
+              <sphereGeometry args={[0.016, 6, 6]} />
+              <meshStandardMaterial color="white" roughness={0.0} metalness={0.0} emissive="white" emissiveIntensity={0.3} />
         </mesh>
       </group>
 
@@ -172,15 +177,20 @@ export default function Capybara3D({ phaseColor, darkPhaseColor, glowColor, stat
       <group position={[1.02, 0.3, 0.26]} scale={[1, eyeScaleY, 1]}>
         <mesh>
           <sphereGeometry args={[0.13, 14, 14]} />
-          <meshStandardMaterial color="white" roughness={0.05} metalness={0.1} />
+          <meshStandardMaterial color="white" roughness={0.06} metalness={0.0} />
         </mesh>
         <mesh position={[0.07, 0, 0]}>
           <sphereGeometry args={[0.075, 10, 10]} />
-          <meshStandardMaterial color="#2d1b05" roughness={0.3} />
+          <meshStandardMaterial color="#2d1b05" roughness={0.04} metalness={0.0} />
         </mesh>
         <mesh position={[0.1, 0.04, 0.04]}>
           <sphereGeometry args={[0.028, 8, 8]} />
-          <meshStandardMaterial color="white" roughness={0.0} metalness={0.2} />
+          <meshStandardMaterial color="white" roughness={0.0} metalness={0.0} emissive="white" emissiveIntensity={0.4} />
+            </mesh>
+            {/* Segundo catchlight — detalle Pixar */}
+            <mesh position={[0.09, 0.03, -0.03]}>
+              <sphereGeometry args={[0.016, 6, 6]} />
+              <meshStandardMaterial color="white" roughness={0.0} metalness={0.0} emissive="white" emissiveIntensity={0.3} />
         </mesh>
       </group>
 

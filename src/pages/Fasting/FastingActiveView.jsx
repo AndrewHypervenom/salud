@@ -35,8 +35,20 @@ export default function FastingActiveView({
   const [bgFrom, bgTo] = isDark ? phase.bgDark : phase.bgLight
 
   const glassCard = isDark
-    ? { background: 'rgba(28,28,30,0.82)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(24px) saturate(180%)', WebkitBackdropFilter: 'blur(24px) saturate(180%)' }
-    : { background: 'rgba(255,255,255,0.76)', border: '1px solid rgba(255,255,255,0.55)', backdropFilter: 'blur(24px) saturate(200%)', WebkitBackdropFilter: 'blur(24px) saturate(200%)' }
+    ? {
+        background: 'rgba(28,28,30,0.78)',
+        border: '1px solid rgba(255,255,255,0.10)',
+        backdropFilter: 'blur(40px) saturate(200%)',
+        WebkitBackdropFilter: 'blur(40px) saturate(200%)',
+        boxShadow: '0 2px 1px rgba(255,255,255,0.04) inset, 0 20px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,0,0,0.3)',
+      }
+    : {
+        background: 'rgba(255,255,255,0.72)',
+        border: '1px solid rgba(255,255,255,0.80)',
+        backdropFilter: 'blur(40px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+        boxShadow: '0 2px 1px rgba(255,255,255,0.90) inset, 0 20px 60px rgba(0,0,0,0.10), 0 4px 16px rgba(0,0,0,0.06)',
+      }
 
   return (
     <div
@@ -56,25 +68,29 @@ export default function FastingActiveView({
 
       {/* Main frosted card */}
       <div
-        className="flex flex-col items-center gap-4 rounded-3xl px-6 py-6 mx-2"
-        style={{
-          ...glassCard,
-          boxShadow: `0 8px 32px rgba(0,0,0,0.08), 0 0 0 1px ${phase.glow}33`,
-        }}
+        className="flex flex-col items-center gap-5 rounded-3xl px-6 py-8 mx-2"
+        style={glassCard}
       >
-        {/* Mascot */}
-        <FastingMascot phaseIndex={phaseIndex} reaction={reaction} sleeping={false} mascotType={mascotType} />
+        {/* Mascota concéntrica con anillo de progreso */}
+        <div className="relative flex items-center justify-center" style={{ width: 248, height: 248 }}>
+          <FastingProgressRingGradient percent={activePercent} size={248} strokeWidth={13} phaseIndex={phaseIndex} />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <FastingMascot phaseIndex={phaseIndex} reaction={reaction} sleeping={false} mascotType={mascotType} />
+          </div>
+        </div>
 
-        {/* Progress ring */}
-        <FastingProgressRingGradient percent={activePercent} size={200} strokeWidth={16} phaseIndex={phaseIndex}>
-          <div className="text-center" style={{ color: phase.primary }}>
-            <p className="text-xs font-medium mb-1">{t('fasting.elapsed')}</p>
+        {/* Timer debajo del conjunto */}
+        <div className="text-center -mt-2">
+          <p className="ios-caption uppercase tracking-widest mb-0.5" style={{ color: phase.primary, opacity: 0.65 }}>
+            {t('fasting.elapsed')}
+          </p>
+          <div style={{ letterSpacing: '-0.03em', color: phase.primary }}>
             <ElapsedTimer
               startTime={activeSession.start_time}
-              className="text-2xl font-bold tabular-nums"
+              className="text-3xl font-bold tabular-nums"
             />
           </div>
-        </FastingProgressRingGradient>
+        </div>
 
         {/* Meta info */}
         <div className="text-center">
@@ -124,10 +140,10 @@ export default function FastingActiveView({
         <button
           onClick={onEnd}
           disabled={ending}
-          className="flex-1 py-3 rounded-full text-sm font-bold text-white transition-all duration-150 active:scale-95 disabled:opacity-40"
+          className="flex-1 py-3 rounded-full text-sm font-bold text-white transition-all duration-150 active:scale-[0.97] active:brightness-95 disabled:opacity-40"
           style={{
-            background: `linear-gradient(135deg, ${phase.primary}, ${phase.darkPrimary ?? phase.primary})`,
-            boxShadow: `0 4px 16px ${phase.primary}55`,
+            background: `linear-gradient(160deg, ${phase.primary}EE 0%, ${phase.darkPrimary ?? phase.primary} 100%)`,
+            boxShadow: `0 1px 0 rgba(255,255,255,0.25) inset, 0 6px 20px ${phase.primary}50, 0 2px 8px rgba(0,0,0,0.15)`,
           }}
         >
           {ending ? <Spinner size="sm" /> : <><Check size={16} strokeWidth={2.5} className="inline mr-1" />{t('fasting.end')}</>}

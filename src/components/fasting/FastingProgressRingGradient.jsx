@@ -14,8 +14,15 @@ export default function FastingProgressRingGradient({
   const phase = FASTING_PHASES[phaseIndex] ?? FASTING_PHASES[0]
   const radius = (size - strokeWidth) / 2
   const circumference = 2 * Math.PI * radius
-  const offset = circumference - (Math.min(percent, 100) / 100) * circumference
+  const clampedPercent = Math.min(percent, 100)
+  const offset = circumference - (clampedPercent / 100) * circumference
   const gradId = `fasting-grad-${phaseIndex}`
+  const trackGradId = `fasting-track-${phaseIndex}`
+
+  // Cap dot position at end of arc
+  const progressAngle = ((clampedPercent / 100) * 360 - 90) * (Math.PI / 180)
+  const capX = size / 2 + radius * Math.cos(progressAngle)
+  const capY = size / 2 + radius * Math.sin(progressAngle)
 
   return (
     <div
@@ -29,20 +36,24 @@ export default function FastingProgressRingGradient({
       <svg width={size} height={size} className="-rotate-90" overflow="visible">
         <defs>
           <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={phase.glow} />
-            <stop offset="100%" stopColor={phase.primary} />
+            <stop offset="0%" stopColor={phase.glow} stopOpacity="0.9" />
+            <stop offset="50%" stopColor={phase.primary} />
+            <stop offset="100%" stopColor={phase.darkPrimary ?? phase.primary} />
+          </linearGradient>
+          <linearGradient id={trackGradId} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={phase.primary} stopOpacity="0.06" />
+            <stop offset="100%" stopColor={phase.primary} stopOpacity="0.14" />
           </linearGradient>
         </defs>
 
-        {/* Track ring */}
+        {/* Track ring — sutil */}
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke={phase.glow}
+          stroke={`url(#${trackGradId})`}
           strokeWidth={strokeWidth}
-          opacity={0.25}
         />
 
         {/* Progress arc */}
@@ -56,8 +67,22 @@ export default function FastingProgressRingGradient({
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           strokeLinecap="round"
-          style={{ transition: 'stroke-dashoffset 0.8s ease, stroke 1.2s ease' }}
+          style={{
+            transition: 'stroke-dashoffset 1.2s cubic-bezier(0.34, 1.56, 0.64, 1), stroke 1.4s ease',
+            filter: `drop-shadow(0 0 ${Math.round(strokeWidth / 2)}px ${phase.primary}60)`,
+          }}
         />
+
+        {/* Cap dot pulsante al final del arco */}
+        {clampedPercent > 1 && clampedPercent < 100 && (
+          <circle
+            cx={capX}
+            cy={capY}
+            r={strokeWidth / 2 + 1}
+            fill={phase.primary}
+            className="animate-phase-glow-pulse"
+          />
+        )}
       </svg>
 
       {children && (
