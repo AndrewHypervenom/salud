@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Droplets, GlassWater, FlaskConical, Loader2, X, Pencil, Check } from 'lucide-react'
+import { Droplets, GlassWater, FlaskConical, Loader2, X, Pencil, Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useWaterLogs } from '../../hooks/useWaterLogs'
@@ -15,6 +15,7 @@ const QUICK_DEFAULTS = [250, 500, 750]
 
 export default function WaterPage() {
   const { t, i18n } = useTranslation()
+  const lang = i18n.language?.startsWith('es') ? 'es' : 'en'
   const { activeProfileId } = useProfileContext()
   const { profiles, updateProfile } = useProfiles()
   const profile = profiles.find(p => p.id === activeProfileId)
@@ -26,7 +27,17 @@ export default function WaterPage() {
     profile?.water_quick_3_ml ?? QUICK_DEFAULTS[2],
   ]
 
-  const { todayEntries, todayTotal, todayPercent, loading, addWater, deleteWater } = useWaterLogs(activeProfileId, waterGoal)
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const d = new Date(); d.setHours(0, 0, 0, 0); return d
+  })
+  const isToday = (() => {
+    const today = new Date(); today.setHours(0, 0, 0, 0)
+    return selectedDate.getTime() === today.getTime()
+  })()
+  const goBack = () => setSelectedDate(d => { const n = new Date(d); n.setDate(n.getDate() - 1); return n })
+  const goForward = () => setSelectedDate(d => { const n = new Date(d); n.setDate(n.getDate() + 1); return n })
+
+  const { todayEntries, todayTotal, todayPercent, loading, addWater, deleteWater } = useWaterLogs(activeProfileId, waterGoal, selectedDate)
   const { checkAndUnlock } = useBadges(activeProfileId)
   const [customMl, setCustomMl] = useState('')
   const [adding, setAdding] = useState(false)
@@ -41,8 +52,8 @@ export default function WaterPage() {
     try {
       await addWater(ml)
       const newTotal = todayTotal + ml
-      await checkAndUnlock('first_water', true)
-      await checkAndUnlock('hydrated_1', newTotal >= waterGoal)
+      if (isToday) await checkAndUnlock('first_water', true)
+      if (isToday) await checkAndUnlock('hydrated_1', newTotal >= waterGoal)
     } catch (e) { console.error(e) }
     setAdding(false)
   }
@@ -97,6 +108,21 @@ export default function WaterPage() {
         <Droplets size={26} strokeWidth={1.75} style={{ color: '#007AFF' }} />
         {t('water.title')}
       </h1>
+
+      {/* Navegador de fecha */}
+      <div className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 rounded-xl px-3 py-2">
+        <button onClick={goBack} className="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+          <ChevronLeft size={20} className="text-gray-600 dark:text-gray-300" />
+        </button>
+        <span className="text-sm font-medium text-gray-700 dark:text-gray-200 capitalize">
+          {isToday
+            ? t('food.today')
+            : selectedDate.toLocaleDateString(lang === 'es' ? 'es-MX' : 'en-US', { weekday: 'long', day: 'numeric', month: 'short' })}
+        </span>
+        <button onClick={goForward} disabled={isToday} className="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+          <ChevronRight size={20} className="text-gray-600 dark:text-gray-300" />
+        </button>
+      </div>
 
       {/* Progress ring principal */}
       <Card className="flex flex-col items-center py-6 gap-3 bg-gradient-to-br from-white to-blue-50/40 dark:from-ios-dark dark:to-ios-dark2">
@@ -226,7 +252,7 @@ export default function WaterPage() {
         <div className="flex justify-center py-4"><Spinner /></div>
       ) : todayEntries.length > 0 && (
         <div>
-          <p className="ios-section-label mb-2">{t('water.today_log')}</p>
+          <p className="ios-section-label mb-2">{isToday ? t('water.today_log') : selectedDate.toLocaleDateString(lang === 'es' ? 'es-MX' : 'en-US', { day: 'numeric', month: 'short' })}</p>
           <div className="flex flex-col gap-2">
             {todayEntries.map(entry => (
               <Card key={entry.id} className="flex items-center gap-3 py-2.5">

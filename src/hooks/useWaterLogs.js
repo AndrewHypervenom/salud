@@ -1,14 +1,14 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 
-function todayRange() {
-  const now = new Date()
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+function dateRange(date) {
+  const d = date ?? new Date()
+  const start = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+  const end = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)
   return { start: start.toISOString(), end: end.toISOString() }
 }
 
-export function useWaterLogs(profileId, waterGoalMl = 2000) {
+export function useWaterLogs(profileId, waterGoalMl = 2000, selectedDate = null) {
   const [todayEntries, setTodayEntries] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -17,7 +17,7 @@ export function useWaterLogs(profileId, waterGoalMl = 2000) {
     if (!profileId) { setTodayEntries([]); return }
     setLoading(true)
     setError(null)
-    const { start, end } = todayRange()
+    const { start, end } = dateRange(selectedDate)
     const { data, error: err } = await supabase
       .from('water_logs')
       .select('*')
@@ -28,7 +28,7 @@ export function useWaterLogs(profileId, waterGoalMl = 2000) {
     if (err) setError(err.message)
     else setTodayEntries(data || [])
     setLoading(false)
-  }, [profileId])
+  }, [profileId, selectedDate])
 
   useEffect(() => { fetchToday() }, [fetchToday])
 
@@ -36,9 +36,12 @@ export function useWaterLogs(profileId, waterGoalMl = 2000) {
   const todayPercent = waterGoalMl > 0 ? Math.min((todayTotal / waterGoalMl) * 100, 100) : 0
 
   const addWater = async (amount_ml = 250) => {
+    const now = new Date()
+    const base = selectedDate ?? now
+    const logged_at = new Date(base.getFullYear(), base.getMonth(), base.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()).toISOString()
     const { data, error: err } = await supabase
       .from('water_logs')
-      .insert([{ profile_id: profileId, amount_ml }])
+      .insert([{ profile_id: profileId, amount_ml, logged_at }])
       .select()
       .single()
     if (err) throw err
