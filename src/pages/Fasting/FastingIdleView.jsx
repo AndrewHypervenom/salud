@@ -12,8 +12,8 @@ function previewPhase(targetHours) {
 }
 
 const MASCOTS = [
-  { id: 'axolotl', emoji: '🦎', label: 'Axolote' },
-  { id: 'capybara', emoji: '🦔', label: 'Capibara' },
+  { id: 'axolotl', emoji: '🐱', label: 'Gato' },
+  { id: 'capybara', emoji: '🐶', label: 'Perro' },
 ]
 
 export default function FastingIdleView({
