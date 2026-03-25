@@ -649,8 +649,11 @@
     "fiber": "Fibras",
     "macros": "Macronutrientes",
     "incorrect": "Es incorrecto",
-    "incorrect_question": "¿Algún ingrediente incorrecto?",
-    "correction_placeholder": "Ej: la salsa es alioli, no tomate",
+    "incorrect_question": "¿Algo quedó mal detectado?",
+    "incorrect_subtitle": "Si la IA se equivocó con algún ingrediente, salsa, proteína o porción, corrígelo para tener calorías exactas.",
+    "correction_placeholder": "Ej: era pollo no res, había mayonesa, porción doble...",
+    "correction_chips": ["+ salsa / aderezo", "otra proteína", "ingrediente extra", "sin ese ingrediente"],
+    "recalculate_btn": "Recalcular",
     "goal_met": "¡Meta cumplida! 🎯",
     "summary_whatsapp": "Comidas de {{name}} hoy: {{cal}} kcal de {{target}} kcal meta.",
     "day_summary": "Resumen de {{name}} hoy:"

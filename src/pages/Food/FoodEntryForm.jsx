@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Camera, Sparkles, Check, RefreshCw, Bot } from 'lucide-react'
+import { Camera, Sparkles, Check, RefreshCw, Bot, AlertCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { Spinner } from '../../components/ui/Spinner'
 import { FoodAnalyzingOverlay } from '../../components/ui/FoodAnalyzingOverlay'
@@ -230,26 +230,47 @@ export function FoodEntryForm({ initialMealType = 'breakfast', profileId, dailyM
           />
 
           {/* Corrección de ingredientes */}
-          <div className="flex flex-col gap-2 bg-gray-50 dark:bg-gray-800/60 rounded-2xl px-4 py-3">
-            <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-              {t('food.incorrect_question')}
-            </label>
+          <div className="flex flex-col gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl px-4 py-4">
+            <div className="flex items-start gap-2">
+              <AlertCircle size={18} className="text-amber-500 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                  {t('food.incorrect_question')}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  {t('food.incorrect_subtitle')}
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {t('food.correction_chips', { returnObjects: true }).map(chip => (
+                <button
+                  key={chip}
+                  type="button"
+                  onClick={() => setCorrection(prev => prev ? `${prev}, ${chip}` : chip)}
+                  className="px-2.5 py-1 text-xs bg-white dark:bg-gray-700 border border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-400 rounded-full hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors"
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={correction}
                 onChange={e => setCorrection(e.target.value)}
                 placeholder={t('food.correction_placeholder')}
-                className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 rounded-xl focus:outline-none focus:border-primary-500"
+                className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:placeholder-gray-500 rounded-xl focus:outline-none focus:border-amber-500"
                 onKeyDown={e => e.key === 'Enter' && correction.trim() && handleRecalculate(correction)}
               />
               <button
                 type="button"
                 onClick={() => handleRecalculate(correction)}
                 disabled={!correction.trim() || recalculating}
-                className="px-3 py-2 bg-primary-600 text-white rounded-xl text-sm font-semibold disabled:opacity-40 hover:bg-primary-700 transition-colors flex items-center gap-1.5"
+                className="px-4 py-2 bg-amber-500 text-white rounded-xl text-sm font-semibold disabled:opacity-40 hover:bg-amber-600 transition-colors flex items-center gap-1.5 whitespace-nowrap"
               >
-                {recalculating ? <Spinner size="sm" /> : <RefreshCw size={16} strokeWidth={2} />}
+                {recalculating ? <Spinner size="sm" /> : <RefreshCw size={14} strokeWidth={2} />}
+                {!recalculating && <span>{t('food.recalculate_btn')}</span>}
               </button>
             </div>
           </div>
