@@ -19,13 +19,20 @@ const PRINT_STYLE = `
   #doctor-print-report, #doctor-print-report * { visibility: visible; }
   #doctor-print-report {
     position: absolute; top: 0; left: 0; width: 100%;
-    padding: 15mm 20mm; font-size: 11pt; color: #000; background: #fff;
+    padding: 12mm 18mm; font-size: 10.5pt; color: #111; background: #fff;
   }
   .no-print { display: none !important; }
-  .report-card { break-inside: avoid; margin-bottom: 10pt; border: 1pt solid #e5e7eb; border-radius: 6pt; padding: 10pt; }
-  .bp-normal { color: #16a34a !important; }
-  .bp-elevated { color: #ca8a04 !important; }
-  .bp-high { color: #dc2626 !important; }
+  .report-card { break-inside: avoid; margin-bottom: 8pt; border: 0.75pt solid #d1d5db; border-radius: 5pt; padding: 9pt; }
+  .specialty-header { border-left: 3pt solid; padding-left: 8pt; margin-bottom: 6pt; }
+  .specialty-medicine { border-color: #2563eb; }
+  .specialty-nutrition { border-color: #16a34a; }
+  .bp-normal { color: #16a34a !important; font-weight: 600; }
+  .bp-elevated { color: #ca8a04 !important; font-weight: 600; }
+  .bp-high { color: #dc2626 !important; font-weight: 600; }
+  .stat-row { display: flex; justify-content: space-between; padding: 2pt 0; border-bottom: 0.5pt solid #f3f4f6; font-size: 10pt; }
+  .q-list li { padding: 2pt 0; }
+  h2 { font-size: 13pt; }
+  h3 { font-size: 11pt; }
 }
 `
 
@@ -62,17 +69,14 @@ function QuestionItem({ question, onToggle, onDelete, t }) {
       <span className={`flex-1 text-sm leading-relaxed ${question.is_checked ? 'line-through text-gray-400' : 'text-gray-800 dark:text-gray-100'}`}>
         {text}
       </span>
-      {!question.question_key && (
-        <button onClick={() => onDelete(question.id)} className="text-red-300 hover:text-red-500 text-xs flex-shrink-0">✕</button>
-      )}
+      <button onClick={() => onDelete(question.id)} className="text-red-300 hover:text-red-500 text-xs flex-shrink-0">✕</button>
     </div>
   )
 }
 
-function ReportSection({ title, children, className = '' }) {
+function ReportCard({ children, className = '' }) {
   return (
     <div className={`report-card rounded-xl border border-gray-200 dark:border-gray-700 p-4 ${className}`}>
-      <h3 className="font-bold text-sm uppercase tracking-wide text-gray-500 mb-3">{title}</h3>
       {children}
     </div>
   )
@@ -80,12 +84,52 @@ function ReportSection({ title, children, className = '' }) {
 
 function StatRow({ label, value, sub, highlight }) {
   return (
-    <div className="flex justify-between items-baseline py-1 border-b border-gray-100 dark:border-gray-700 last:border-0">
-      <span className="text-sm text-gray-600 dark:text-gray-400">{label}</span>
-      <span className={`text-sm font-semibold ${highlight || 'text-gray-900 dark:text-gray-100'}`}>
+    <div className="stat-row flex justify-between items-baseline py-1.5 border-b border-gray-100 dark:border-gray-700 last:border-0">
+      <span className="text-sm text-gray-500 dark:text-gray-400">{label}</span>
+      <span className={`text-sm font-semibold text-right ${highlight || 'text-gray-900 dark:text-gray-100'}`}>
         {value}
         {sub && <span className="text-xs font-normal text-gray-400 ml-1">{sub}</span>}
       </span>
+    </div>
+  )
+}
+
+function SpecialtySection({ color, icon, title, summary, questions, dataCards }) {
+  const borderColor = color === 'blue' ? 'border-blue-500' : 'border-green-500'
+  const bgColor = color === 'blue' ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-green-50 dark:bg-green-900/20'
+  const textColor = color === 'blue' ? 'text-blue-700 dark:text-blue-300' : 'text-green-700 dark:text-green-300'
+  const specClass = color === 'blue' ? 'specialty-medicine' : 'specialty-nutrition'
+
+  return (
+    <div className={`rounded-2xl border-2 ${borderColor} overflow-hidden`}>
+      {/* Header de especialidad */}
+      <div className={`${bgColor} px-4 py-3 flex items-center gap-2`}>
+        <span className="text-2xl">{icon}</span>
+        <div>
+          <h3 className={`font-bold text-base ${textColor} specialty-header ${specClass}`}>{title}</h3>
+          {summary && <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5 leading-relaxed">{summary}</p>}
+        </div>
+      </div>
+
+      <div className="p-4 flex flex-col gap-3">
+        {/* Tarjetas de datos */}
+        {dataCards}
+
+        {/* Preguntas para llevar */}
+        {questions.length > 0 && (
+          <div>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Preguntas que llevar</p>
+            <ol className="q-list space-y-1.5">
+              {questions.map((q, i) => (
+                <li key={i} className="text-sm flex gap-2">
+                  <span className={`font-bold flex-shrink-0 ${textColor}`}>{i + 1}.</span>
+                  <span className="text-gray-800 dark:text-gray-100">{q}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -116,10 +160,9 @@ export default function DoctorQuestionsPage() {
     )
   }
 
-  const predefined = questions.filter(q => q.question_key)
-  const custom = questions.filter(q => !q.question_key)
-  const checkedCount = questions.filter(q => q.is_checked).length
-  const checkedQuestions = questions.filter(q => q.is_checked)
+  // Solo mostrar preguntas sin question_key (custom: generadas por IA + manuales)
+  const customQuestions = questions.filter(q => !q.question_key)
+  const checkedCount = customQuestions.filter(q => q.is_checked).length
 
   const handleAdd = async () => {
     if (!customText.trim()) return
@@ -138,18 +181,21 @@ export default function DoctorQuestionsPage() {
     await fetchQuestions()
   }
 
-  // --- Clasificación de presión para el informe ---
+  // Datos del informe
   const bpClass = reportData?.bloodPressure?.avg_systolic
     ? classifyBP(reportData.bloodPressure.avg_systolic, reportData.bloodPressure.avg_diastolic, t)
     : null
 
-  // --- Tendencia de peso ---
   const weightTrend = reportData?.weight?.trend_kg
   const weightTrendLabel = !weightTrend || Math.abs(weightTrend) < 0.1
     ? t('doctor.report_trend_stable')
     : weightTrend > 0
       ? `${t('doctor.report_trend_gain')} (+${weightTrend} kg)`
       : `${t('doctor.report_trend_loss')} (${weightTrend} kg)`
+
+  const bmi = activeProfile?.weight_kg && activeProfile?.height_cm
+    ? Math.round((activeProfile.weight_kg / Math.pow(activeProfile.height_cm / 100, 2)) * 10) / 10
+    : null
 
   const reportDate = reportData?.generatedAt
     ? new Date(reportData.generatedAt).toLocaleDateString()
@@ -160,103 +206,83 @@ export default function DoctorQuestionsPage() {
       <style>{PRINT_STYLE}</style>
 
       <div className="flex flex-col gap-4">
-        {/* ===== SECCIÓN A: Preguntas ===== */}
-        <div className="no-print">
-          <div className="mb-4">
+        {/* ===== SECCIÓN A: Preguntas (no imprimible) ===== */}
+        <div className="no-print flex flex-col gap-4">
+          <div>
             <h1 className="text-2xl font-bold">{t('doctor.title')}</h1>
             <p className="text-gray-500 text-sm">{t('doctor.subtitle')}</p>
-            {questions.length > 0 && (
-              <p className="text-sm text-primary-600 font-medium mt-1">
-                {checkedCount}/{questions.length} marcadas
-              </p>
-            )}
           </div>
 
-          {/* Botón generar con IA */}
+          {/* Botón generar */}
           <Button
             onClick={handleGenerate}
             disabled={generating || !activeProfile}
-            className="w-full flex items-center justify-center gap-2 mb-4"
+            className="w-full"
           >
             {generating ? (
-              <>
-                <Spinner size="sm" />
-                <span>{t('doctor.generating')}</span>
-              </>
+              <><Spinner size="sm" /><span>{t('doctor.generating')}</span></>
             ) : (
-              <>
-                <span>✨</span>
-                <span>{t('doctor.generate_ai')}</span>
-              </>
+              <><span>✨</span><span>{t('doctor.generate_ai')}</span></>
             )}
           </Button>
 
           {reportError && (
-            <p className="text-red-500 text-sm mb-3">{t('doctor.report_error')}</p>
+            <p className="text-red-500 text-sm">{t('doctor.report_error')}</p>
           )}
 
           {loading ? (
             <div className="flex justify-center py-12"><Spinner /></div>
           ) : (
-            <>
-              {/* Preguntas predefinidas */}
-              {predefined.length > 0 && (
-                <Card className="mb-4">
-                  <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-3">{t('doctor.predefined_title')}</h2>
-                  <div className="flex flex-col gap-2">
-                    {predefined.map(q => (
-                      <QuestionItem
-                        key={q.id}
-                        question={q}
-                        onToggle={toggleQuestion}
-                        onDelete={deleteCustomQuestion}
-                        t={t}
-                      />
-                    ))}
-                  </div>
-                </Card>
+            <Card>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="font-bold text-gray-900 dark:text-gray-100">Mis preguntas para el médico</h2>
+                {customQuestions.length > 0 && (
+                  <span className="text-xs text-primary-600 font-medium bg-primary-50 dark:bg-primary-900/30 px-2 py-0.5 rounded-full">
+                    {checkedCount}/{customQuestions.length} marcadas
+                  </span>
+                )}
+              </div>
+
+              {customQuestions.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-4">
+                  Genera preguntas con IA para que aparezcan aquí adaptadas a tus datos
+                </p>
+              ) : (
+                <div className="flex flex-col gap-2 mb-4">
+                  {customQuestions.map(q => (
+                    <QuestionItem
+                      key={q.id}
+                      question={q}
+                      onToggle={toggleQuestion}
+                      onDelete={deleteCustomQuestion}
+                      t={t}
+                    />
+                  ))}
+                </div>
               )}
 
-              {/* Preguntas personalizadas (IA + manuales) */}
-              <Card>
-                <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-3">{t('doctor.custom_title')}</h2>
-                {custom.length > 0 && (
-                  <div className="flex flex-col gap-2 mb-4">
-                    {custom.map(q => (
-                      <QuestionItem
-                        key={q.id}
-                        question={q}
-                        onToggle={toggleQuestion}
-                        onDelete={deleteCustomQuestion}
-                        t={t}
-                      />
-                    ))}
-                  </div>
-                )}
-                <div className="flex gap-2">
-                  <Input
-                    placeholder={t('doctor.custom_placeholder')}
-                    value={customText}
-                    onChange={e => setCustomText(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleAdd()}
-                    className="flex-1"
-                  />
-                  <Button onClick={handleAdd} disabled={adding || !customText.trim()} className="flex-shrink-0">
-                    {adding ? <Spinner size="sm" /> : t('doctor.add')}
-                  </Button>
-                </div>
-              </Card>
-            </>
+              <div className="flex gap-2 mt-2">
+                <Input
+                  placeholder={t('doctor.custom_placeholder')}
+                  value={customText}
+                  onChange={e => setCustomText(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleAdd()}
+                  className="flex-1"
+                />
+                <Button onClick={handleAdd} disabled={adding || !customText.trim()} className="flex-shrink-0">
+                  {adding ? <Spinner size="sm" /> : t('doctor.add')}
+                </Button>
+              </div>
+            </Card>
           )}
         </div>
 
         {/* ===== SECCIÓN B: Informe imprimible ===== */}
         {reportData && (
-          <div>
-            {/* Botón imprimir (oculto al imprimir) */}
+          <div className="flex flex-col gap-4">
             <Button
               onClick={() => window.print()}
-              className="no-print w-full flex items-center justify-center gap-2 mb-4"
+              className="no-print w-full"
               variant="secondary"
             >
               <span>🖨️</span>
@@ -265,154 +291,155 @@ export default function DoctorQuestionsPage() {
 
             <div id="doctor-print-report" className="flex flex-col gap-4">
               {/* Header del paciente */}
-              <div className="report-card rounded-xl border-2 border-primary-500 p-4">
-                <div className="flex items-start justify-between">
+              <ReportCard className="border-gray-300 dark:border-gray-600">
+                <div className="flex items-start justify-between mb-3">
                   <div>
                     <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">{t('doctor.report_title')}</h2>
-                    <p className="text-sm text-gray-500">{t('doctor.report_generated')} {reportDate}</p>
+                    <p className="text-xs text-gray-400">{t('doctor.report_generated')} {reportDate}</p>
                   </div>
                   <span className="text-3xl">🏥</span>
                 </div>
-                <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
-                  <div><span className="text-gray-500">Nombre: </span><span className="font-medium">{activeProfile?.name}</span></div>
-                  <div><span className="text-gray-500">Edad: </span><span className="font-medium">{activeProfile?.age} años</span></div>
-                  <div><span className="text-gray-500">Peso: </span><span className="font-medium">{reportData.weight.current_kg} kg</span></div>
-                  <div><span className="text-gray-500">Estatura: </span><span className="font-medium">{activeProfile?.height_cm} cm</span></div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                  <div><span className="text-gray-400">Nombre: </span><span className="font-semibold">{activeProfile?.name}</span></div>
+                  <div><span className="text-gray-400">Edad: </span><span className="font-semibold">{activeProfile?.age} años</span></div>
+                  <div><span className="text-gray-400">Peso: </span><span className="font-semibold">{reportData.weight.current_kg} kg</span></div>
+                  <div><span className="text-gray-400">Estatura: </span><span className="font-semibold">{activeProfile?.height_cm} cm</span></div>
+                  {bmi && <div><span className="text-gray-400">IMC: </span><span className={`font-semibold ${bmi >= 30 ? 'text-red-500' : bmi >= 25 ? 'text-orange-500' : 'text-green-600'}`}>{bmi}</span></div>}
+                  <div><span className="text-gray-400">Objetivo: </span><span className="font-semibold capitalize">{activeProfile?.health_goal?.replace(/_/g, ' ')}</span></div>
                 </div>
-              </div>
-
-              {/* Nutrición */}
-              <ReportSection title={t('doctor.report_nutrition')}>
-                <StatRow
-                  label={t('doctor.report_avg_7d')}
-                  value={`${reportData.nutrition.avg7d_calories} kcal`}
-                  sub={`(${reportData.nutrition.days_logged_7d}/7 ${t('doctor.report_days_logged')})`}
-                  highlight={reportData.nutrition.avg7d_calories > reportData.calTarget * 1.15 ? 'text-orange-500' : undefined}
-                />
-                <StatRow
-                  label={t('doctor.report_avg_30d')}
-                  value={`${reportData.nutrition.avg30d_calories} kcal`}
-                  sub={`(${reportData.nutrition.days_logged_30d}/30 ${t('doctor.report_days_logged')})`}
-                />
-                <StatRow
-                  label={t('doctor.report_target')}
-                  value={`${reportData.calTarget} kcal/día`}
-                />
-              </ReportSection>
-
-              {/* Peso */}
-              <ReportSection title={t('doctor.report_weight_trend')}>
-                {reportData.weight.readings_count === 0 ? (
-                  <p className="text-sm text-gray-400">{t('doctor.report_no_weight')}</p>
-                ) : (
-                  <>
-                    <StatRow label="Peso actual" value={`${reportData.weight.current_kg} kg`} />
-                    {activeProfile?.target_weight_kg && (
-                      <StatRow
-                        label="Peso objetivo"
-                        value={`${activeProfile.target_weight_kg} kg`}
-                        sub={`(${Math.round((reportData.weight.current_kg - activeProfile.target_weight_kg) * 10) / 10} kg restantes)`}
-                      />
-                    )}
-                    <StatRow
-                      label="Tendencia"
-                      value={weightTrendLabel}
-                      highlight={weightTrend > 0.5 ? 'text-orange-500' : weightTrend < -0.1 ? 'text-green-600' : undefined}
-                    />
-                  </>
-                )}
-              </ReportSection>
-
-              {/* Presión arterial */}
-              <ReportSection title={t('doctor.report_bp_section')}>
-                {reportData.bloodPressure.readings.length === 0 ? (
-                  <p className="text-sm text-gray-400">{t('doctor.report_no_bp')}</p>
-                ) : (
-                  <>
-                    {bpClass && (
-                      <div className={`text-sm font-semibold mb-2 ${bpClass.cls}`}>{bpClass.label}</div>
-                    )}
-                    {reportData.bloodPressure.avg_systolic && (
-                      <StatRow label="Promedio" value={`${reportData.bloodPressure.avg_systolic}/${reportData.bloodPressure.avg_diastolic} mmHg`} />
-                    )}
-                    <div className="mt-2 space-y-1">
-                      {reportData.bloodPressure.readings.map((r, i) => (
-                        <div key={i} className="text-xs text-gray-500 flex justify-between">
-                          <span>{r.measured_at}</span>
-                          <span className={classifyBP(r.systolic, r.diastolic, t).cls}>
-                            {r.systolic}/{r.diastolic} mmHg
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
-              </ReportSection>
-
-              {/* Ejercicio */}
-              <ReportSection title={t('doctor.report_exercise')}>
-                <StatRow
-                  label={t('doctor.report_days_active')}
-                  value={`${reportData.exercise.days_active_14d}/14`}
-                  highlight={reportData.exercise.days_active_14d < 3 ? 'text-orange-500' : 'text-green-600'}
-                />
-                <StatRow label="Tiempo total (14d)" value={`${reportData.exercise.total_minutes_14d} min`} />
-                {reportData.exercise.types.length > 0 && (
-                  <StatRow label="Actividades" value={reportData.exercise.types.join(', ')} />
-                )}
-              </ReportSection>
-
-              {/* Hábitos */}
-              <ReportSection title={t('doctor.report_habits')}>
-                <StatRow
-                  label={t('doctor.report_compliance')}
-                  value={`${reportData.habits.completion_pct_30d}%`}
-                  highlight={reportData.habits.completion_pct_30d < 60 ? 'text-orange-500' : 'text-green-600'}
-                />
-                {reportData.habits.low_compliance.length > 0 && (
-                  <div className="mt-2">
-                    <p className="text-xs text-gray-500 mb-1">Baja adherencia:</p>
-                    <div className="flex flex-wrap gap-1">
-                      {reportData.habits.low_compliance.map((h, i) => (
-                        <span key={i} className="text-xs bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 px-2 py-0.5 rounded-full">{h}</span>
-                      ))}
-                    </div>
+                {reportData.attention_areas?.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-1">
+                    {reportData.attention_areas.map((area, i) => (
+                      <span key={i} className="text-xs bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 px-2 py-0.5 rounded-full">{area}</span>
+                    ))}
                   </div>
                 )}
-              </ReportSection>
+              </ReportCard>
 
-              {/* Observaciones IA */}
-              {(reportData.observations || reportData.attention_areas.length > 0) && (
-                <ReportSection title={t('doctor.report_observations')}>
-                  {reportData.observations && (
-                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed mb-3">{reportData.observations}</p>
-                  )}
-                  {reportData.attention_areas.length > 0 && (
-                    <div>
-                      <p className="text-xs text-gray-500 mb-1">{t('doctor.report_attention')}:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {reportData.attention_areas.map((area, i) => (
-                          <span key={i} className="text-xs bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300 px-2 py-0.5 rounded-full">{area}</span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </ReportSection>
-              )}
+              {/* ===== Sección Médico General ===== */}
+              <SpecialtySection
+                color="blue"
+                icon="🩺"
+                title="Médico General / Medicina Interna"
+                summary={reportData.summary_medicine}
+                questions={reportData.questions_medicine}
+                dataCards={
+                  <div className="flex flex-col gap-3">
+                    {/* Peso y BMI */}
+                    <ReportCard>
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('doctor.report_weight_trend')}</p>
+                      {reportData.weight.readings_count === 0 ? (
+                        <p className="text-sm text-gray-400">{t('doctor.report_no_weight')}</p>
+                      ) : (
+                        <>
+                          <StatRow label="Peso actual" value={`${reportData.weight.current_kg} kg`} />
+                          {bmi && <StatRow label="IMC" value={bmi} highlight={bmi >= 30 ? 'text-red-500' : bmi >= 25 ? 'text-orange-500' : 'text-green-600'} />}
+                          {activeProfile?.target_weight_kg && (
+                            <StatRow
+                              label="Peso objetivo"
+                              value={`${activeProfile.target_weight_kg} kg`}
+                              sub={`(${Math.round((reportData.weight.current_kg - activeProfile.target_weight_kg) * 10) / 10} kg restantes)`}
+                            />
+                          )}
+                          <StatRow
+                            label="Tendencia"
+                            value={weightTrendLabel}
+                            highlight={weightTrend > 0.5 ? 'text-orange-500' : weightTrend < -0.1 ? 'text-green-600' : undefined}
+                          />
+                        </>
+                      )}
+                    </ReportCard>
 
-              {/* Preguntas marcadas */}
-              {checkedQuestions.length > 0 && (
-                <ReportSection title={t('doctor.report_checked_questions')}>
-                  <ol className="space-y-2">
-                    {checkedQuestions.map((q, i) => (
-                      <li key={q.id} className="text-sm flex gap-2">
-                        <span className="font-bold text-primary-600 flex-shrink-0">{i + 1}.</span>
-                        <span>{q.question_key ? t(`doctor.questions.${q.question_key}`) : q.custom_text}</span>
-                      </li>
-                    ))}
-                  </ol>
-                </ReportSection>
-              )}
+                    {/* Presión arterial */}
+                    <ReportCard>
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('doctor.report_bp_section')}</p>
+                      {reportData.bloodPressure.readings.length === 0 ? (
+                        <p className="text-sm text-gray-400">{t('doctor.report_no_bp')}</p>
+                      ) : (
+                        <>
+                          {bpClass && <div className={`text-sm font-semibold mb-2 ${bpClass.cls}`}>{bpClass.label}</div>}
+                          {reportData.bloodPressure.avg_systolic && (
+                            <StatRow label="Promedio" value={`${reportData.bloodPressure.avg_systolic}/${reportData.bloodPressure.avg_diastolic} mmHg`} />
+                          )}
+                          <div className="mt-1 space-y-0.5">
+                            {reportData.bloodPressure.readings.map((r, i) => (
+                              <div key={i} className="text-xs text-gray-400 flex justify-between">
+                                <span>{r.measured_at}</span>
+                                <span className={classifyBP(r.systolic, r.diastolic, t).cls}>
+                                  {r.systolic}/{r.diastolic} mmHg
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </ReportCard>
+
+                    {/* Ejercicio */}
+                    <ReportCard>
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('doctor.report_exercise')}</p>
+                      <StatRow
+                        label={t('doctor.report_days_active')}
+                        value={`${reportData.exercise.days_active_14d}/14`}
+                        highlight={reportData.exercise.days_active_14d < 3 ? 'text-orange-500' : 'text-green-600'}
+                      />
+                      <StatRow label="Tiempo total (14d)" value={`${reportData.exercise.total_minutes_14d} min`} />
+                      {reportData.exercise.types.length > 0 && (
+                        <StatRow label="Actividades" value={reportData.exercise.types.join(', ')} />
+                      )}
+                    </ReportCard>
+                  </div>
+                }
+              />
+
+              {/* ===== Sección Nutricionista ===== */}
+              <SpecialtySection
+                color="green"
+                icon="🥦"
+                title="Nutricionista / Dietista"
+                summary={reportData.summary_nutrition}
+                questions={reportData.questions_nutrition}
+                dataCards={
+                  <div className="flex flex-col gap-3">
+                    {/* Nutrición */}
+                    <ReportCard>
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('doctor.report_nutrition')}</p>
+                      <StatRow label={t('doctor.report_target')} value={`${reportData.calTarget} kcal/día`} />
+                      <StatRow
+                        label={t('doctor.report_avg_7d')}
+                        value={`${reportData.nutrition.avg7d_calories} kcal`}
+                        sub={`(${reportData.nutrition.days_logged_7d}/7 ${t('doctor.report_days_logged')})`}
+                        highlight={reportData.nutrition.avg7d_calories > reportData.calTarget * 1.15 ? 'text-orange-500' : undefined}
+                      />
+                      <StatRow
+                        label={t('doctor.report_avg_30d')}
+                        value={`${reportData.nutrition.avg30d_calories} kcal`}
+                        sub={`(${reportData.nutrition.days_logged_30d}/30 ${t('doctor.report_days_logged')})`}
+                      />
+                    </ReportCard>
+
+                    {/* Hábitos */}
+                    <ReportCard>
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('doctor.report_habits')}</p>
+                      <StatRow
+                        label={t('doctor.report_compliance')}
+                        value={`${reportData.habits.completion_pct_30d}%`}
+                        highlight={reportData.habits.completion_pct_30d < 60 ? 'text-orange-500' : 'text-green-600'}
+                      />
+                      {reportData.habits.habit_names?.length > 0 && (
+                        <StatRow label="Hábitos activos" value={reportData.habits.habit_names.slice(0, 4).join(', ')} />
+                      )}
+                      {reportData.habits.low_compliance?.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-1">
+                          {reportData.habits.low_compliance.map((h, i) => (
+                            <span key={i} className="text-xs bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 px-2 py-0.5 rounded-full">{h}</span>
+                          ))}
+                        </div>
+                      )}
+                    </ReportCard>
+                  </div>
+                }
+              />
             </div>
           </div>
         )}

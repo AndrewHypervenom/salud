@@ -152,7 +152,11 @@ export function useDoctorReport(profileId) {
         .eq('profile_id', profileId)
         .is('question_key', null)
 
-      const newRows = (data.questions || []).map((q, i) => ({
+      const allQuestions = [
+        ...(data.questions_medicine || []),
+        ...(data.questions_nutrition || []),
+      ]
+      const newRows = allQuestions.map((q, i) => ({
         profile_id: profileId,
         question_key: null,
         custom_text: q,
@@ -165,8 +169,10 @@ export function useDoctorReport(profileId) {
       }
 
       setReportData({
-        questions: data.questions || [],
-        observations: data.observations || '',
+        questions_medicine: data.questions_medicine || [],
+        questions_nutrition: data.questions_nutrition || [],
+        summary_medicine: data.summary_medicine || '',
+        summary_nutrition: data.summary_nutrition || '',
         attention_areas: data.attention_areas || [],
         generatedAt: new Date().toISOString(),
         calTarget,

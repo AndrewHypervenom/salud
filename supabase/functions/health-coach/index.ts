@@ -161,27 +161,28 @@ Deno.serve(async (req: Request) => {
     if (body.mode === 'doctor_report') {
       const { profile, calTarget, nutrition, weight, bloodPressure, exercise, habits } = body
 
-      const DOCTOR_REPORT_SYSTEM = `Eres un asistente clínico de la app Salud Familiar.
-Analizas los datos de salud reales de un paciente y generas:
-1. Entre 5 y 8 preguntas ESPECÍFICAS y RELEVANTES para su consulta médica (basadas en sus datos reales, no genéricas)
-2. Un párrafo breve de observaciones clínicas
-3. Hasta 3 áreas de atención prioritaria
+      const DOCTOR_REPORT_SYSTEM = `Eres un asistente clínico de la app Salud Familiar que ayuda a pacientes a prepararse para sus consultas médicas.
 
-REGLAS para las preguntas:
-- Si avg_systolic >= 130: incluir al menos 2 preguntas sobre hipertensión/presión arterial
-- Si BMI > 28 o weight.trend_kg > 1: preguntar sobre metas de peso
-- Si avg_calories > calTarget * 1.15: preguntar sobre adherencia nutricional
-- Si exercise.days_active_14d < 3: preguntar sobre actividad física segura
-- Si habits.completion_pct_30d < 60: preguntar sobre adherencia a hábitos
-- Si el perfil tiene notes con condiciones médicas: hacer preguntas específicas a esas condiciones
-- Usar el nombre del paciente en al menos 1 pregunta
-- Las preguntas deben ser concretas y accionables, no genéricas
-- NUNCA generar preguntas sobre condiciones que no aparecen en los datos
+Tu tarea: analizar los datos reales del paciente y generar un informe con dos secciones especializadas y preguntas que el paciente llevará escritas a su cita.
+
+REGLAS CRÍTICAS:
+- Todas las preguntas deben estar en PRIMERA PERSONA ("¿Debería yo...?", "¿Tengo que...?", "¿Cuándo debo...?"). NUNCA en tercera persona.
+- Las preguntas deben ser concretas y basadas en los datos reales. NUNCA genéricas.
+- Genera 3-4 preguntas para el médico general y 3-4 para el nutricionista.
+- Si avg_systolic >= 130: incluir preguntas específicas sobre hipertensión
+- Si IMC > 28 o tendencia de peso positiva: preguntas sobre manejo del peso
+- Si avg_calorias > calTarget * 1.15: preguntas sobre ajuste calórico
+- Si exercise.days_active_14d < 3: preguntas sobre actividad física segura
+- Si hay condiciones médicas en las notas: preguntas específicas a esas condiciones
+- El resumen para el médico debe incluir datos clínicos relevantes (PA, peso, IMC, actividad)
+- El resumen para el nutricionista debe incluir patrón calórico, adherencia y hábitos
 
 Responde ÚNICAMENTE con JSON válido, sin markdown:
 {
-  "questions": ["pregunta 1", "pregunta 2"],
-  "observations": "Párrafo de observaciones clínicas. Máx 3 oraciones.",
+  "questions_medicine": ["¿Debería ajustar...?", "¿Tengo que...?"],
+  "questions_nutrition": ["¿Cuántas calorías debo...?", "¿Debo cambiar...?"],
+  "summary_medicine": "Resumen clínico para el médico general. Máx 2 oraciones. Mencionar datos de PA, IMC, actividad física.",
+  "summary_nutrition": "Resumen nutricional para el nutricionista. Máx 2 oraciones. Mencionar patrón calórico, adherencia y objetivo.",
   "attention_areas": ["área 1", "área 2", "área 3"]
 }`
 
@@ -250,10 +251,10 @@ HÁBITOS (últimos 30 días):
 
       const groqData = await groqRes.json()
       const content = groqData.choices?.[0]?.message?.content ?? ''
-      let result = { questions: [], observations: '', attention_areas: [] }
+      let result = { questions_medicine: [], questions_nutrition: [], summary_medicine: '', summary_nutrition: '', attention_areas: [] }
       try {
         const jsonMatch = content.match(/\{[\s\S]*\}/)
-        if (jsonMatch) result = JSON.parse(jsonMatch[0])
+        if (jsonMatch) result = { ...result, ...JSON.parse(jsonMatch[0]) }
       } catch { /* fallback vacío */ }
 
       return new Response(
