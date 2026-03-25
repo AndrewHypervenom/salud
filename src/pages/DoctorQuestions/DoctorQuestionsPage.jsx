@@ -161,6 +161,9 @@ export default function DoctorQuestionsPage() {
   }
 
   // Solo mostrar preguntas sin question_key (custom: generadas por IA + manuales)
+  const medicineQuestions = questions.filter(q => !q.question_key && q.category === 'medicine')
+  const nutritionQuestions = questions.filter(q => !q.question_key && q.category === 'nutrition')
+  const otherQuestions = questions.filter(q => !q.question_key && !q.category)
   const customQuestions = questions.filter(q => !q.question_key)
   const checkedCount = customQuestions.filter(q => q.is_checked).length
 
@@ -232,49 +235,79 @@ export default function DoctorQuestionsPage() {
 
           {loading ? (
             <div className="flex justify-center py-12"><Spinner /></div>
+          ) : customQuestions.length === 0 ? (
+            <Card className="text-center py-8 text-gray-400">
+              <p className="text-3xl mb-2">💬</p>
+              <p className="text-sm">Genera preguntas con IA para que aparezcan aquí adaptadas a tus datos</p>
+            </Card>
           ) : (
-            <Card>
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="font-bold text-gray-900 dark:text-gray-100">Mis preguntas para el médico</h2>
-                {customQuestions.length > 0 && (
-                  <span className="text-xs text-primary-600 font-medium bg-primary-50 dark:bg-primary-900/30 px-2 py-0.5 rounded-full">
-                    {checkedCount}/{customQuestions.length} marcadas
-                  </span>
-                )}
-              </div>
-
-              {customQuestions.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-4">
-                  Genera preguntas con IA para que aparezcan aquí adaptadas a tus datos
-                </p>
-              ) : (
-                <div className="flex flex-col gap-2 mb-4">
-                  {customQuestions.map(q => (
-                    <QuestionItem
-                      key={q.id}
-                      question={q}
-                      onToggle={toggleQuestion}
-                      onDelete={deleteCustomQuestion}
-                      t={t}
-                    />
-                  ))}
+            <>
+              {/* Médico General */}
+              {medicineQuestions.length > 0 && (
+                <div className="rounded-2xl border-2 border-blue-200 dark:border-blue-800 overflow-hidden">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 px-4 py-2.5 flex items-center gap-2">
+                    <span className="text-xl">🩺</span>
+                    <span className="font-semibold text-blue-700 dark:text-blue-300 text-sm">Médico General / Medicina Interna</span>
+                    <span className="ml-auto text-xs text-blue-500">
+                      {medicineQuestions.filter(q => q.is_checked).length}/{medicineQuestions.length}
+                    </span>
+                  </div>
+                  <div className="p-3 flex flex-col gap-2">
+                    {medicineQuestions.map(q => (
+                      <QuestionItem key={q.id} question={q} onToggle={toggleQuestion} onDelete={deleteCustomQuestion} t={t} />
+                    ))}
+                  </div>
                 </div>
               )}
 
-              <div className="flex gap-2 mt-2">
-                <Input
-                  placeholder={t('doctor.custom_placeholder')}
-                  value={customText}
-                  onChange={e => setCustomText(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleAdd()}
-                  className="flex-1"
-                />
-                <Button onClick={handleAdd} disabled={adding || !customText.trim()} className="flex-shrink-0">
-                  {adding ? <Spinner size="sm" /> : t('doctor.add')}
-                </Button>
-              </div>
-            </Card>
+              {/* Nutricionista */}
+              {nutritionQuestions.length > 0 && (
+                <div className="rounded-2xl border-2 border-green-200 dark:border-green-800 overflow-hidden">
+                  <div className="bg-green-50 dark:bg-green-900/20 px-4 py-2.5 flex items-center gap-2">
+                    <span className="text-xl">🥦</span>
+                    <span className="font-semibold text-green-700 dark:text-green-300 text-sm">Nutricionista / Dietista</span>
+                    <span className="ml-auto text-xs text-green-500">
+                      {nutritionQuestions.filter(q => q.is_checked).length}/{nutritionQuestions.length}
+                    </span>
+                  </div>
+                  <div className="p-3 flex flex-col gap-2">
+                    {nutritionQuestions.map(q => (
+                      <QuestionItem key={q.id} question={q} onToggle={toggleQuestion} onDelete={deleteCustomQuestion} t={t} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Preguntas manuales sin categoría */}
+              {otherQuestions.length > 0 && (
+                <Card>
+                  <h2 className="font-semibold text-gray-700 dark:text-gray-200 text-sm mb-2">Otras preguntas</h2>
+                  <div className="flex flex-col gap-2">
+                    {otherQuestions.map(q => (
+                      <QuestionItem key={q.id} question={q} onToggle={toggleQuestion} onDelete={deleteCustomQuestion} t={t} />
+                    ))}
+                  </div>
+                </Card>
+              )}
+            </>
           )}
+
+          {/* Agregar pregunta manual siempre visible */}
+          <Card>
+            <h2 className="font-semibold text-gray-700 dark:text-gray-200 text-sm mb-2">{t('doctor.add_custom')}</h2>
+            <div className="flex gap-2">
+              <Input
+                placeholder={t('doctor.custom_placeholder')}
+                value={customText}
+                onChange={e => setCustomText(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleAdd()}
+                className="flex-1"
+              />
+              <Button onClick={handleAdd} disabled={adding || !customText.trim()} className="flex-shrink-0">
+                {adding ? <Spinner size="sm" /> : t('doctor.add')}
+              </Button>
+            </div>
+          </Card>
         </div>
 
         {/* ===== SECCIÓN B: Informe imprimible ===== */}

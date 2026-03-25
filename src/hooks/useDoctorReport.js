@@ -152,17 +152,24 @@ export function useDoctorReport(profileId) {
         .eq('profile_id', profileId)
         .is('question_key', null)
 
-      const allQuestions = [
-        ...(data.questions_medicine || []),
-        ...(data.questions_nutrition || []),
+      const newRows = [
+        ...(data.questions_medicine || []).map((q, i) => ({
+          profile_id: profileId,
+          question_key: null,
+          custom_text: q,
+          is_checked: false,
+          sort_order: i,
+          category: 'medicine',
+        })),
+        ...(data.questions_nutrition || []).map((q, i) => ({
+          profile_id: profileId,
+          question_key: null,
+          custom_text: q,
+          is_checked: false,
+          sort_order: 100 + i,
+          category: 'nutrition',
+        })),
       ]
-      const newRows = allQuestions.map((q, i) => ({
-        profile_id: profileId,
-        question_key: null,
-        custom_text: q,
-        is_checked: false,
-        sort_order: i,
-      }))
 
       if (newRows.length > 0) {
         await supabase.from('doctor_questions').insert(newRows)
