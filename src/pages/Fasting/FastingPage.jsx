@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Zap, CheckCircle2 } from 'lucide-react'
+import { Zap, CheckCircle2, Pencil, Trash2 } from 'lucide-react'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useFasting } from '../../hooks/useFasting'
 import { useBadges } from '../../hooks/useBadges'
@@ -16,7 +16,7 @@ export default function FastingPage() {
   const { t, i18n } = useTranslation()
   const lang = i18n.language?.startsWith('es') ? 'es' : 'en'
   const { activeProfileId } = useProfileContext()
-  const { sessions, activeSession, completedCount, loading, startFast, endFast, editTimes } = useFasting(activeProfileId)
+  const { sessions, activeSession, completedCount, loading, startFast, endFast, editTimes, deleteSession } = useFasting(activeProfileId)
   const { newBadge, checkAndUnlock, clearNewBadge } = useBadges(activeProfileId)
 
   const [targetHours, setTargetHours] = useState(16)
@@ -26,6 +26,7 @@ export default function FastingPage() {
   const [editStart, setEditStart] = useState('')
   const [editEnd, setEditEnd] = useState('')
   const [savingEdit, setSavingEdit] = useState(false)
+  const [deletingId, setDeletingId] = useState(null)
   const [reaction, setReaction] = useState('idle')
   const [celebrating, setCelebrating] = useState(false)
   const [mascotType, setMascotType] = useState(
@@ -75,6 +76,11 @@ export default function FastingPage() {
 
   // datetime-local value is local time without TZ — convert to UTC ISO before saving
   const localToUTC = (s) => s ? new Date(s).toISOString() : null
+
+  const handleDelete = async (id) => {
+    try { await deleteSession(id) } catch (e) { console.error(e) }
+    finally { setDeletingId(null) }
+  }
 
   const handleEditSave = async () => {
     if (!editingId) return
@@ -181,24 +187,75 @@ export default function FastingPage() {
                 ? (new Date(s.end_time) - new Date(s.start_time)) / (1000 * 60 * 60)
                 : null
               return (
-                <Card key={s.id} className="flex items-center gap-3 py-2.5">
-                  {s.completed
-                    ? <CheckCircle2 size={20} strokeWidth={1.75} className="text-green-500 flex-shrink-0" />
-                    : <Zap size={20} strokeWidth={1.75} className="text-violet-400 flex-shrink-0" />
-                  }
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                      {new Date(s.start_time).toLocaleDateString(i18n.language, { day: '2-digit', month: 'short' })}
-                      {' · '}
-                      <span className={s.completed ? 'text-green-600' : 'text-amber-500'}>
-                        {elapsed ? `${Math.round(elapsed * 10) / 10}h` : '?'} / {s.target_hours}h
-                      </span>
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      {new Date(s.start_time).toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' })}
-                      {s.end_time && ` → ${new Date(s.end_time).toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' })}`}
-                    </p>
+                <Card key={s.id} className="py-2.5 px-4">
+                  <div className="flex items-center gap-3">
+                    {s.completed
+                      ? <CheckCircle2 size={20} strokeWidth={1.75} className="text-green-500 flex-shrink-0" />
+                      : <Zap size={20} strokeWidth={1.75} className="text-violet-400 flex-shrink-0" />
+                    }
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                        {new Date(s.start_time).toLocaleDateString(i18n.language, { day: '2-digit', month: 'short' })}
+                        {' · '}
+                        <span className={s.completed ? 'text-green-600' : 'text-amber-500'}>
+                          {elapsed ? `${Math.round(elapsed * 10) / 10}h` : '?'} / {s.target_hours}h
+                        </span>
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {new Date(s.start_time).toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' })}
+                        {s.end_time && ` → ${new Date(s.end_time).toLocaleTimeString(i18n.language, { hour: '2-digit', minute: '2-digit' })}`}
+                      </p>
+                    </div>
+                    {/* Botón editar */}
+                    <button
+                      onClick={() => { setDeletingId(null); startEdit(s) }}
+                      className="p-1.5 rounded-full text-gray-400 hover:text-violet-500 active:scale-90 transition-all"
+                    >
+                      <Pencil size={15} strokeWidth={2} />
+                    </button>
+                    {/* Botón eliminar — dos estados */}
+                    {deletingId === s.id ? (
+                      <button
+                        onClick={() => handleDelete(s.id)}
+                        className="p-1.5 rounded-full bg-red-500 text-white active:scale-90 transition-all"
+                      >
+                        <Trash2 size={15} strokeWidth={2} />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => { setEditingId(null); setDeletingId(s.id) }}
+                        className="p-1.5 rounded-full text-gray-400 hover:text-red-500 active:scale-90 transition-all"
+                      >
+                        <Trash2 size={15} strokeWidth={2} />
+                      </button>
+                    )}
                   </div>
+
+                  {/* Panel de edición inline */}
+                  {editingId === s.id && (
+                    <div className="mt-3 flex flex-col gap-2 border-t border-gray-100 dark:border-gray-700 pt-3">
+                      <div className="flex flex-col gap-1">
+                        <label className="text-xs text-gray-400">{t('fasting.start_time')}</label>
+                        <input type="datetime-local" value={editStart}
+                          onChange={e => setEditStart(e.target.value)}
+                          className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 rounded-xl" />
+                        <label className="text-xs text-gray-400">{t('fasting.end_time')} {t('fasting.optional')}</label>
+                        <input type="datetime-local" value={editEnd}
+                          onChange={e => setEditEnd(e.target.value)}
+                          className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 rounded-xl" />
+                      </div>
+                      <div className="flex gap-2 mt-1">
+                        <button onClick={() => setEditingId(null)}
+                          className="flex-1 py-1.5 border border-gray-300 dark:border-gray-600 rounded-full text-sm text-gray-600 dark:text-gray-300 active:scale-95 transition-transform">
+                          {t('common.cancel')}
+                        </button>
+                        <button onClick={handleEditSave} disabled={savingEdit}
+                          className="flex-1 py-1.5 rounded-full text-sm font-semibold text-white bg-violet-500 active:scale-95 transition-transform disabled:opacity-40">
+                          {savingEdit ? '...' : t('common.save')}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </Card>
               )
             })}

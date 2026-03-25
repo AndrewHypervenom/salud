@@ -14,6 +14,7 @@ export default function FastingMascot({
   const state = sleeping ? 'sleeping' : phase.mascotState
   const glowColor = phase.glow
   const primary = phase.primary
+  const darkPrimary = phase.darkPrimary ?? phase.primary
 
   const animClass =
     reaction === 'dancing' ? 'animate-mascot-dance'
@@ -21,12 +22,12 @@ export default function FastingMascot({
     : 'animate-mascot-breathe'
 
   return (
-    <div className="flex items-center justify-center relative" style={{ width: 100, height: 100 }}>
+    <div className="flex items-center justify-center relative" style={{ width: 120, height: 120 }}>
       {/* Glow aura */}
       <div
         className="absolute rounded-full transition-all duration-1000"
         style={{
-          width: 76, height: 76,
+          width: 92, height: 92,
           background: `radial-gradient(circle, ${glowColor}99 0%, transparent 70%)`,
           top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)',
@@ -34,14 +35,14 @@ export default function FastingMascot({
       />
       <svg
         viewBox="0 0 80 80"
-        width={86}
-        height={86}
+        width={108}
+        height={108}
         className={animClass}
         style={{ position: 'relative', zIndex: 1 }}
       >
         {mascotType === 'cat'
-          ? <CatBody state={state} primary={primary} glowColor={glowColor} phaseIndex={phaseIndex} />
-          : <DogBody state={state} primary={primary} glowColor={glowColor} phaseIndex={phaseIndex} />
+          ? <CatBody state={state} primary={primary} darkPrimary={darkPrimary} glowColor={glowColor} phaseIndex={phaseIndex} />
+          : <DogBody state={state} primary={primary} darkPrimary={darkPrimary} glowColor={glowColor} phaseIndex={phaseIndex} />
         }
         {state === 'sleeping' && <ZZZ />}
       </svg>
@@ -50,13 +51,37 @@ export default function FastingMascot({
 }
 
 /* ──────────────────────────────────────────
+   SHARED DEFS (gradients + shadow)
+────────────────────────────────────────── */
+function MascotDefs({ primary, darkPrimary }) {
+  return (
+    <defs>
+      <radialGradient id="bodyGrad" cx="35%" cy="28%" r="65%" fx="35%" fy="28%">
+        <stop offset="0%"   stopColor="#ffffff" stopOpacity="0.55" />
+        <stop offset="42%"  stopColor={primary} stopOpacity="1" />
+        <stop offset="100%" stopColor={darkPrimary} stopOpacity="1" />
+      </radialGradient>
+      <radialGradient id="earGrad" cx="50%" cy="80%" r="80%">
+        <stop offset="0%"   stopColor={primary} stopOpacity="1" />
+        <stop offset="100%" stopColor={darkPrimary} stopOpacity="1" />
+      </radialGradient>
+      <filter id="bodyShad" x="-10%" y="-10%" width="130%" height="135%">
+        <feDropShadow dx="2" dy="3.5" stdDeviation="3" floodColor="#000000" floodOpacity="0.22" />
+      </filter>
+    </defs>
+  )
+}
+
+/* ──────────────────────────────────────────
    CAT MASCOT
 ────────────────────────────────────────── */
-function CatBody({ state, primary, glowColor, phaseIndex }) {
+function CatBody({ state, primary, darkPrimary, glowColor, phaseIndex }) {
   const isHappy = state === 'energized' || state === 'radiant' || state === 'cosmic'
 
   return (
     <g>
+      <MascotDefs primary={primary} darkPrimary={darkPrimary} />
+
       {/* ── Tail (behind body, drawn first) ── */}
       <path
         d="M 58,66 Q 72,68 70,54 Q 68,44 60,46"
@@ -77,28 +102,32 @@ function CatBody({ state, primary, glowColor, phaseIndex }) {
 
       {/* ── Ears ── */}
       {/* Left ear */}
-      <polygon points="16,26 22,7 32,23" style={{ fill: primary, transition: 'fill 1.2s ease' }} />
+      <polygon points="16,26 22,7 32,23" fill="url(#earGrad)" />
       <polygon points="18,24 23,11 30,21" fill="#FFB5D3" opacity="0.85" />
       {/* Right ear */}
-      <polygon points="64,26 58,7 48,23" style={{ fill: primary, transition: 'fill 1.2s ease' }} />
+      <polygon points="64,26 58,7 48,23" fill="url(#earGrad)" />
       <polygon points="62,24 57,11 50,21" fill="#FFB5D3" opacity="0.85" />
 
       {/* ── Body ── */}
       <rect
         x="13" y="22" width="54" height="48" rx="22"
-        style={{ fill: primary, transition: 'fill 1.2s ease' }}
+        fill="url(#bodyGrad)"
+        filter="url(#bodyShad)"
+        style={{ transition: 'fill 1.2s ease' }}
       />
 
       {/* ── Belly patch ── */}
       <ellipse cx="40" cy="52" rx="16" ry="12" fill="white" opacity="0.2" />
 
-      {/* ── Cheeks ── */}
-      {isHappy && (
-        <>
-          <ellipse cx="19" cy="48" rx="6" ry="4" fill="#FF6B9D" opacity="0.4" />
-          <ellipse cx="61" cy="48" rx="6" ry="4" fill="#FF6B9D" opacity="0.4" />
-        </>
-      )}
+      {/* ── Cheeks (siempre visibles, opacidad dinámica) ── */}
+      <ellipse cx="19" cy="48" rx="6" ry="4" fill="#FF6B9D"
+        opacity={isHappy ? 0.45 : 0.18}
+        style={{ transition: 'opacity 0.6s ease' }}
+      />
+      <ellipse cx="61" cy="48" rx="6" ry="4" fill="#FF6B9D"
+        opacity={isHappy ? 0.45 : 0.18}
+        style={{ transition: 'opacity 0.6s ease' }}
+      />
 
       {/* ── Eyes ── */}
       <CatEyes state={state} glowColor={glowColor} />
@@ -153,14 +182,16 @@ function CatEyes({ state, glowColor }) {
   // Normal / energized / radiant — cat eyes with vertical slit pupil
   return (
     <g>
-      <ellipse cx="28" cy="36" rx="7" ry="6" fill="white" />
+      <ellipse cx="28" cy="36" rx="8" ry="7" fill="white" />
       {/* Vertical slit pupil */}
       <ellipse cx="28" cy="36" rx={state === 'energized' || state === 'radiant' ? 2.5 : 2} ry="4.5" fill="#1f2937" />
-      <circle cx="29.5" cy="34" r="1.2" fill="white" />
+      <circle cx="29.5" cy="34" r="1.6" fill="white" />
+      <circle cx="26.5" cy="37.5" r="0.7" fill="white" opacity="0.45" />
 
-      <ellipse cx="52" cy="36" rx="7" ry="6" fill="white" />
+      <ellipse cx="52" cy="36" rx="8" ry="7" fill="white" />
       <ellipse cx="52" cy="36" rx={state === 'energized' || state === 'radiant' ? 2.5 : 2} ry="4.5" fill="#1f2937" />
-      <circle cx="53.5" cy="34" r="1.2" fill="white" />
+      <circle cx="53.5" cy="34" r="1.6" fill="white" />
+      <circle cx="50.5" cy="37.5" r="0.7" fill="white" opacity="0.45" />
 
       {state === 'radiant' && (
         <>
@@ -177,10 +208,11 @@ function CatNose({ state }) {
   return (
     <g>
       {/* Tiny cute triangle nose */}
-      <polygon points="38,47 42,47 40,50" fill="#FFB5D3" opacity="0.95" />
+      <polygon points="37,47 43,47 40,51" fill="#FFB5D3" opacity="0.95" />
+      <circle cx="38.5" cy="47.5" r="0.8" fill="white" opacity="0.6" />
       {/* Mouth — Y shape */}
-      <path d="M 40,50 Q 36,55 33,54" stroke="white" strokeWidth="1.8" fill="none" strokeLinecap="round" />
-      <path d="M 40,50 Q 44,55 47,54" stroke="white" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+      <path d="M 40,51 Q 36,55 33,54" stroke="white" strokeWidth="1.8" fill="none" strokeLinecap="round" />
+      <path d="M 40,51 Q 44,55 47,54" stroke="white" strokeWidth="1.8" fill="none" strokeLinecap="round" />
     </g>
   )
 }
@@ -204,24 +236,23 @@ function CatWhiskers({ state }) {
 /* ──────────────────────────────────────────
    DOG MASCOT
 ────────────────────────────────────────── */
-function DogBody({ state, primary, glowColor, phaseIndex }) {
+function DogBody({ state, primary, darkPrimary, glowColor, phaseIndex }) {
   const isHappy = state === 'energized' || state === 'radiant' || state === 'cosmic'
-
-  // Ear color: slightly darker shade
-  const earColor = primary
 
   return (
     <g>
+      <MascotDefs primary={primary} darkPrimary={darkPrimary} />
+
       {/* ── Floppy ears (behind body) ── */}
       <ellipse cx="10" cy="38" rx="10" ry="20"
-        style={{ fill: earColor, transition: 'fill 1.2s ease' }}
+        fill="url(#earGrad)"
         opacity="0.9"
       />
       {/* Ear inner shadow */}
       <ellipse cx="10" cy="40" rx="6" ry="14" fill="white" opacity="0.15" />
 
       <ellipse cx="70" cy="38" rx="10" ry="20"
-        style={{ fill: earColor, transition: 'fill 1.2s ease' }}
+        fill="url(#earGrad)"
         opacity="0.9"
       />
       <ellipse cx="70" cy="40" rx="6" ry="14" fill="white" opacity="0.15" />
@@ -229,7 +260,9 @@ function DogBody({ state, primary, glowColor, phaseIndex }) {
       {/* ── Body ── */}
       <rect
         x="14" y="18" width="52" height="52" rx="22"
-        style={{ fill: primary, transition: 'fill 1.2s ease' }}
+        fill="url(#bodyGrad)"
+        filter="url(#bodyShad)"
+        style={{ transition: 'fill 1.2s ease' }}
       />
 
       {/* ── Belly patch ── */}
@@ -301,15 +334,17 @@ function DogEyes({ state, glowColor }) {
   const pupilSize = state === 'energized' ? 5 : state === 'radiant' ? 5.5 : 4.5
   return (
     <g>
-      <circle cx="27" cy="34" r="8" fill="white" />
+      <circle cx="27" cy="34" r="9" fill="white" />
       <circle cx="27" cy="34" r={pupilSize} fill="#2d1b05" />
       <circle cx="29" cy="32" r="1.8" fill="white" />
       <circle cx="26" cy="33" r="0.8" fill="white" opacity="0.6" />
+      <circle cx="26" cy="36.5" r="0.6" fill="white" opacity="0.4" />
 
-      <circle cx="53" cy="34" r="8" fill="white" />
+      <circle cx="53" cy="34" r="9" fill="white" />
       <circle cx="53" cy="34" r={pupilSize} fill="#2d1b05" />
       <circle cx="55" cy="32" r="1.8" fill="white" />
       <circle cx="52" cy="33" r="0.8" fill="white" opacity="0.6" />
+      <circle cx="52" cy="36.5" r="0.6" fill="white" opacity="0.4" />
 
       {state === 'radiant' && (
         <>
