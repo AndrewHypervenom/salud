@@ -1,14 +1,14 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 
-function todayRange() {
-  const now = new Date()
-  const start = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
+function dateRange(date) {
+  const d = date ?? new Date()
+  const start = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+  const end = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1)
   return { start: start.toISOString(), end: end.toISOString() }
 }
 
-export function useFoodLogs(profileId) {
+export function useFoodLogs(profileId, selectedDate = null) {
   const [todayLogs, setTodayLogs] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -18,7 +18,7 @@ export function useFoodLogs(profileId) {
     setLoading(true)
     setError(null)
 
-    const { start, end } = todayRange()
+    const { start, end } = dateRange(selectedDate)
     const { data, error: err } = await supabase
       .from('food_logs')
       .select('*')
@@ -30,7 +30,7 @@ export function useFoodLogs(profileId) {
     if (err) setError(err.message)
     else setTodayLogs(data || [])
     setLoading(false)
-  }, [profileId])
+  }, [profileId, selectedDate])
 
   useEffect(() => {
     fetchTodayLogs()
@@ -39,9 +39,12 @@ export function useFoodLogs(profileId) {
   const todayCalories = todayLogs.reduce((sum, log) => sum + (log.calories_estimated || 0), 0)
 
   const addFoodLog = async ({ meal_type, description, calories_estimated, image_url, notes, protein_g, carbs_g, fat_g, fiber_g }) => {
+    const now = new Date()
+    const base = selectedDate ?? now
+    const logged_at = new Date(base.getFullYear(), base.getMonth(), base.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()).toISOString()
     const { data, error: err } = await supabase
       .from('food_logs')
-      .insert([{ profile_id: profileId, meal_type, description, calories_estimated, image_url, notes, protein_g: protein_g ?? null, carbs_g: carbs_g ?? null, fat_g: fat_g ?? null, fiber_g: fiber_g ?? null }])
+      .insert([{ profile_id: profileId, meal_type, description, calories_estimated, image_url, notes, protein_g: protein_g ?? null, carbs_g: carbs_g ?? null, fat_g: fat_g ?? null, fiber_g: fiber_g ?? null, logged_at }])
       .select()
       .single()
     if (err) throw err

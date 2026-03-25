@@ -614,6 +614,7 @@
   },
   "food": {
     "title": "Food Diary",
+    "today": "Today",
     "today_calories": "Calories today",
     "goal": "Goal",
     "breakfast": "Breakfast",

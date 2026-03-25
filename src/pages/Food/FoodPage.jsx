@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Sunrise, Sun, Moon, Apple, UtensilsCrossed, Flame, AlertTriangle } from 'lucide-react'
+import { Sunrise, Sun, Moon, Apple, UtensilsCrossed, Flame, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useProfiles } from '../../hooks/useProfiles'
 import { useHabits } from '../../hooks/useHabits'
@@ -30,7 +30,18 @@ export default function FoodPage() {
   const navigate = useNavigate()
   const { activeProfileId } = useProfileContext()
   const { profiles } = useProfiles()
-  const { todayLogs, loading, todayCalories, addFoodLog, deleteFoodLog } = useFoodLogs(activeProfileId)
+
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const d = new Date(); d.setHours(0, 0, 0, 0); return d
+  })
+  const isToday = (() => {
+    const today = new Date(); today.setHours(0, 0, 0, 0)
+    return selectedDate.getTime() === today.getTime()
+  })()
+  const goBack = () => setSelectedDate(d => { const n = new Date(d); n.setDate(n.getDate() - 1); return n })
+  const goForward = () => setSelectedDate(d => { const n = new Date(d); n.setDate(n.getDate() + 1); return n })
+
+  const { todayLogs, loading, todayCalories, addFoodLog, deleteFoodLog } = useFoodLogs(activeProfileId, selectedDate)
   const { habits, todayLogs: habitLogs } = useHabits(activeProfileId)
   const { newBadge, checkAndUnlock, clearNewBadge } = useBadges(activeProfileId)
 
@@ -69,8 +80,8 @@ export default function FoodPage() {
     setPrefill(null)
     // Check badges
     const logCount = todayLogs.length + 1
-    if (logCount === 1) await checkAndUnlock('first_log', true)
-    if (logCount >= 30) await checkAndUnlock('food_tracker_30', true)
+    if (isToday && logCount === 1) await checkAndUnlock('first_log', true)
+    if (isToday && logCount >= 30) await checkAndUnlock('food_tracker_30', true)
   }
 
   const handleDelete = async (id) => {
@@ -107,11 +118,26 @@ export default function FoodPage() {
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('food.title')}</h1>
       </div>
 
+      {/* Navegador de fecha */}
+      <div className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 rounded-xl px-3 py-2">
+        <button onClick={goBack} className="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+          <ChevronLeft size={20} className="text-gray-600 dark:text-gray-300" />
+        </button>
+        <span className="text-sm font-medium text-gray-700 dark:text-gray-200 capitalize">
+          {isToday
+            ? t('food.today')
+            : selectedDate.toLocaleDateString(lang === 'es' ? 'es-MX' : 'en-US', { weekday: 'long', day: 'numeric', month: 'short' })}
+        </span>
+        <button onClick={goForward} disabled={isToday} className="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">
+          <ChevronRight size={20} className="text-gray-600 dark:text-gray-300" />
+        </button>
+      </div>
+
       {/* Calorie progress */}
       <Card>
         <div className="flex items-center justify-between mb-3">
           <div>
-            <p className="text-sm text-gray-500">{t('food.today_calories')}</p>
+            <p className="text-sm text-gray-500">{isToday ? t('food.today_calories') : selectedDate.toLocaleDateString(lang === 'es' ? 'es-MX' : 'en-US', { day: 'numeric', month: 'short' })}</p>
             <p className={`text-3xl font-bold ${calColors.text}`}>
               {todayCalories}
               <span className="text-base font-normal text-gray-400"> / {calTarget} kcal</span>

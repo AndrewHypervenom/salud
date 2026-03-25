@@ -614,6 +614,7 @@
   },
   "food": {
     "title": "Diario de Comidas",
+    "today": "Hoy",
     "today_calories": "Calorías hoy",
     "goal": "Meta",
     "breakfast": "Desayuno",
