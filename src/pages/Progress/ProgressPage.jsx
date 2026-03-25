@@ -126,7 +126,7 @@ export default function ProgressPage() {
     }
     const dayData = foodLogsByDay[a.analysis_date]
     if (dayData) {
-      return { ...a, total_calories: dayData.totalCal }
+      return { ...a, total_calories: dayData.totalCal, cal_target: baseCalTarget }
     }
     return a
   }
