@@ -12,13 +12,13 @@ function previewPhase(targetHours) {
 }
 
 const MASCOTS = [
-  { id: 'cat', emoji: '🐱', label: 'Gato' },
-  { id: 'dog', emoji: '🐶', label: 'Perro' },
+  { id: 'axolotl', emoji: '🦎', label: 'Axolote' },
+  { id: 'capybara', emoji: '🦔', label: 'Capibara' },
 ]
 
 export default function FastingIdleView({
   targetHours, setTargetHours, handleStart, starting,
-  mascotType = 'cat', onMascotChange,
+  mascotType = 'axolotl', onMascotChange,
 }) {
   const { t } = useTranslation()
   const { isDark } = useTheme()

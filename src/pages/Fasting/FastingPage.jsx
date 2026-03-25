@@ -30,7 +30,7 @@ export default function FastingPage() {
   const [reaction, setReaction] = useState('idle')
   const [celebrating, setCelebrating] = useState(false)
   const [mascotType, setMascotType] = useState(
-    () => localStorage.getItem('nexvida-mascot') || 'cat'
+    () => localStorage.getItem('nexvida-mascot') || 'axolotl'
   )
 
   const handleMascotChange = (type) => {
