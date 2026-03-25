@@ -51,7 +51,7 @@ export default function FastingMascot({
 
       {/* 3D Canvas */}
       <Canvas
-        camera={{ position: [0.3, 0.8, 5.2], fov: 28 }}
+        camera={{ position: [0, 0.05, 2.8], fov: 40 }}
         style={{ width: 220, height: 220, background: 'transparent', position: 'relative', zIndex: 1 }}
         gl={{ alpha: true, antialias: true }}
         dpr={[1, 2]}
@@ -61,14 +61,9 @@ export default function FastingMascot({
         <directionalLight position={[3, 4, 2]} intensity={1.8} color="#FFF8F0" />
         <directionalLight position={[-3, 1, 1]} intensity={0.45} color="#E8F4FF" />
         <directionalLight position={[-1, 3, -4]} intensity={1.1} color="#FFFFFF" />
-        <pointLight position={[0, -1, 2]} intensity={0.6} color={glowColor} distance={4} decay={2} />
+        <pointLight position={[0, -0.3, 1.8]} intensity={0.7} color={glowColor} distance={4} decay={2} />
         <Suspense fallback={null}>
           <Environment preset="studio" />
-          {/* Shadow blob debajo de la mascota */}
-          <mesh position={[0, -1.15, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-            <planeGeometry args={[1.8, 1.2]} />
-            <meshBasicMaterial color="#000000" transparent opacity={0.10} depthWrite={false} />
-          </mesh>
           {effectiveMascot === 'capybara'
             ? <Capybara3D {...mascotProps} />
             : <Axolotl3D {...mascotProps} />
