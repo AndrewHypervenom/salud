@@ -157,6 +157,111 @@ Deno.serve(async (req: Request) => {
       )
     }
 
+    // Modo informe médico personalizado
+    if (body.mode === 'doctor_report') {
+      const { profile, calTarget, nutrition, weight, bloodPressure, exercise, habits } = body
+
+      const DOCTOR_REPORT_SYSTEM = `Eres un asistente clínico de la app Salud Familiar.
+Analizas los datos de salud reales de un paciente y generas:
+1. Entre 5 y 8 preguntas ESPECÍFICAS y RELEVANTES para su consulta médica (basadas en sus datos reales, no genéricas)
+2. Un párrafo breve de observaciones clínicas
+3. Hasta 3 áreas de atención prioritaria
+
+REGLAS para las preguntas:
+- Si avg_systolic >= 130: incluir al menos 2 preguntas sobre hipertensión/presión arterial
+- Si BMI > 28 o weight.trend_kg > 1: preguntar sobre metas de peso
+- Si avg_calories > calTarget * 1.15: preguntar sobre adherencia nutricional
+- Si exercise.days_active_14d < 3: preguntar sobre actividad física segura
+- Si habits.completion_pct_30d < 60: preguntar sobre adherencia a hábitos
+- Si el perfil tiene notes con condiciones médicas: hacer preguntas específicas a esas condiciones
+- Usar el nombre del paciente en al menos 1 pregunta
+- Las preguntas deben ser concretas y accionables, no genéricas
+- NUNCA generar preguntas sobre condiciones que no aparecen en los datos
+
+Responde ÚNICAMENTE con JSON válido, sin markdown:
+{
+  "questions": ["pregunta 1", "pregunta 2"],
+  "observations": "Párrafo de observaciones clínicas. Máx 3 oraciones.",
+  "attention_areas": ["área 1", "área 2", "área 3"]
+}`
+
+      const bmi = weight?.current_kg && profile?.height_cm
+        ? Math.round((weight.current_kg / Math.pow(profile.height_cm / 100, 2)) * 10) / 10
+        : null
+
+      const bpSummary = bloodPressure?.last_readings?.length > 0
+        ? bloodPressure.last_readings.map((r: { systolic: number; diastolic: number; measured_at: string }) =>
+            `  ${r.systolic}/${r.diastolic} mmHg (${r.measured_at})`
+          ).join('\n') + `\n  Promedio: ${bloodPressure.avg_systolic}/${bloodPressure.avg_diastolic} mmHg`
+        : '  Sin lecturas registradas'
+
+      const userPrompt = `
+PACIENTE: ${profile.name}, ${profile.age} años, ${profile.sex === 'male' ? 'Masculino' : 'Femenino'}
+Peso: ${profile.weight_kg} kg | Estatura: ${profile.height_cm} cm | IMC: ${bmi ?? 'N/D'}
+Nivel de actividad: ${profile.activity}
+Objetivo de salud: ${profile.health_goal === 'lose_weight' ? 'Bajar de peso' : profile.health_goal === 'gain_muscle' ? 'Ganar músculo' : profile.health_goal === 'improve_health' ? 'Mejorar salud' : 'Mantener peso'}
+Peso objetivo: ${profile.target_weight_kg ? profile.target_weight_kg + ' kg' : 'No definido'}
+Notas médicas: ${profile.notes || 'Ninguna'}
+
+NUTRICIÓN (meta: ${calTarget} kcal/día):
+- Promedio últimos 7 días: ${nutrition.avg7d_calories} kcal (${nutrition.days_logged_7d}/7 días registrados)
+- Promedio últimos 30 días: ${nutrition.avg30d_calories} kcal (${nutrition.days_logged_30d}/30 días con registro)
+
+TENDENCIA DE PESO:
+- Actual: ${weight.current_kg} kg
+- Tendencia: ${weight.trend_kg > 0 ? '+' : ''}${weight.trend_kg} kg en ${weight.readings_count} mediciones
+${profile.target_weight_kg ? `- Diferencia vs objetivo: ${Math.round((weight.current_kg - profile.target_weight_kg) * 10) / 10} kg` : ''}
+
+PRESIÓN ARTERIAL (últimas lecturas):
+${bpSummary}
+
+ACTIVIDAD FÍSICA (últimas 2 semanas):
+- Días activos: ${exercise.days_active_14d}/14
+- Tipos de ejercicio: ${exercise.types?.join(', ') || 'Ninguno registrado'}
+- Tiempo total: ${exercise.total_minutes_14d} minutos
+
+HÁBITOS (últimos 30 días):
+- Cumplimiento: ${habits.completion_pct_30d}%
+- Hábitos activos: ${habits.habit_names?.join(', ') || 'Ninguno'}
+- Baja adherencia: ${habits.low_compliance?.join(', ') || 'Ninguno'}
+`
+
+      const groqRes = await fetch(GROQ_API_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${Deno.env.get('GROQ_API_KEY')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          messages: [
+            { role: 'system', content: DOCTOR_REPORT_SYSTEM },
+            { role: 'user', content: userPrompt },
+          ],
+          temperature: 0.5,
+          max_tokens: 1024,
+        }),
+      })
+
+      if (!groqRes.ok) {
+        const errText = await groqRes.text()
+        throw new Error(`Groq API error: ${errText}`)
+      }
+
+      const groqData = await groqRes.json()
+      const content = groqData.choices?.[0]?.message?.content ?? ''
+      let result = { questions: [], observations: '', attention_areas: [] }
+      try {
+        const jsonMatch = content.match(/\{[\s\S]*\}/)
+        if (jsonMatch) result = JSON.parse(jsonMatch[0])
+      } catch { /* fallback vacío */ }
+
+      return new Response(
+        JSON.stringify(result),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      )
+    }
+
     const { profile, calTarget, todayCalories, foodLogs, habitsCompleted, habitsTotal, habitNames, lastBP, currentHour } = body
 
     const hour = typeof currentHour === 'number' ? currentHour : new Date().getHours()
