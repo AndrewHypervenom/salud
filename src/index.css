@@ -197,6 +197,15 @@
 
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* ── Fasting mascot & phase animations ── */
+  .animate-mascot-breathe   { animation: mascot-breathe 3s ease-in-out infinite; }
+  .animate-mascot-dance     { animation: mascot-dance 0.6s ease-in-out 3; }
+  .animate-mascot-wave      { animation: mascot-wave 0.5s ease-in-out 4; }
+  .animate-float-zz         { animation: float-zz 2.5s ease-in-out infinite; }
+  .animate-phase-glow-pulse { animation: phase-glow-pulse 2s ease-in-out infinite; }
+  .animate-burst-particle   { animation: burst-particle 0.8s ease-out forwards; }
+  .animate-phase-slide-in   { animation: phase-slide-in 0.35s ease-out forwards; }
 }
 
 /* ── Keyframes ───────────────────────────────────────────── */
@@ -273,4 +282,38 @@
   0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
   80%  { opacity: 1; }
   100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+@keyframes mascot-breathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%       { transform: translateY(-4px) scale(1.015); }
+}
+@keyframes mascot-dance {
+  0%   { transform: rotate(0deg) translateY(0); }
+  20%  { transform: rotate(-10deg) translateY(-6px); }
+  40%  { transform: rotate(10deg) translateY(-6px); }
+  60%  { transform: rotate(-8deg) translateY(-4px); }
+  80%  { transform: rotate(8deg) translateY(-4px); }
+  100% { transform: rotate(0deg) translateY(0); }
+}
+@keyframes mascot-wave {
+  0%, 100% { transform: rotate(0deg); }
+  25%       { transform: rotate(-20deg); }
+  75%       { transform: rotate(20deg); }
+}
+@keyframes float-zz {
+  0%   { transform: translate(0, 0); opacity: 0; }
+  30%  { opacity: 1; }
+  100% { transform: translate(8px, -20px); opacity: 0; }
+}
+@keyframes phase-glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 4px var(--phase-color)); }
+  50%       { filter: drop-shadow(0 0 14px var(--phase-color)); }
+}
+@keyframes burst-particle {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(0.3); opacity: 0; }
+}
+@keyframes phase-slide-in {
+  0%   { transform: translateX(20px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
 }

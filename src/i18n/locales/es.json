@@ -753,7 +753,18 @@
     "meta_progress": "Meta: {{h}}h · {{pct}}% completado",
     "meta_short": "Meta: {{h}}h · {{pct}}%",
     "end_time_est": "Fin previsto: {{time}}",
-    "optional": "(opcional)"
+    "optional": "(opcional)",
+    "phase_hungry": "Digestión completada",
+    "phase_adapting": "Glucógeno agotándose",
+    "phase_burning": "Quema de grasa activa",
+    "phase_ketosis": "Cetosis iniciando",
+    "phase_deep": "Cetosis profunda",
+    "phase_desc_hungry": "Tu cuerpo termina de procesar la última comida",
+    "phase_desc_adapting": "Las reservas de glucosa se agotan",
+    "phase_desc_burning": "Grasa corporal como combustible principal",
+    "phase_desc_ketosis": "El hígado produce cuerpos cetónicos",
+    "phase_desc_deep": "Máxima autofagia y quema de grasa",
+    "start_fast_x": "Iniciar {{h}}h"
   },
   "recipes": {
     "title": "Recetas",

@@ -753,7 +753,18 @@
     "meta_progress": "Goal: {{h}}h · {{pct}}% completed",
     "meta_short": "Goal: {{h}}h · {{pct}}%",
     "end_time_est": "Estimated end: {{time}}",
-    "optional": "(optional)"
+    "optional": "(optional)",
+    "phase_hungry": "Digestion complete",
+    "phase_adapting": "Glycogen depleting",
+    "phase_burning": "Active fat burning",
+    "phase_ketosis": "Ketosis starting",
+    "phase_deep": "Deep ketosis",
+    "phase_desc_hungry": "Your body finishes processing the last meal",
+    "phase_desc_adapting": "Glucose stores are running low",
+    "phase_desc_burning": "Body fat as the main fuel source",
+    "phase_desc_ketosis": "The liver starts producing ketone bodies",
+    "phase_desc_deep": "Maximum autophagy and fat burning",
+    "start_fast_x": "Start {{h}}h fast"
   },
   "recipes": {
     "title": "Recipes",
