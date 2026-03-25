@@ -131,6 +131,47 @@ export default function ProgressPage() {
     return a
   }
 
+  // Entradas combinadas: análisis (corregidos con datos reales) + días con comidas pero sin análisis
+  const analysisDates = new Set(analyses.map(a => a.analysis_date))
+  const syntheticEntries = Object.entries(foodLogsByDay)
+    .filter(([date]) => !analysisDates.has(date))
+    .map(([date, data]) => ({
+      id: `synthetic-${date}`,
+      analysis_date: date,
+      total_calories: date === todayDateStr ? todayCalories : data.totalCal,
+      cal_target: adjustedCalTarget,
+      analysis_text: null,
+      tomorrow_plan: null,
+      motivation: null,
+    }))
+  const allEntries = [...analyses.map(liveEntry), ...syntheticEntries]
+    .sort((a, b) => b.analysis_date.localeCompare(a.analysis_date))
+
+  // Semanas y meses usando allEntries (incluye días sin análisis)
+  const allWeeks = (() => {
+    const byWeek = {}
+    for (const a of allEntries) {
+      const date = new Date(a.analysis_date + 'T12:00:00')
+      const day = date.getDay()
+      const diffToMon = day === 0 ? -6 : 1 - day
+      const monday = new Date(date)
+      monday.setDate(date.getDate() + diffToMon)
+      const key = monday.toLocaleDateString('en-CA')
+      if (!byWeek[key]) byWeek[key] = { monday, entries: [] }
+      byWeek[key].entries.push(a)
+    }
+    return Object.values(byWeek).sort((a, b) => b.monday - a.monday)
+  })()
+  const allMonths = (() => {
+    const byMonth = {}
+    for (const a of allEntries) {
+      const key = a.analysis_date.slice(0, 7)
+      if (!byMonth[key]) byMonth[key] = []
+      byMonth[key].push(a)
+    }
+    return Object.entries(byMonth).sort(([a], [b]) => b.localeCompare(a)).map(([key, entries]) => ({ key, entries }))
+  })()
+
   if (!profile) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center gap-4">
@@ -142,7 +183,7 @@ export default function ProgressPage() {
 
   if (loading) return <div className="flex justify-center py-12"><Spinner /></div>
 
-  if (analyses.length === 0) {
+  if (allEntries.length === 0) {
     return (
       <div className="flex flex-col gap-4">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('progress.title')}</h1>
@@ -156,22 +197,20 @@ export default function ProgressPage() {
     )
   }
 
-  // Stats summary
-  const last7 = analyses.filter(a => {
-    const d = new Date(a.analysis_date + 'T12:00:00')
-    const diff = (Date.now() - d.getTime()) / (1000 * 60 * 60 * 24)
-    return diff <= 7
-  })
-  const last30 = analyses.filter(a => {
-    const d = new Date(a.analysis_date + 'T12:00:00')
-    const diff = (Date.now() - d.getTime()) / (1000 * 60 * 60 * 24)
-    return diff <= 30
-  })
-  const avg7 = last7.length > 0 ? Math.round(last7.map(liveEntry).reduce((s, a) => s + a.total_calories, 0) / last7.length) : 0
-  const avg30 = last30.length > 0 ? Math.round(last30.map(liveEntry).reduce((s, a) => s + a.total_calories, 0) / last30.length) : 0
+  // Stats summary — usa allEntries para incluir días con comidas aunque no tengan análisis de IA
+  const avg7 = (() => {
+    const cutoff = new Date(Date.now() - 7 * 86400000).toLocaleDateString('en-CA')
+    const entries = allEntries.filter(a => a.analysis_date >= cutoff)
+    return entries.length > 0 ? Math.round(entries.reduce((s, a) => s + a.total_calories, 0) / entries.length) : 0
+  })()
+  const avg30 = (() => {
+    const cutoff = new Date(Date.now() - 30 * 86400000).toLocaleDateString('en-CA')
+    const entries = allEntries.filter(a => a.analysis_date >= cutoff)
+    return entries.length > 0 ? Math.round(entries.reduce((s, a) => s + a.total_calories, 0) / entries.length) : 0
+  })()
   const calTarget = analyses[0]?.cal_target || 0
-  const daysUnderTarget = analyses.map(liveEntry).filter(a => a.total_calories <= a.cal_target).length
-  const pctUnderTarget = analyses.length > 0 ? Math.round((daysUnderTarget / analyses.length) * 100) : 0
+  const daysUnderTarget = allEntries.filter(a => a.total_calories <= a.cal_target).length
+  const pctUnderTarget = allEntries.length > 0 ? Math.round((daysUnderTarget / allEntries.length) * 100) : 0
 
   return (
     <div className="flex flex-col gap-4">
@@ -324,10 +363,9 @@ export default function ProgressPage() {
       </div>
 
       {/* Weeks view */}
-      {view === 'weeks' && weeks.map(({ monday, entries }) => {
-        const liveEntries = entries.map(liveEntry)
-        const weekAvg = Math.round(liveEntries.reduce((s, a) => s + a.total_calories, 0) / liveEntries.length)
-        const weekTarget = liveEntries[0]?.cal_target || 0
+      {view === 'weeks' && allWeeks.map(({ monday, entries }) => {
+        const weekAvg = Math.round(entries.reduce((s, a) => s + a.total_calories, 0) / entries.length)
+        const weekTarget = entries[0]?.cal_target || 0
         const weekPct = weekTarget > 0 ? Math.round((weekAvg / weekTarget) * 100) : 0
         const trendColor = weekPct > 100 ? 'text-red-500' : weekPct >= 80 ? 'text-amber-500' : 'text-green-600'
 
@@ -341,18 +379,17 @@ export default function ProgressPage() {
                 {t('progress.avg_week_summary', { avg: weekAvg, pct: weekPct })}
               </span>
             </div>
-            {liveEntries.map(a => <DayCard key={a.id} a={a} lang={lang} t={t} />)}
+            {entries.map(a => <DayCard key={a.id} a={a} lang={lang} t={t} />)}
           </div>
         )
       })}
 
       {/* Months view */}
-      {view === 'months' && months.map(({ key, entries }) => {
+      {view === 'months' && allMonths.map(({ key, entries }) => {
         const [year, month] = key.split('-')
         const monthName = lang === 'es' ? MONTH_NAMES_ES[parseInt(month) - 1] : MONTH_NAMES_EN[parseInt(month) - 1]
-        const liveEntries = entries.map(liveEntry)
-        const monthAvg = Math.round(liveEntries.reduce((s, a) => s + a.total_calories, 0) / liveEntries.length)
-        const monthTarget = liveEntries[0]?.cal_target || 0
+        const monthAvg = Math.round(entries.reduce((s, a) => s + a.total_calories, 0) / entries.length)
+        const monthTarget = entries[0]?.cal_target || 0
         const monthPct = monthTarget > 0 ? Math.round((monthAvg / monthTarget) * 100) : 0
         const trendColor = monthPct > 100 ? 'text-red-500' : monthPct >= 80 ? 'text-amber-500' : 'text-green-600'
 
@@ -366,13 +403,13 @@ export default function ProgressPage() {
                 {t('progress.avg_month_summary', { avg: monthAvg, n: entries.length })}
               </span>
             </div>
-            {liveEntries.map(a => <DayCard key={a.id} a={a} lang={lang} t={t} />)}
+            {entries.map(a => <DayCard key={a.id} a={a} lang={lang} t={t} />)}
           </div>
         )
       })}
 
       {/* All view */}
-      {view === 'all' && analyses.map(liveEntry).map(a => <DayCard key={a.id} a={a} lang={lang} t={t} />)}
+      {view === 'all' && allEntries.map(a => <DayCard key={a.id} a={a} lang={lang} t={t} />)}
       </>}
     </div>
   )
