@@ -20,7 +20,7 @@ export default function FastingProgressRingGradient({
   const trackGradId = `fasting-track-${phaseIndex}`
 
   // Cap dot position at end of arc
-  const progressAngle = ((clampedPercent / 100) * 360 - 90) * (Math.PI / 180)
+  const progressAngle = (clampedPercent / 100) * 2 * Math.PI
   const capX = size / 2 + radius * Math.cos(progressAngle)
   const capY = size / 2 + radius * Math.sin(progressAngle)
 
