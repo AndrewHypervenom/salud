@@ -32,6 +32,11 @@ export default function FastingPage() {
   const [mascotType, setMascotType] = useState(
     () => localStorage.getItem('nexvida-mascot') || 'axolotl'
   )
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [])
 
   const handleMascotChange = (type) => {
     setMascotType(type)
@@ -110,7 +115,7 @@ export default function FastingPage() {
   let targetEndTime = null
   let elapsedHours = 0
   if (activeSession) {
-    const elapsed = Date.now() - new Date(activeSession.start_time).getTime()
+    const elapsed = now - new Date(activeSession.start_time).getTime()
     elapsedHours = elapsed / (1000 * 60 * 60)
     activePercent = Math.min((elapsedHours / activeSession.target_hours) * 100, 100)
     targetEndTime = new Date(new Date(activeSession.start_time).getTime() + activeSession.target_hours * 60 * 60 * 1000).toISOString()

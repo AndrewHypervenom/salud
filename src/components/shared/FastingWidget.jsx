@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Zap } from 'lucide-react'
@@ -9,6 +10,11 @@ import { useFasting } from '../../hooks/useFasting'
 export function FastingWidget({ profileId }) {
   const { t } = useTranslation()
   const { activeSession, startFast } = useFasting(profileId)
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(id)
+  }, [])
 
   const handleStart = async (e) => {
     e.preventDefault()
@@ -40,7 +46,7 @@ export function FastingWidget({ profileId }) {
 
   const startMs = new Date(activeSession.start_time).getTime()
   const targetMs = startMs + activeSession.target_hours * 60 * 60 * 1000
-  const elapsed = Date.now() - startMs
+  const elapsed = now - startMs
   const elapsedHours = elapsed / (1000 * 60 * 60)
   const percent = Math.min((elapsedHours / activeSession.target_hours) * 100, 100)
 
