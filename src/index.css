@@ -206,6 +206,14 @@
   .animate-phase-glow-pulse { animation: phase-glow-pulse 2s ease-in-out infinite; }
   .animate-burst-particle   { animation: burst-particle 0.8s ease-out forwards; }
   .animate-phase-slide-in   { animation: phase-slide-in 0.35s ease-out forwards; }
+
+  /* ── Emoji mascot state animations ── */
+  .animate-emoji-sleeping   { animation: emoji-sleeping 3s ease-in-out infinite; }
+  .animate-emoji-neutral    { animation: emoji-neutral 2.5s ease-in-out infinite; }
+  .animate-emoji-tired      { animation: emoji-tired 4s ease-in-out infinite; }
+  .animate-emoji-energized  { animation: emoji-energized 0.7s ease-in-out infinite; }
+  .animate-emoji-radiant    { animation: emoji-radiant 2s ease-in-out infinite; }
+  .animate-emoji-cosmic     { animation: emoji-cosmic 1.5s ease-in-out infinite; }
 }
 
 /* ── Keyframes ───────────────────────────────────────────── */
@@ -318,4 +326,31 @@
 @keyframes phase-slide-in {
   0%   { transform: translateX(20px); opacity: 0; }
   100% { transform: translateX(0); opacity: 1; }
+}
+@keyframes emoji-sleeping {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%       { transform: translateY(-4px) scale(1.03); }
+}
+@keyframes emoji-neutral {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.06); }
+}
+@keyframes emoji-tired {
+  0%, 100% { transform: rotate(0deg); }
+  25%       { transform: rotate(-4deg); }
+  75%       { transform: rotate(4deg); }
+}
+@keyframes emoji-energized {
+  0%, 100% { transform: translateY(0) scale(1); }
+  40%       { transform: translateY(-10px) scale(1.05); }
+  60%       { transform: translateY(-8px) scale(1.04); }
+}
+@keyframes emoji-radiant {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25%       { transform: scale(1.1) rotate(5deg); }
+  75%       { transform: scale(1.1) rotate(-5deg); }
+}
+@keyframes emoji-cosmic {
+  0%, 100% { transform: scale(1);    filter: brightness(1); }
+  50%       { transform: scale(1.15); filter: brightness(1.3); }
 }

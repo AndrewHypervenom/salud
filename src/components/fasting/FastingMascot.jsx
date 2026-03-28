@@ -1,12 +1,26 @@
-import { Suspense } from 'react'
-import { Canvas } from '@react-three/fiber'
-import { Environment } from '@react-three/drei'
 import { FASTING_PHASES } from './fastingPhases'
-import Axolotl3D from './mascots/Axolotl3D'
-import Capybara3D from './mascots/Capybara3D'
+
+const MASCOT_EMOJI = {
+  axolotl: '🐱',
+  capybara: '🐶',
+}
+
+const STATE_ANIM = {
+  sleeping:  'animate-emoji-sleeping',
+  neutral:   'animate-emoji-neutral',
+  tired:     'animate-emoji-tired',
+  energized: 'animate-emoji-energized',
+  radiant:   'animate-emoji-radiant',
+  cosmic:    'animate-emoji-cosmic',
+}
+
+const REACTION_ANIM = {
+  dancing: 'animate-mascot-dance',
+  waving:  'animate-mascot-wave',
+}
 
 /**
- * FastingMascot — 3D mascot (axolotl or capybara)
+ * FastingMascot — emoji mascot animated by CSS based on fasting phase/state
  * Props: phaseIndex, reaction (idle|dancing|waving), sleeping, mascotType (axolotl|capybara)
  */
 export default function FastingMascot({
@@ -19,24 +33,17 @@ export default function FastingMascot({
   const state = sleeping ? 'sleeping' : phase.mascotState
   const glowColor = phase.glow
 
-  // Fallback: legacy 'cat'/'dog' values from localStorage → axolotl
   const effectiveMascot = mascotType === 'capybara' ? 'capybara' : 'axolotl'
+  const emoji = MASCOT_EMOJI[effectiveMascot]
 
-  const mascotProps = {
-    phaseColor: phase.primary,
-    darkPhaseColor: phase.darkPrimary ?? phase.primary,
-    glowColor,
-    state,
-    reaction,
-    phaseIndex,
-  }
+  const animClass = REACTION_ANIM[reaction] ?? STATE_ANIM[state] ?? 'animate-emoji-neutral'
 
   return (
     <div
       className="flex items-center justify-center relative"
       style={{ width: 220, height: 220 }}
     >
-      {/* Glow aura CSS */}
+      {/* Glow aura */}
       <div
         className="absolute rounded-full transition-all duration-1000"
         style={{
@@ -49,29 +56,24 @@ export default function FastingMascot({
         }}
       />
 
-      {/* 3D Canvas */}
-      <Canvas
-        camera={{ position: [0, 0.05, 2.8], fov: 40 }}
-        style={{ width: 220, height: 220, background: 'transparent', position: 'relative', zIndex: 1 }}
-        gl={{ alpha: true, antialias: true }}
-        dpr={[1, 2]}
+      {/* Emoji mascot */}
+      <span
+        className={animClass}
+        style={{
+          fontSize: 80,
+          lineHeight: 1,
+          position: 'relative',
+          zIndex: 1,
+          display: 'block',
+          userSelect: 'none',
+        }}
+        role="img"
+        aria-label={effectiveMascot}
       >
-        {/* Iluminación cinematográfica de 3 puntos */}
-        <ambientLight intensity={0.25} />
-        <directionalLight position={[3, 4, 2]} intensity={1.8} color="#FFF8F0" />
-        <directionalLight position={[-3, 1, 1]} intensity={0.45} color="#E8F4FF" />
-        <directionalLight position={[-1, 3, -4]} intensity={1.1} color="#FFFFFF" />
-        <pointLight position={[0, -0.3, 1.8]} intensity={0.7} color={glowColor} distance={4} decay={2} />
-        <Suspense fallback={null}>
-          <Environment preset="studio" />
-          {effectiveMascot === 'capybara'
-            ? <Capybara3D {...mascotProps} />
-            : <Axolotl3D {...mascotProps} />
-          }
-        </Suspense>
-      </Canvas>
+        {emoji}
+      </span>
 
-      {/* ZZZ sleeping — HTML superpuesto */}
+      {/* ZZZ sleeping overlay */}
       {state === 'sleeping' && (
         <div
           className="animate-float-zz absolute"
