@@ -191,6 +191,13 @@ export default function FastingPage() {
               const elapsed = s.end_time
                 ? (new Date(s.end_time) - new Date(s.start_time)) / (1000 * 60 * 60)
                 : null
+              const elapsedLabel = elapsed != null
+                ? (() => {
+                    const h = Math.floor(elapsed)
+                    const m = Math.round((elapsed - h) * 60)
+                    return m > 0 ? `${h}h ${m}m` : `${h}h`
+                  })()
+                : '?'
               return (
                 <Card key={s.id} className="py-2.5 px-4">
                   <div className="flex items-center gap-3">
@@ -203,7 +210,7 @@ export default function FastingPage() {
                         {new Date(s.start_time).toLocaleDateString(i18n.language, { day: '2-digit', month: 'short' })}
                         {' · '}
                         <span className={s.completed ? 'text-green-600' : 'text-amber-500'}>
-                          {elapsed ? `${Math.round(elapsed * 10) / 10}h` : '?'} / {s.target_hours}h
+                          {elapsedLabel} / {s.target_hours}h
                         </span>
                       </p>
                       <p className="text-xs text-gray-400">
