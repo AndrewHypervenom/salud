@@ -7,6 +7,7 @@ import { useProfiles } from '../../hooks/useProfiles'
 import { useHabits } from '../../hooks/useHabits'
 import { useFoodLogs } from '../../hooks/useFoodLogs'
 import { useBadges } from '../../hooks/useBadges'
+import { useFasting } from '../../hooks/useFasting'
 import { calcBMR, calcTDEE, calcCalorieTargetFromProfile, calcMacros, getCalorieStatus, CALORIE_COLORS } from '../../lib/formulas'
 import { Card } from '../../components/ui/Card'
 import { Spinner } from '../../components/ui/Spinner'
@@ -44,10 +45,18 @@ export default function FoodPage() {
   const { todayLogs, loading, todayCalories, addFoodLog, deleteFoodLog } = useFoodLogs(activeProfileId, selectedDate)
   const { habits, todayLogs: habitLogs } = useHabits(activeProfileId)
   const { newBadge, checkAndUnlock, clearNewBadge } = useBadges(activeProfileId)
+  const { activeSession, endFast } = useFasting(activeProfileId)
 
   const [openForm, setOpenForm] = useState(null) // meal_type string or null
   const [prefill, setPrefill] = useState(null)
   const [deleting, setDeleting] = useState(null)
+  const [fastEndedToast, setFastEndedToast] = useState(false)
+
+  useEffect(() => {
+    if (!fastEndedToast) return
+    const id = setTimeout(() => setFastEndedToast(false), 4000)
+    return () => clearTimeout(id)
+  }, [fastEndedToast])
 
   // Detectar prefill desde navigation state
   useEffect(() => {
@@ -78,6 +87,11 @@ export default function FoodPage() {
     await addFoodLog(data)
     setOpenForm(null)
     setPrefill(null)
+    // Auto-end active fast when food is logged
+    if (activeSession) {
+      await endFast(activeSession.id)
+      setFastEndedToast(true)
+    }
     // Check badges
     const logCount = todayLogs.length + 1
     if (isToday && logCount === 1) await checkAndUnlock('first_log', true)
@@ -114,6 +128,23 @@ export default function FoodPage() {
   return (
     <div className="flex flex-col gap-4">
       <BadgeNotification badge={newBadge} onDismiss={clearNewBadge} lang={lang} />
+      {fastEndedToast && (
+        <div
+          className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-3 bg-white dark:bg-gray-800 shadow-2xl rounded-2xl px-5 py-4 animate-slide-down border border-blue-200 dark:border-blue-800"
+          style={{ minWidth: 260 }}
+        >
+          <span className="text-3xl">🌙</span>
+          <div>
+            <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wide">
+              {lang === 'es' ? 'Ayuno finalizado' : 'Fast ended'}
+            </p>
+            <p className="text-sm text-gray-700 dark:text-gray-200">
+              {lang === 'es' ? 'Registraste una comida — tu ayuno fue finalizado.' : 'You logged a meal — your fast was ended.'}
+            </p>
+          </div>
+          <button onClick={() => setFastEndedToast(false)} className="ml-auto text-gray-300 hover:text-gray-500 text-lg leading-none">×</button>
+        </div>
+      )}
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('food.title')}</h1>
       </div>
