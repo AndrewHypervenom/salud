@@ -79,7 +79,7 @@ const AUTO_DISMISS_MS = 5000
 
 export function MotivationBanner({ profileId, fitnessProfile }) {
   const today = new Date().toISOString().slice(0, 10)
-  const storageKey = `motiv_banner_${profileId}_${today}`
+  const storageKey = `motiv_toast_${profileId}_${today}`
   const [visible, setVisible] = useState(false)
   const [message, setMessage] = useState('')
 
