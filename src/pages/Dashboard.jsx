@@ -874,7 +874,6 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* ── MOTIVATION BANNER ──────────────────────────────── */}
       <MotivationBanner profileId={activeProfileId} fitnessProfile={profile?.fitness_profile} />
 
       {/* ── FITNESS BANNER ─────────────────────────────────── */}

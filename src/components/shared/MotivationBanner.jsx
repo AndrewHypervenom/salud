@@ -44,13 +44,13 @@ const MSGS_BY_DAY = {
 }
 
 const ACTIVITY_POOLS = {
-  gym:     MSGS_GYM,
-  running: MSGS_SPORTS,
-  cycling: MSGS_SPORTS,
-  sports:  MSGS_SPORTS,
-  walking: MSGS_WALKING,
-  yoga:    MSGS_YOGA,
-  swimming:MSGS_SPORTS,
+  gym:          MSGS_GYM,
+  running:      MSGS_SPORTS,
+  cycling:      MSGS_SPORTS,
+  sports:       MSGS_SPORTS,
+  walking:      MSGS_WALKING,
+  yoga:         MSGS_YOGA,
+  swimming:     MSGS_SPORTS,
   home_workout: MSGS_GENERAL,
 }
 
@@ -61,7 +61,6 @@ function buildPool(fitnessProfile) {
     const specific = ACTIVITY_POOLS[act]
     if (specific) pool.push(...specific)
   }
-  // Si no hay actividades o el pool es muy pequeño, rellenar con generales
   if (pool.length < 4) pool = [...pool, ...MSGS_GENERAL]
   return pool
 }
@@ -69,17 +68,14 @@ function buildPool(fitnessProfile) {
 function pickMessage(profileId, fitnessProfile) {
   const today = new Date()
   const day = today.getDay()
-
-  // Mensaje especial del día si aplica
   if (MSGS_BY_DAY[day]) return MSGS_BY_DAY[day]
-
   const pool = buildPool(fitnessProfile)
-  const dayOfYear = Math.floor(
-    (today - new Date(today.getFullYear(), 0, 0)) / 86400000
-  )
+  const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / 86400000)
   const seed = dayOfYear + (profileId?.charCodeAt(0) ?? 0)
   return pool[seed % pool.length]
 }
+
+const AUTO_DISMISS_MS = 5000
 
 export function MotivationBanner({ profileId, fitnessProfile }) {
   const today = new Date().toISOString().slice(0, 10)
@@ -89,10 +85,11 @@ export function MotivationBanner({ profileId, fitnessProfile }) {
 
   useEffect(() => {
     if (!profileId) return
-    const dismissed = localStorage.getItem(storageKey)
-    if (dismissed) return
+    if (localStorage.getItem(storageKey)) return
     setMessage(pickMessage(profileId, fitnessProfile))
     setVisible(true)
+    const timer = setTimeout(dismiss, AUTO_DISMISS_MS)
+    return () => clearTimeout(timer)
   }, [profileId])
 
   const dismiss = () => {
@@ -103,17 +100,10 @@ export function MotivationBanner({ profileId, fitnessProfile }) {
   if (!visible) return null
 
   return (
-    <div className="relative rounded-2xl px-4 py-3 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 border border-emerald-200 dark:border-emerald-700 animate-fade-in-up">
-      <button
-        onClick={dismiss}
-        aria-label="Cerrar"
-        className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center rounded-full text-emerald-400 hover:text-emerald-600 dark:hover:text-emerald-300 transition-colors text-xs leading-none"
-      >
-        ✕
-      </button>
-      <p className="text-sm font-medium text-emerald-800 dark:text-emerald-300 pr-5 leading-snug">
-        {message}
-      </p>
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-3 bg-white dark:bg-gray-800 shadow-2xl rounded-2xl px-5 py-3 animate-slide-down border border-emerald-200 dark:border-emerald-700 max-w-[90vw]">
+      <span className="text-xl flex-shrink-0">🏃</span>
+      <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">{message}</p>
+      <button onClick={dismiss} className="ml-2 text-gray-300 hover:text-gray-500 text-lg leading-none flex-shrink-0">×</button>
     </div>
   )
 }
