@@ -17,10 +17,20 @@ Deno.serve(async (_req: Request) => {
 
   const nowUtc = new Date()
 
+  const EXERCISE_MSGS = [
+    'Un día activo es un día feliz. ¡Vamos a movernos! 🚶',
+    'Empieza la semana con energía. ¡Es hora de ejercitarte! 💪',
+    'Tu cuerpo está esperando que lo muevas. ¡Vamos! 🏃',
+    'Pequeñas acciones, grandes resultados. ¡A entrenar! 🎯',
+    'Recuerda: el movimiento es medicina. ¡Muévete hoy! 🌟',
+    '¡El fin de semana es perfecto para una buena caminata! 🏞️',
+    '¡Cierra la semana activo/a! Sal a caminar o al gimnasio. 🏋️',
+  ]
+
   const { data: subs, error } = await supabase
     .from('push_subscriptions')
-    .select('endpoint, p256dh, auth, habits_time, food_time, timezone, profiles(name)')
-    .or('habits_time.not.is.null,food_time.not.is.null')
+    .select('endpoint, p256dh, auth, habits_time, food_time, exercise_time, timezone, profiles(name)')
+    .or('habits_time.not.is.null,food_time.not.is.null,exercise_time.not.is.null')
 
   console.log('subs:', subs?.length ?? 0, 'error:', error?.message ?? 'none')
 
@@ -64,6 +74,20 @@ Deno.serve(async (_req: Request) => {
         sent++
       } catch (e) {
         console.error('food push error:', e)
+      }
+    }
+
+    if (s.exercise_time === localStr) {
+      const msg = EXERCISE_MSGS[nowUtc.getUTCDay()]
+      try {
+        await webpush.sendNotification(pushSub, JSON.stringify({
+          title: '🏃 Nexvida',
+          body: `${name ? name + ', ' : ''}${msg}`,
+        }))
+        console.log('exercise push sent')
+        sent++
+      } catch (e) {
+        console.error('exercise push error:', e)
       }
     }
   }

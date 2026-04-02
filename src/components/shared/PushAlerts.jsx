@@ -40,6 +40,7 @@ export function PushAlerts({ profileId }) {
   const [saving, setSaving] = useState(false)
   const [habitsTime, setHabitsTime] = useState('')
   const [foodTime, setFoodTime] = useState('')
+  const [exerciseTime, setExerciseTime] = useState('')
   const [saved, setSaved] = useState(false)
   const [pushError, setPushError] = useState('')
   const [testResult, setTestResult] = useState('')
@@ -64,13 +65,14 @@ export function PushAlerts({ profileId }) {
         // Cargar horas guardadas
         const { data } = await supabase
           .from('push_subscriptions')
-          .select('habits_time, food_time')
+          .select('habits_time, food_time, exercise_time')
           .eq('profile_id', profileId)
           .eq('endpoint', sub.endpoint)
           .maybeSingle()
         if (data) {
           setHabitsTime(data.habits_time?.slice(0, 5) ?? '')
           setFoodTime(data.food_time?.slice(0, 5) ?? '')
+          setExerciseTime(data.exercise_time?.slice(0, 5) ?? '')
         }
       }
     } catch (e) {
@@ -107,7 +109,7 @@ export function PushAlerts({ profileId }) {
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       })
       setSubscription(sub)
-      await saveSubscription(sub, habitsTime, foodTime)
+      await saveSubscription(sub, habitsTime, foodTime, exerciseTime)
     } catch (e) {
       console.error('Subscribe error', e)
       if (e.name === 'AbortError') {
@@ -134,12 +136,13 @@ export function PushAlerts({ profileId }) {
     setSubscription(null)
     setHabitsTime('')
     setFoodTime('')
+    setExerciseTime('')
     setPushError('')
     setTestResult('')
     setLoading(false)
   }
 
-  const saveSubscription = async (sub, hTime, fTime) => {
+  const saveSubscription = async (sub, hTime, fTime, eTime) => {
     const key = sub.getKey('p256dh')
     const auth = sub.getKey('auth')
     await supabase.from('push_subscriptions').upsert({
@@ -149,6 +152,7 @@ export function PushAlerts({ profileId }) {
       auth: btoa(String.fromCharCode(...new Uint8Array(auth))),
       habits_time: hTime || null,
       food_time: fTime || null,
+      exercise_time: eTime || null,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     }, { onConflict: 'profile_id,endpoint' })
   }
@@ -156,7 +160,7 @@ export function PushAlerts({ profileId }) {
   const saveTimes = async () => {
     if (!subscription) return
     setSaving(true)
-    await saveSubscription(subscription, habitsTime, foodTime)
+    await saveSubscription(subscription, habitsTime, foodTime, exerciseTime)
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
     setSaving(false)
@@ -233,6 +237,15 @@ export function PushAlerts({ profileId }) {
             type="time"
             value={foodTime}
             onChange={e => setFoodTime(e.target.value)}
+            className="text-xs border border-gray-200 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
+          />
+        </label>
+        <label className="flex items-center justify-between gap-2">
+          <span className="text-xs text-gray-600 dark:text-gray-300">🏃 {t('push.exercise_time')}</span>
+          <input
+            type="time"
+            value={exerciseTime}
+            onChange={e => setExerciseTime(e.target.value)}
             className="text-xs border border-gray-200 dark:border-gray-600 rounded px-2 py-1 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
           />
         </label>

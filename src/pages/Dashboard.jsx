@@ -27,6 +27,7 @@ import { CravingHelper } from '../components/shared/CravingHelper'
 import { RemindersWidget } from '../components/shared/RemindersWidget'
 import { getHabitDisplayName } from '../hooks/useHabits'
 import FitnessProfileBanner from '../components/shared/FitnessProfileBanner'
+import { MotivationBanner } from '../components/shared/MotivationBanner'
 
 // ─────────────────────────────────────────────────────────
 //  WIDGET COMPONENTS
@@ -872,6 +873,9 @@ export default function Dashboard() {
           )}
         </button>
       </div>
+
+      {/* ── MOTIVATION BANNER ──────────────────────────────── */}
+      <MotivationBanner profileId={activeProfileId} fitnessProfile={profile?.fitness_profile} />
 
       {/* ── FITNESS BANNER ─────────────────────────────────── */}
       {showFitnessBanner && (

@@ -915,6 +915,7 @@
     "schedule_hint": "Choose what time you want to receive your daily reminder.",
     "habits_time": "Habits",
     "food_time": "Food",
+    "exercise_time": "Exercise",
     "save_times": "Save schedule",
     "saved": "Saved!"
   },
