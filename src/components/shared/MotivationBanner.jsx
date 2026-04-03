@@ -111,10 +111,27 @@ const MSGS_REST_DAY = [
 ]
 
 const MSGS_BY_DAY = {
-  0: '☀️ El domingo es perfecto para recargar con movimiento.',
-  1: '🚀 ¡Empieza la semana con energía! Haz ejercicio hoy.',
-  5: '🎉 ¡Cierra la semana activo! Tú lo mereces.',
-  6: '🏞️ ¡Sábado activo! El fin de semana es para moverse.',
+  0: [
+    '☀️ El domingo es perfecto para recargar con movimiento.',
+    '🌅 Domingo activo: el mejor inicio para la semana que viene.',
+    '🧘 Aprovecha el domingo para estirarte y moverte sin prisa.',
+  ],
+  1: [
+    '🚀 ¡Empieza la semana con energía! Haz ejercicio hoy.',
+    '💪 Lunes = nuevo comienzo. ¡Arranca con fuerza!',
+    '📅 La mejor manera de comenzar la semana: moverse.',
+  ],
+  5: [
+    '🎉 ¡Cierra la semana activo! Tú lo mereces.',
+    '🏁 Viernes de entrenamiento: termina fuerte la semana.',
+    '🔥 Último empujón de la semana. ¡Dale todo!',
+    '🎯 Viernes activo = fin de semana con orgullo.',
+  ],
+  6: [
+    '🏞️ ¡Sábado activo! El fin de semana es para moverse.',
+    '🌄 Sábado de aventura: sal, muévete, disfruta.',
+    '⚡ Fin de semana activo. Tu cuerpo te lo agradecerá.',
+  ],
 }
 
 const ACTIVITY_POOLS = {
@@ -191,7 +208,11 @@ function pickMessage(profileId, profile) {
   const day = today.getDay()
 
   // Día especial de la semana
-  if (MSGS_BY_DAY[day]) return MSGS_BY_DAY[day]
+  if (MSGS_BY_DAY[day]) {
+    const pool = MSGS_BY_DAY[day]
+    const count = getLoginCount(profileId)
+    return pool[count % pool.length]
+  }
 
   // Día de rutina o descanso
   const routine = isRoutineDay(profile)
