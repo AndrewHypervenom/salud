@@ -4,11 +4,15 @@ import { TopBar } from './TopBar'
 import { Sidebar } from './Sidebar'
 import { BottomNav } from './BottomNav'
 import { BadgeCelebration, useBadgeCelebration } from '../shared/BadgeCelebration'
+import { useProfileContext } from '../../context/ProfileContext'
+import { usePageTracking } from '../../hooks/usePageTracking'
 
 export default function AppLayout() {
   const { i18n } = useTranslation()
   const lang = i18n.language?.startsWith('es') ? 'es' : 'en'
   const { celebrationBadge, dismiss } = useBadgeCelebration()
+  const { activeProfileId } = useProfileContext()
+  usePageTracking(activeProfileId)
 
   return (
     <div className="min-h-screen bg-[var(--bg)]">

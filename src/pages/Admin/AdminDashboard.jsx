@@ -3,6 +3,8 @@ import { useAdminStats } from '../../hooks/useAdminStats'
 import AdminLayout from './components/AdminLayout'
 import AdminHeader from './components/AdminHeader'
 import StatsSummaryGrid from './components/StatsSummaryGrid'
+import FeatureAdoptionSection from './components/FeatureAdoptionSection'
+import PageViewsSection from './components/PageViewsSection'
 import FeatureUsageChart from './components/FeatureUsageChart'
 import UserGrowthChart from './components/UserGrowthChart'
 import ActiveRankingTable from './components/ActiveRankingTable'
@@ -41,6 +43,16 @@ export default function AdminDashboard() {
     <AdminLayout>
       <AdminHeader />
       <StatsSummaryGrid data={data} />
+      <FeatureAdoptionSection
+        adoptionByFeature={data.adoptionByFeature}
+        trend7ByFeature={data.trend7ByFeature}
+        totalRecordsByFeature={data.totalRecordsByFeature}
+        totalUsers={data.totalUsers}
+      />
+      <PageViewsSection
+        pageViewsLast30={data.pageViewsLast30}
+        pageViewsUniqueCount={data.pageViewsUniqueCount}
+      />
       <UserGrowthChart userGrowthByMonth={data.userGrowthByMonth} totalUsers={data.totalUsers} />
       <FeatureUsageChart totalRecordsByFeature={data.totalRecordsByFeature} />
       <ActiveRankingTable ranking={data.ranking} onSelectUser={setSelectedUser} />

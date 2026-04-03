@@ -28,6 +28,7 @@ export function useAdminStats() {
           bpResult,
           badgesResult,
           analysesResult,
+          pageViewsResult,
         ] = await Promise.all([
           supabase.from('profiles').select('id, name, phone_whatsapp, health_goal, age, sex, weight_kg, height_cm, activity, created_at').order('created_at', { ascending: true }),
           supabase.from('login_logs').select('profile_id, logged_at, source').order('logged_at', { ascending: false }),
@@ -40,6 +41,7 @@ export function useAdminStats() {
           supabase.from('blood_pressure_readings').select('profile_id, measured_at'),
           supabase.from('badges').select('profile_id, badge_key, unlocked_at'),
           supabase.from('daily_analyses').select('profile_id, analysis_date').order('analysis_date', { ascending: false }),
+          supabase.from('page_views').select('profile_id, page, visited_at').gte('visited_at', new Date(Date.now() - 30 * 86400000).toISOString()),
         ])
 
         if (cancelled) return
@@ -60,6 +62,42 @@ export function useAdminStats() {
         const totalRecordsByFeature = {}
         for (const { key, rows } of featureLogs) {
           totalRecordsByFeature[key] = rows.length
+        }
+
+        // Adopción: usuarios únicos que han usado cada feature
+        const adoptionByFeature = {}
+        for (const { key, rows } of featureLogs) {
+          const uniqueUsers = new Set(rows.map(r => r.profile_id))
+          adoptionByFeature[key] = uniqueUsers.size
+        }
+
+        // Tendencia: registros últimos 7d vs 7d anteriores
+        const nowTs = Date.now()
+        const d7 = new Date(nowTs - 7 * 86400000)
+        const d14 = new Date(nowTs - 14 * 86400000)
+
+        const trend7ByFeature = {}
+        for (const { key, rows, dateField } of featureLogs) {
+          const last7 = rows.filter(r => r[dateField] && new Date(r[dateField]) >= d7).length
+          const prev7 = rows.filter(r => {
+            const d = r[dateField] ? new Date(r[dateField]) : null
+            return d && d >= d14 && d < d7
+          }).length
+          trend7ByFeature[key] = last7 - prev7
+        }
+
+        // Page views últimos 30 días
+        const pageViewRows = pageViewsResult.data || []
+        const pageViewsLast30 = {}
+        const pageViewsUniqueUsers = {}
+        for (const pv of pageViewRows) {
+          pageViewsLast30[pv.page] = (pageViewsLast30[pv.page] || 0) + 1
+          if (!pageViewsUniqueUsers[pv.page]) pageViewsUniqueUsers[pv.page] = new Set()
+          pageViewsUniqueUsers[pv.page].add(pv.profile_id)
+        }
+        const pageViewsUniqueCount = {}
+        for (const [page, set] of Object.entries(pageViewsUniqueUsers)) {
+          pageViewsUniqueCount[page] = set.size
         }
 
         // Per-user stats
@@ -193,6 +231,10 @@ export function useAdminStats() {
             activeUsers30,
             totalLogins,
             totalRecordsByFeature,
+            adoptionByFeature,
+            trend7ByFeature,
+            pageViewsLast30,
+            pageViewsUniqueCount,
             ranking,
             userGrowthByMonth,
           })
