@@ -5,6 +5,7 @@ import { useProfileContext } from '../../context/ProfileContext'
 import { useAuth } from '../../context/AuthContext'
 import { useLoginAttempts } from '../../hooks/useLoginAttempts'
 import { verifyPin } from '../../lib/crypto'
+import { supabase } from '../../lib/supabase'
 
 const NUMPAD = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫']
 
@@ -56,6 +57,7 @@ export default function PinEntryPage() {
         await clearAttempts(phone)
         setActiveProfileId(profileId)
         unlockProfile(profileId)
+        try { await supabase.from('login_logs').insert({ profile_id: profileId, source: 'pin' }) } catch {}
         navigate('/dashboard', { replace: true })
       } else {
         setShake(true)

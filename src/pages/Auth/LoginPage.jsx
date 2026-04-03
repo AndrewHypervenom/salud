@@ -6,6 +6,7 @@ import { useProfiles } from '../../hooks/useProfiles'
 import { useProfileContext } from '../../context/ProfileContext'
 import { useAuth } from '../../context/AuthContext'
 import { useLoginAttempts } from '../../hooks/useLoginAttempts'
+import { supabase } from '../../lib/supabase'
 
 export default function LoginPage() {
   const { t } = useTranslation()
@@ -56,6 +57,7 @@ export default function LoginPage() {
         // No PIN — login directly
         setActiveProfileId(profile.id)
         unlockProfile(profile.id)
+        try { await supabase.from('login_logs').insert({ profile_id: profile.id, source: 'no_pin' }) } catch {}
         navigate('/dashboard', { replace: true })
         return
       }

@@ -3,6 +3,8 @@ import { ThemeProvider } from './context/ThemeContext'
 import { AuthProvider } from './context/AuthContext'
 import { ProfileProvider } from './context/ProfileContext'
 import AppLayout from './components/layout/AppLayout'
+import AdminGuard from './pages/Admin/AdminGuard'
+import AdminDashboard from './pages/Admin/AdminDashboard'
 import LoginPage from './pages/Auth/LoginPage'
 import PinEntryPage from './pages/Auth/PinEntryPage'
 import RecoveryPage from './pages/Auth/RecoveryPage'
@@ -35,6 +37,9 @@ export default function App() {
     <AuthProvider>
       <ProfileProvider>
         <Routes>
+          {/* Secret owner route */}
+          <Route path="/ctrl/nx-overview" element={<AdminGuard><AdminDashboard /></AdminGuard>} />
+
           {/* Fullscreen routes — no TopBar/nav chrome */}
           <Route path="/" element={<LoginPage />} />
           <Route path="/login/pin" element={<PinEntryPage />} />
