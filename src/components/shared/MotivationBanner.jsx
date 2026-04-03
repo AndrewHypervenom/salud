@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useAuth } from '../../context/AuthContext'
 
 const MSGS_GENERAL = [
   '💪 Cada paso cuenta. Sal a caminar hoy y siente la diferencia.',
@@ -78,22 +79,20 @@ function pickMessage(profileId, fitnessProfile) {
 const AUTO_DISMISS_MS = 5000
 
 export function MotivationBanner({ profileId, fitnessProfile }) {
-  const today = new Date().toISOString().slice(0, 10)
-  const storageKey = `motiv_toast_${profileId}_${today}`
+  const { justLoggedInProfileId, acknowledgeLogin } = useAuth()
   const [visible, setVisible] = useState(false)
   const [message, setMessage] = useState('')
 
   useEffect(() => {
-    if (!profileId) return
-    if (localStorage.getItem(storageKey)) return
+    if (!profileId || justLoggedInProfileId !== profileId) return
     setMessage(pickMessage(profileId, fitnessProfile))
     setVisible(true)
     const timer = setTimeout(dismiss, AUTO_DISMISS_MS)
     return () => clearTimeout(timer)
-  }, [profileId])
+  }, [profileId, justLoggedInProfileId])
 
   const dismiss = () => {
-    localStorage.setItem(storageKey, '1')
+    acknowledgeLogin(profileId)
     setVisible(false)
   }
 

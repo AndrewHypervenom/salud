@@ -19,12 +19,14 @@ function saveUnlockedIds(ids) {
 
 export function AuthProvider({ children }) {
   const [unlockedIds, setUnlockedIds] = useState(getUnlockedIds)
+  const [justLoggedInProfileId, setJustLoggedInProfileId] = useState(null)
 
   const isUnlocked = useCallback((id) => {
     return unlockedIds.includes(id)
   }, [unlockedIds])
 
   const unlockProfile = useCallback((id) => {
+    setJustLoggedInProfileId(id)
     setUnlockedIds(prev => {
       if (prev.includes(id)) return prev
       const next = [...prev, id]
@@ -38,8 +40,12 @@ export function AuthProvider({ children }) {
     setUnlockedIds([])
   }, [])
 
+  const acknowledgeLogin = useCallback((id) => {
+    setJustLoggedInProfileId(prev => (prev === id ? null : prev))
+  }, [])
+
   return (
-    <AuthContext.Provider value={{ unlockedIds, isUnlocked, unlockProfile, lockAll }}>
+    <AuthContext.Provider value={{ unlockedIds, isUnlocked, unlockProfile, lockAll, justLoggedInProfileId, acknowledgeLogin }}>
       {children}
     </AuthContext.Provider>
   )
