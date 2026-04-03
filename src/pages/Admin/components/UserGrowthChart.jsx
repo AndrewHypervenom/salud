@@ -1,32 +1,41 @@
-const MONTH_NAMES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic']
+const MONTH_NAMES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
 
 function formatMonth(ym) {
   const [year, month] = ym.split('-')
-  return `${MONTH_NAMES[parseInt(month, 10) - 1]} ${year.slice(2)}`
+  return `${MONTH_NAMES[parseInt(month, 10) - 1]} '${year.slice(2)}`
 }
 
-export default function UserGrowthChart({ userGrowthByMonth }) {
+export default function UserGrowthChart({ userGrowthByMonth, totalUsers }) {
   if (!userGrowthByMonth.length) return null
 
   const max = Math.max(...userGrowthByMonth.map(d => d.count), 1)
-  const BAR_HEIGHT = 80
+  const BAR_MAX_H = 72
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5 mb-5">
-      <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
-        Nuevos usuarios por mes
-      </h2>
-      <div className="flex items-end gap-2 overflow-x-auto pb-2" style={{ minHeight: BAR_HEIGHT + 32 }}>
-        {userGrowthByMonth.map(({ month, count }) => {
-          const barH = Math.max(Math.round((count / max) * BAR_HEIGHT), 4)
+    <div className="rounded-2xl bg-white/[0.03] border border-white/10 p-5 mb-5">
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="text-sm font-semibold text-gray-300">Crecimiento de usuarios</h2>
+        <span className="text-xs text-gray-600">{totalUsers} total</span>
+      </div>
+
+      <div className="flex items-end gap-1.5 overflow-x-auto pb-1" style={{ minHeight: BAR_MAX_H + 40 }}>
+        {userGrowthByMonth.map(({ month, count }, idx) => {
+          const barH = Math.max(Math.round((count / max) * BAR_MAX_H), 4)
+          const isLast = idx === userGrowthByMonth.length - 1
           return (
-            <div key={month} className="flex flex-col items-center gap-1 flex-shrink-0" style={{ minWidth: 40 }}>
-              <span className="text-xs text-gray-400 font-semibold">{count}</span>
-              <div
-                className="w-8 bg-indigo-500 rounded-t"
-                style={{ height: barH }}
-              />
-              <span className="text-xs text-gray-500 text-center leading-tight">{formatMonth(month)}</span>
+            <div key={month} className="flex flex-col items-center gap-1.5 flex-shrink-0" style={{ minWidth: 36 }}>
+              <span className={`text-xs font-bold tabular-nums ${isLast ? 'text-indigo-400' : 'text-gray-500'}`}>
+                {count}
+              </span>
+              <div className="relative" style={{ height: BAR_MAX_H }}>
+                <div
+                  className={`absolute bottom-0 w-6 rounded-t-md transition-all duration-700 ${
+                    isLast ? 'bg-indigo-500' : 'bg-indigo-500/30'
+                  }`}
+                  style={{ height: barH }}
+                />
+              </div>
+              <span className="text-[10px] text-gray-600 text-center whitespace-nowrap">{formatMonth(month)}</span>
             </div>
           )
         })}
